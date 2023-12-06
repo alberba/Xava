@@ -1,0 +1,205 @@
+/*
+ * Assignatura 21742 - Compiladors
+ * Estudis: Grau en Informàtica
+ * Itinerari: Computació
+ * Curs: 2022 - 2023
+ */
+
+package compiler.sintactic;
+
+import java_cup.runtime.*;
+
+class Parser;
+parser code {:
+/***
+    private Scanner scanner;
+    public Parser(Scanner scanner) {
+        this.scanner = scanner;
+    }
+***/
+
+    private HashMap<String, Double> tsymbol = new HashMap<>();
+
+    public Double getSymbolValue(String id) {
+        return tsymbol.get(id);
+    }
+
+    public void addSymbol(String id, Double value) {
+        if (!tsymbol.containsKey(id)) {
+            tsymbol.replace(id, value);
+        } else {
+            tsymbol.put(id, value);
+        }
+    }
+
+    public void printVars(PrintStream out) {
+        if (tsymbol.isEmpty()) {
+            out.println("No hi ha variables declarades");
+        } else {
+            String fmt = "%-8s: %f";
+            tsymbol.forEach((k, v) -> out.println(String.format(fmt, k, v)));
+        }
+    }
+
+:}
+
+terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CONST,
+                FUNCION, DEVUELVE, CONTINUAR, IMPRIMIR, LEERENT, LEERCAR, LEERBOOL, PRINCIPAL, SUMA, RESTA,
+                MULT, DIV, MOD, Y, O, IGUAL, MAQ, MEQ, MAI, MEI, D_PUNTOS, ASIG, PAR_A, PAR_C, LLAVE_A,
+                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, P_COMA;
+
+terminal        String      DIGITO;
+terminal        String      ID;
+terminal        String      VAL_BOL;
+terminal        String      CARACTER;
+
+non terminal    Xava        XAVA;
+non terminal    DeclGlob    DECLGLOB;
+non terminal    Main_fn     MAIN_FN;
+non terminal    Funciones   FUNCIONES;
+non terminal    Funcion     FUNCION;
+non terminal    Cap         CAP;
+non terminal    SType       STYPE;
+non terminal    Args_p      ARGS_P;
+non terminal    L_args_p    L_ARGS_P;
+non terminal    FSents      FSENTS;
+non terminal    RetProc     RET_PROC;
+non terminal    Sents       SENTS;
+non terminal    Sent        SENT;
+non terminal    Decls       DECLS;
+non terminal    Decl        DECL;
+non terminal    Inst        INST;
+non terminal    Type        TYPE;
+non terminal    D_asig      DASIGNACION;
+non terminal    Lid         LID;
+non terminal    Exp         E;
+non terminal    Exp_comp    ECOMP;
+non terminal    Exp_arit    EARIT;
+non terminal    Oplog       OPLOG;
+non terminal    Opcomp      OPCOMP;
+non terminal    Oparit      OPARIT;
+non terminal    Value       VALUE;
+
+
+
+start with      XAVA;
+
+XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones            {: RESULT_XAVA = new Xava(gdecls, main, funciones);     :}
+                ;
+
+MAIN_FN         ::= PRINCIPAL LLAVE_A FSENTS:f_sents LLAVE_C                    {: RESULT = new Main_fn(f_sents);                       :}
+                ;
+
+DECLGLOB        ::= DECLS:decls                                                 {: RESULT = new DeclGlob(decls);                        :}
+                |                                                               {: :}
+                ;
+
+DECLS           ::= DECL:decl DECLS:decls                                       {: RESULT = new Decls(decl, decls);                     :}
+                |   DECL:decl                                                   {: RESULT = new Decls(decl);                            :}
+                ;
+
+FUNCIONES       ::= FUNCION:f FUNCIONES:funciones                               {: RESULT = new Funciones(f, funciones);                :}
+                |                                                               {: :}
+                ;
+
+FUNCION         ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C              {: RESULT = new Funcion(cap, f_sents);                  :}
+                ;
+
+CAP             ::= STYPE:stype ID:id ARGS_P:args_p                             {: RESULT = new Cap(stype, id, args_p);                 :}
+                |   VOID ID:id ARGS_P:args_p                                    {: RESULT = new Cap(id, args_p);                        :}
+                ;
+
+STYPE           ::= ENTERO                                                      {: RESULT = SType.ENTERO;                               :}
+                |   BOOLEANO                                                    {: RESULT = SType.BOOLEANO;                             :}
+                |   CARACTER                                                    {: RESULT = SType.CARACTER;                             :}
+                ;
+
+ARGS_P          ::= PAR_A L_ARGS_P:args PAR_C                                   {: RESULT = args;                                       :}
+                |   PAR_A PAR_C                                                 {: :}
+                ;
+
+L_ARGS_P        ::= STYPE:stype ID:id COMA L_ARGS_P:l_args_p                    {: RESULT = new L_args_p(stype, id, l_args_p);          :}
+                |   STYPE:stype ID:id                                           {: RESULT = new L_args_p(stype, id);                    :}
+                ;
+
+FSENTS          ::= SENTS:sents RET_PROC:ret_proc                               {: RESULT = new FSents(sents, ret_proc);                :}
+                |   SENTS:sents                                                 {: RESULT = new FSents(sents);                          :}
+                ;
+
+RET_PROC        ::= DEVUELVE E:exp P_COMA                                       {: RESULT = new RetProc(exp);                           :}
+                ;
+
+SENTS           ::= SENT:sent SENTS:sents                                       {: RESULT = new Sents(sent, sents);                     :}
+                |                                                               {: :}
+                ;
+
+SENT            ::= DECL:decl                                                   {: RESULT = new Sent(decl);                             :}
+                |   INST:inst                                                   {: RESULT = new Sent(inst);                             :}
+                ;
+
+DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA           {: RESULT = new Decl(type, lid, d_asignacion);          :}
+                ;
+
+/*LOS PINGÜINOS ME LA VAN A MASCAR: HAY QUE HACER LAS PUTÍSIMAS 0P3R4C10N35 DE ENTRADA Y SALIDA. PD: ALBERT ES MUY GAY*/
+
+
+
+INST            ::= SI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C            {: RESULT = condicional;                                :}
+                |   PARA PAR_A DECL P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A SENTS:sents LLAVE_C                                {: RESULT = inst_for;                                   :}
+                |   WHILE:inst_while                                    {: RESULT = inst_while;                                 :}
+                |   DO_WHILE:do_while                                   {: RESULT = do_while;                                   :}
+                ;
+
+TYPE            ::= STYPE:stype                                         {: RESULT = new Type(false, stype);                     :}
+                |   CONST STYPE:stype                                   {: RESULT = new Type(true, stype);                      :}
+                ;
+
+DASIGNACION     ::= ASIG E:exp                                          {: RESULT = new D_asig(exp);                            :}
+                |                                                       {: :}
+                ;
+
+LID             ::= ID:id COMA LID:lid                                  {: RESULT = new LId(id, lid);                           :}
+                |   ID:id                                               {: RESULT = new LId(id);                                :}
+                ;
+
+E               ::= ECOMP:ecomp OPLOG:oplog E:exp                       {: RESULT = new E(ecomp, oplog, exp);                   :}
+                |   PAR_A ECOMP:ecomp OPLOG:oplog E:exp PAR_C           {: RESULT = new E(ecomp, oplog, exp);                   :}
+                |   ECOMP:ecomp                                         {: RESULT = new E(ecomp);                               :}
+                |   PAR_A ECOMP:ecomp PAR_C                             {: RESULT = new E(ecomp);                               :}
+                ;
+
+ECOMP           ::= EARIT:earit OPCOMP:opcomp ECOMP:ecomp               {: RESULT = new EComp(earit, opcomp, ecomp);            :}
+                |   PAR_A EARIT:earit OPCOMP:opcomp ECOMP:ecomp PAR_C   {: RESULT = new EComp(earit, opcomp, ecomp);            :}
+                |   EARIT:earit                                         {: RESULT = new EComp(earit);                           :}
+                |   PAR_A EARIT:earit PAR_C                             {: RESULT = new EComp(earit);                           :}
+                |   VAL_BOL:val_bol                                     {: RESULT = new EComp(val_bol);                         :}
+                ;
+
+EARIT           ::= VALUE:Value OPARIT:oparit EARIT:earit               {: RESULT = new EArit(Value, oparit, earit);            :}
+                |   PAR_A VALUE:Value OPARIT:oparit EARIT:earit PAR_C   {: RESULT = new EArit(Value, oparit, earit);            :}
+                |   VALUE:Value                                         {: RESULT = new EArit(Value);                           :}
+                ;
+
+VALUE           ::= DIGITO:num                                          {: RESULT = new Value(num);                             :}
+                |   CALL_FN:call_fn                                     {: RESULT = new Value(call_fn);                         :}
+                |   ID:id                                               {: RESULT = new Value(id,null);                              :}
+                |   CARACTER:car                                        {: RESULT = new Value(car,null,null);                             :}
+                ;
+
+OPLOG           ::= Y                                                   {: RESULT = OpLog.Y;                                    :}
+                |   O                                                   {: RESULT = OpLog.O;                                    :}
+                ;
+
+OPCOMP          ::= IGUAL                                               {: RESULT = OpComp.IGUAL;                               :}
+                |   MAQ                                                 {: RESULT = OpComp.MAQ;                                 :}
+                |   MEQ                                                 {: RESULT = OpComp.MEQ;                                 :}
+                |   MAI                                                 {: RESULT = OpComp.MAI;                                 :}
+                |   MEI                                                 {: RESULT = OpComp.MEI;                                 :}
+                ;
+
+OPARIT          ::= SUMA                                                {: RESULT = OpArit.SUMA;                                :}
+                |   RESTA                                               {: RESULT = OpArit.RESTA;                               :}
+                |   MULT                                                {: RESULT = OpArit.MULT;                                :}
+                |   DIV                                                 {: RESULT = OpArit.DIV;                                 :}
+                |   MOD                                                 {: RESULT = OpArit.MOD;                                 :}
+                ;
