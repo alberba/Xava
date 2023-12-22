@@ -57,7 +57,7 @@ non terminal    Xava        XAVA;
 non terminal    DeclGlob    DECLGLOB;
 non terminal    Main_fn     MAIN_FN;
 non terminal    Funciones   FUNCIONES;
-non terminal    Funcion     FUNCION;
+non terminal    FuncionG     FUNCIONG;
 non terminal    Cap         CAP;
 non terminal    SType       STYPE;
 non terminal    Args_p      ARGS_P;
@@ -98,11 +98,11 @@ DECLS           ::= DECL:decl DECLS:decls                                       
                 |   DECL:decl                                                   {: RESULT = new Decls(decl);                            :}
                 ;
 
-FUNCIONES       ::= FUNCION:f FUNCIONES:funciones                               {: RESULT = new Funciones(f, funciones);                :}
+FUNCIONES       ::= FUNCIONG:f FUNCIONES:funciones                              {: RESULT = new Funciones(f, funciones);                :}
                 |                                                               {: :}
                 ;
 
-FUNCION         ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C              {: RESULT = new Funcion(cap, f_sents);                  :}
+FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C              {: RESULT = new FuncionG(cap, f_sents);                  :}
                 ;
 
 CAP             ::= STYPE:stype ID:id ARGS_P:args_p                             {: RESULT = new Cap(stype, id, args_p);                 :}
@@ -145,45 +145,45 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA           
 
 
 INST            ::= SI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C            {: RESULT = condicional;                                :}
-                |   PARA PAR_A DECL P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A SENTS:sents LLAVE_C                                {: RESULT = inst_for;                                   :}
-                |   WHILE:inst_while                                    {: RESULT = inst_while;                                 :}
-                |   DO_WHILE:do_while                                   {: RESULT = do_while;                                   :}
+                |   PARA PAR_A DECL:decl P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A SENTS:sents LLAVE_C                                {: RESULT = inst_for;                                   :}
+                |   WHILE:inst_while                                            {: RESULT = inst_while;                                 :}
+                |   DO_WHILE:do_while                                           {: RESULT = do_while;                                   :}
                 ;
 
-TYPE            ::= STYPE:stype                                         {: RESULT = new Type(false, stype);                     :}
-                |   CONST STYPE:stype                                   {: RESULT = new Type(true, stype);                      :}
+TYPE            ::= STYPE:stype                                                 {: RESULT = new Type(false, stype);                     :}
+                |   CONST STYPE:stype                                           {: RESULT = new Type(true, stype);                      :}
                 ;
 
-DASIGNACION     ::= ASIG E:exp                                          {: RESULT = new D_asig(exp);                            :}
-                |                                                       {: :}
+DASIGNACION     ::= ASIG E:exp                                                  {: RESULT = new D_asig(exp);                            :}
+                |                                                               {: :}
                 ;
 
-LID             ::= ID:id COMA LID:lid                                  {: RESULT = new LId(id, lid);                           :}
-                |   ID:id                                               {: RESULT = new LId(id);                                :}
+LID             ::= ID:id COMA LID:lid                                          {: RESULT = new LId(id, lid);                           :}
+                |   ID:id                                                       {: RESULT = new LId(id);                                :}
                 ;
 
-E               ::= ECOMP:ecomp OPLOG:oplog E:exp                       {: RESULT = new E(ecomp, oplog, exp);                   :}
-                |   PAR_A ECOMP:ecomp OPLOG:oplog E:exp PAR_C           {: RESULT = new E(ecomp, oplog, exp);                   :}
-                |   ECOMP:ecomp                                         {: RESULT = new E(ecomp);                               :}
-                |   PAR_A ECOMP:ecomp PAR_C                             {: RESULT = new E(ecomp);                               :}
+E               ::= ECOMP:ecomp OPLOG:oplog E:exp                               {: RESULT = new E(ecomp, oplog, exp);                   :}
+                |   PAR_A ECOMP:ecomp OPLOG:oplog E:exp PAR_C                   {: RESULT = new E(ecomp, oplog, exp);                   :}
+                |   ECOMP:ecomp                                                 {: RESULT = new E(ecomp);                               :}
+                |   PAR_A ECOMP:ecomp PAR_C                                     {: RESULT = new E(ecomp);                               :}
                 ;
 
-ECOMP           ::= EARIT:earit OPCOMP:opcomp ECOMP:ecomp               {: RESULT = new EComp(earit, opcomp, ecomp);            :}
-                |   PAR_A EARIT:earit OPCOMP:opcomp ECOMP:ecomp PAR_C   {: RESULT = new EComp(earit, opcomp, ecomp);            :}
-                |   EARIT:earit                                         {: RESULT = new EComp(earit);                           :}
-                |   PAR_A EARIT:earit PAR_C                             {: RESULT = new EComp(earit);                           :}
-                |   VAL_BOL:val_bol                                     {: RESULT = new EComp(val_bol);                         :}
+ECOMP           ::= EARIT:earit OPCOMP:opcomp ECOMP:ecomp                       {: RESULT = new EComp(earit, opcomp, ecomp);            :}
+                |   PAR_A EARIT:earit OPCOMP:opcomp ECOMP:ecomp PAR_C           {: RESULT = new EComp(earit, opcomp, ecomp);            :}
+                |   EARIT:earit                                                 {: RESULT = new EComp(earit);                           :}
+                |   PAR_A EARIT:earit PAR_C                                     {: RESULT = new EComp(earit);                           :}
+                |   VAL_BOL:val_bol                                             {: RESULT = new EComp(val_bol);                         :}
                 ;
 
-EARIT           ::= VALUE:Value OPARIT:oparit EARIT:earit               {: RESULT = new EArit(Value, oparit, earit);            :}
-                |   PAR_A VALUE:Value OPARIT:oparit EARIT:earit PAR_C   {: RESULT = new EArit(Value, oparit, earit);            :}
-                |   VALUE:Value                                         {: RESULT = new EArit(Value);                           :}
+EARIT           ::= VALUE:Value OPARIT:oparit EARIT:earit                       {: RESULT = new EArit(Value, oparit, earit);            :}
+                |   PAR_A VALUE:Value OPARIT:oparit EARIT:earit PAR_C           {: RESULT = new EArit(Value, oparit, earit);            :}
+                |   VALUE:Value                                                 {: RESULT = new EArit(Value);                           :}
                 ;
 
-VALUE           ::= DIGITO:num                                          {: RESULT = new Value(num);                             :}
-                |   CALL_FN:call_fn                                     {: RESULT = new Value(call_fn);                         :}
-                |   ID:id                                               {: RESULT = new Value(id,null);                              :}
-                |   CARACTER:car                                        {: RESULT = new Value(car,null,null);                             :}
+VALUE           ::= DIGITO:num                                                  {: RESULT = new Value(num);                             :}
+                |   CALL_FN:call_fn                                             {: RESULT = new Value(call_fn);                         :}
+                |   ID:id                                                       {: RESULT = new Value(id,null);                         :}
+                |   CARACTER:car                                                {: RESULT = new Value(car,null,null);                   :}
                 ;
 
 OPLOG           ::= Y                                                   {: RESULT = OpLog.Y;                                    :}
