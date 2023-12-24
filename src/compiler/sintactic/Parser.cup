@@ -144,10 +144,11 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA           
 
 
 
-INST            ::= SI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C            {: RESULT = condicional;                                :}
-                |   PARA PAR_A DECL:decl P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A SENTS:sents LLAVE_C                                {: RESULT = inst_for;                                   :}
-                |   WHILE:inst_while                                            {: RESULT = inst_while;                                 :}
-                |   DO_WHILE:do_while                                           {: RESULT = do_while;                                   :}
+INST            ::= SI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C            {: RESULT = new Inst("cond", exp, sents);               :}
+                |   PARA PAR_A DECL:decl_cap P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A SENTS:sents LLAVE_C                                {: RESULT = new Inst("para", decl_cap, exp, decl, sents);                                   :}
+                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C      {: RESULT = new Inst("mientras", exp, sents);     :}
+                |   HACER LLAVE_A SENTS:sents LLAVE_C MIENTRAS PAR_A E:exp PAR_C P_COMA   {: RESULT = new Inst("hacer_mientras", exp, sents);                                   :}
+                |   ID:id ASIG E:exp P_COMA                                     {: RESULT = new Inst("asig", id, exp);                 :}
                 ;
 
 TYPE            ::= STYPE:stype                                                 {: RESULT = new Type(false, stype);                     :}
@@ -186,20 +187,20 @@ VALUE           ::= DIGITO:num                                                  
                 |   CARACTER:car                                                {: RESULT = new Value(car,null,null);                   :}
                 ;
 
-OPLOG           ::= Y                                                   {: RESULT = OpLog.Y;                                    :}
-                |   O                                                   {: RESULT = OpLog.O;                                    :}
+OPLOG           ::= Y                                                           {: RESULT = OpLog.Y;                                    :}
+                |   O                                                           {: RESULT = OpLog.O;                                    :}
                 ;
 
-OPCOMP          ::= IGUAL                                               {: RESULT = OpComp.IGUAL;                               :}
-                |   MAQ                                                 {: RESULT = OpComp.MAQ;                                 :}
-                |   MEQ                                                 {: RESULT = OpComp.MEQ;                                 :}
-                |   MAI                                                 {: RESULT = OpComp.MAI;                                 :}
-                |   MEI                                                 {: RESULT = OpComp.MEI;                                 :}
+OPCOMP          ::= IGUAL                                                       {: RESULT = OpComp.IGUAL;                               :}
+                |   MAQ                                                         {: RESULT = OpComp.MAQ;                                 :}
+                |   MEQ                                                         {: RESULT = OpComp.MEQ;                                 :}
+                |   MAI                                                         {: RESULT = OpComp.MAI;                                 :}
+                |   MEI                                                         {: RESULT = OpComp.MEI;                                 :}
                 ;
 
-OPARIT          ::= SUMA                                                {: RESULT = OpArit.SUMA;                                :}
-                |   RESTA                                               {: RESULT = OpArit.RESTA;                               :}
-                |   MULT                                                {: RESULT = OpArit.MULT;                                :}
-                |   DIV                                                 {: RESULT = OpArit.DIV;                                 :}
-                |   MOD                                                 {: RESULT = OpArit.MOD;                                 :}
+OPARIT          ::= SUMA                                                        {: RESULT = OpArit.SUMA;                                :}
+                |   RESTA                                                       {: RESULT = OpArit.RESTA;                               :}
+                |   MULT                                                        {: RESULT = OpArit.MULT;                                :}
+                |   DIV                                                         {: RESULT = OpArit.DIV;                                 :}
+                |   MOD                                                         {: RESULT = OpArit.MOD;                                 :}
                 ;
