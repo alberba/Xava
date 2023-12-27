@@ -4,6 +4,7 @@ public class Earit {
     private Value value;
     private Oparit oparit;
     private Earit earit;
+    private Exp exp;
 
     public Earit(Value value, Oparit oparit, Earit earit) {
         this.value = value;
@@ -13,7 +14,9 @@ public class Earit {
 
     public Earit(Value value) {
         this.value = value;
-        this.oparit = null;
-        this.earit = null;
+    }
+
+    public Earit(Exp exp) {
+        this.exp = exp;
     }
 }

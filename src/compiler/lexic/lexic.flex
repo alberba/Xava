@@ -45,12 +45,13 @@ FUNCION = funcion
 DEVUELVE = devuelve
 CONTINUAR = continuar
 IMPRIMIR = imprimir
-LEERENT = leerEnt
-LEERCAR = leerCar
-LEERBOOL = leerBool
+LEERENT = leerEnt{PAR_A}{PAR_C}
+LEERCAR = leerCar{PAR_A}{PAR_C}
+LEERBOOL = leerBool{PAR_A}{PAR_C}
 PRINCIPAL = principal
 VERDADERO = verdadero
 FALSO = falso
+VACIO = vacio
 
 // Simbolos
 SUMA = \+
@@ -132,6 +133,7 @@ SALTO_LINEA = \n
 {PRINCIPAL}     { return symbol(Parsersym.PRINCIPAL); }
 {VERDADERO}     { return symbol(Parsersym.VERDADERO); }
 {FALSO}         { return symbol(Parsersym.FALSO); }
+{VACIO}         { return symbol(Parsersym.VACIO); }
 {DIGITO}        { return symbol(ParserSym.valor, Integer.parseInt(this.yytext())); }
 {ZERO}          { return symbol(ParserSym.valor, 0.0); }
 

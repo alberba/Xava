@@ -45,8 +45,8 @@ parser code {:
 
 terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CONST,
                 FUNCION, DEVUELVE, CONTINUAR, IMPRIMIR, LEERENT, LEERCAR, LEERBOOL, PRINCIPAL, SUMA, RESTA,
-                MULT, DIV, MOD, Y, O, IGUAL, MAQ, MEQ, MAI, MEI, D_PUNTOS, ASIG, PAR_A, PAR_C, LLAVE_A,
-                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, P_COMA;
+                MULT, DIV, MOD, Y, O, IGUAL, MAQ, MEQ, MAI, MEI, ASIG, PAR_A, PAR_C, LLAVE_A,
+                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, P_COMA, VACIO;
 
 terminal        String      DIGITO;
 terminal        String      ID;
@@ -57,11 +57,13 @@ non terminal    Xava        XAVA;
 non terminal    DeclGlob    DECLGLOB;
 non terminal    Main_fn     MAIN_FN;
 non terminal    Funciones   FUNCIONES;
-non terminal    FuncionG     FUNCIONG;
+non terminal    FuncionG    FUNCIONG;
 non terminal    Cap         CAP;
 non terminal    SType       STYPE;
-non terminal    Args_p      ARGS_P;
-non terminal    L_args_p    L_ARGS_P;
+non terminal    Args_Cap    ARGS_CAP;
+non terminal    L_args_Cap  L_ARGS_CAP;
+non terminal    Args_Call   ARGS_CALL;
+non terminal    L_args_Call L_ARGS_CALL;
 non terminal    FSents      FSENTS;
 non terminal    RetProc     RET_PROC;
 non terminal    Sents       SENTS;
@@ -69,86 +71,126 @@ non terminal    Sent        SENT;
 non terminal    Decls       DECLS;
 non terminal    Decl        DECL;
 non terminal    Inst        INST;
+non terminal    C_sents     C_SENTS;
+non terminal    C_sent      C_SENT;
+non terminal    Cont_cond   CONT_COND;
 non terminal    Type        TYPE;
 non terminal    D_asig      DASIGNACION;
 non terminal    Lid         LID;
 non terminal    Exp         E;
 non terminal    Exp_comp    ECOMP;
 non terminal    Exp_arit    EARIT;
+non terminal    Entrada     ENTRADA;
 non terminal    Oplog       OPLOG;
 non terminal    Opcomp      OPCOMP;
 non terminal    Oparit      OPARIT;
 non terminal    Value       VALUE;
+non terminal    Call_Fn     CALL_FN;
 
 
 
 start with      XAVA;
 
-XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones            {: RESULT_XAVA = new Xava(gdecls, main, funciones);     :}
+XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: RESULT_XAVA = new Xava(gdecls, main, funciones);     :}
                 ;
 
-MAIN_FN         ::= PRINCIPAL LLAVE_A FSENTS:f_sents LLAVE_C                    {: RESULT = new Main_fn(f_sents);                       :}
+MAIN_FN         ::= PRINCIPAL LLAVE_A FSENTS:f_sents LLAVE_C                                        {: RESULT = new Main_fn(f_sents);                       :}
                 ;
 
-DECLGLOB        ::= DECLS:decls                                                 {: RESULT = new DeclGlob(decls);                        :}
+DECLGLOB        ::= DECLS:decls                                                                     {: RESULT = new DeclGlob(decls);                        :}
+                |                                                                                   {: :}
+                ;
+
+DECLS           ::= DECL:decl DECLS:decls                                                           {: RESULT = new Decls(decl, decls);                     :}
+                |   DECL:decl                                                                       {: RESULT = new Decls(decl);                            :}
+                ;
+
+FUNCIONES       ::= FUNCIONG:f FUNCIONES:funciones                                                  {: RESULT = new Funciones(f, funciones);                :}
+                |                                                                                   {: :}
+                ;
+
+FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C                                  {: RESULT = new FuncionG(cap, f_sents);                  :}
+                ;
+
+CAP             ::= STYPE:stype ID:id ARGS_CAP:args_cap                                             {: RESULT = new Cap(stype, id, args_cap);                 :}
+                |   VACIO ID:id ARGS_CAP:args_cap                                                   {: RESULT = new Cap(id, args_cap);                        :}
+                ;
+
+STYPE           ::= ENTERO                                                                          {: RESULT = SType.ENTERO;                               :}
+                |   BOOLEANO                                                                        {: RESULT = SType.BOOLEANO;                             :}
+                |   CARACTER                                                                        {: RESULT = SType.CARACTER;                             :}
+                ;
+
+ARGS_CAP        ::= PAR_A L_ARGS_CAP:args PAR_C                                                     {: RESULT = new Args_Cap(args);                         :}
+                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Cap(null);                         :}
+                ;
+
+ARGS_CALL       ::= PAR_A L_ARGS_CALL:l_args_call PAR_C                                             {: RESULT = new Args_Cap(l_args_call);                  :}
+                                                                                                    {: RESULT = new Args_Cap(null);
+                ;
+
+L_ARGS_CAP      ::= STYPE:stype ID:id COMA L_ARGS_CAP:l_args_cap                                    {: RESULT = new L_args_cap(stype, id, l_args_cap);      :}
+                |   STYPE:stype ID:id                                                               {: RESULT = new L_args_cap(stype, id);                  :}
+                ;
+
+L_ARGS_CALL     ::= ID:id                                                                           {: RESULT = new L_args_call(id);                        :}
+                |   ID:id COMA L_ARGS_CALL:l_args_call                                              {: RESULT = new L_args_call(id, l_args_call);           :}
+                ;
+
+FSENTS          ::= SENTS:sents RET_PROC:ret_proc                                                   {: RESULT = new FSents(sents, ret_proc);                :}
+                |   SENTS:sents                                                                     {: RESULT = new FSents(sents);                          :}
+                ;
+
+RET_PROC        ::= DEVUELVE E:exp P_COMA                                                           {: RESULT = new RetProc(exp);                           :}
+                ;
+
+SENTS           ::= SENT:sent SENTS:sents                                                           {: RESULT = new Sents(sent, sents);                     :}
+                |                                                                                   {: :}
+                ;
+
+SENT            ::= DECL:decl                                                                       {: RESULT = new Sent(decl);                             :}
+                |   INST:inst                                                                       {: RESULT = new Sent(inst);                             :}
+                ;
+
+DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA                               {: RESULT = new Decl(type, lid, d_asignacion);          :}
+                |   TYPE:type ID:id CORCHETE_A DIGITO:num CORCHETE_C P_COMA                         {: RESULT = new Decl(type, id, num);                        :}
+                ;
+
+INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_COND:cont_cond
+                    {:
+                        RESULT = new Inst("cond", exp, c_sents, null, null);
+                    :}
+
+                |   PARA PAR_A DECL:decl_cap P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C
+                    {:
+                        RESULT = new Inst("para", exp, c_sents, decl_cap, decl);
+                    :}
+
+                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C                {: RESULT = new Inst("mientras", exp, c_sents, null, null);     :}
+                |   HACER LLAVE_A C_SENTS:c_sents LLAVE_C MIENTRAS PAR_A E:exp PAR_C P_COMA
+                    {:
+                        RESULT = new Inst("hacer_mientras", exp, c_sents);
+                    :}
+
+                |   ID:id ASIG E:exp P_COMA                                                         {: RESULT = new Inst("asig", id, exp);                  :}
+                |   IMPRIMIR PAR_A E:exp PAR_C P_COMA                                               {: RESULT = new Inst("impr", null, exp);                :}
+                ;
+
+C_SENTS         ::= SENT:sent C_SENTS:c_sents                                                       {: RESULT = new Inst_sents(sent, c_sents);              :}
+                |   C_SENT:c_sent C_SENTS: c_sents                                                  {: RESULT = new Inst_sents(inst_sent, c_sents);         :}
+                |                                                                                   {: :}
+                ;
+
+C_SENT          ::= ROMPER P_COMA                                                                   {: RESULT = C_sent.ROMPER;                              :}
+                |   CONTINUAR P_COMA                                                                {: RESULT = C_sent.CONTINUAR;                           :}
+                ;
+
+CONT_COND       ::= SINO LLAVE_A SENTS:sents LLAVE_C                            {: Result = new Cont_cond(null, sents, null);                 :}
+                |   SINOSI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C CONT_COND:cont_cond
+                    {:
+                        RESULT = new Cont_cond(exp, sents, cont_cond);
+                    :}
                 |                                                               {: :}
-                ;
-
-DECLS           ::= DECL:decl DECLS:decls                                       {: RESULT = new Decls(decl, decls);                     :}
-                |   DECL:decl                                                   {: RESULT = new Decls(decl);                            :}
-                ;
-
-FUNCIONES       ::= FUNCIONG:f FUNCIONES:funciones                              {: RESULT = new Funciones(f, funciones);                :}
-                |                                                               {: :}
-                ;
-
-FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C              {: RESULT = new FuncionG(cap, f_sents);                  :}
-                ;
-
-CAP             ::= STYPE:stype ID:id ARGS_P:args_p                             {: RESULT = new Cap(stype, id, args_p);                 :}
-                |   VOID ID:id ARGS_P:args_p                                    {: RESULT = new Cap(id, args_p);                        :}
-                ;
-
-STYPE           ::= ENTERO                                                      {: RESULT = SType.ENTERO;                               :}
-                |   BOOLEANO                                                    {: RESULT = SType.BOOLEANO;                             :}
-                |   CARACTER                                                    {: RESULT = SType.CARACTER;                             :}
-                ;
-
-ARGS_P          ::= PAR_A L_ARGS_P:args PAR_C                                   {: RESULT = args;                                       :}
-                |   PAR_A PAR_C                                                 {: :}
-                ;
-
-L_ARGS_P        ::= STYPE:stype ID:id COMA L_ARGS_P:l_args_p                    {: RESULT = new L_args_p(stype, id, l_args_p);          :}
-                |   STYPE:stype ID:id                                           {: RESULT = new L_args_p(stype, id);                    :}
-                ;
-
-FSENTS          ::= SENTS:sents RET_PROC:ret_proc                               {: RESULT = new FSents(sents, ret_proc);                :}
-                |   SENTS:sents                                                 {: RESULT = new FSents(sents);                          :}
-                ;
-
-RET_PROC        ::= DEVUELVE E:exp P_COMA                                       {: RESULT = new RetProc(exp);                           :}
-                ;
-
-SENTS           ::= SENT:sent SENTS:sents                                       {: RESULT = new Sents(sent, sents);                     :}
-                |                                                               {: :}
-                ;
-
-SENT            ::= DECL:decl                                                   {: RESULT = new Sent(decl);                             :}
-                |   INST:inst                                                   {: RESULT = new Sent(inst);                             :}
-                ;
-
-DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA           {: RESULT = new Decl(type, lid, d_asignacion);          :}
-                ;
-
-/*LOS PINGÜINOS ME LA VAN A MASCAR: HAY QUE HACER LAS PUTÍSIMAS 0P3R4C10N35 DE ENTRADA Y SALIDA. PD: ALBERT ES MUY GAY*/
-
-
-
-INST            ::= SI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C            {: RESULT = new Inst("cond", exp, sents);               :}
-                |   PARA PAR_A DECL:decl_cap P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A SENTS:sents LLAVE_C                                {: RESULT = new Inst("para", decl_cap, exp, decl, sents);                                   :}
-                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C      {: RESULT = new Inst("mientras", exp, sents);     :}
-                |   HACER LLAVE_A SENTS:sents LLAVE_C MIENTRAS PAR_A E:exp PAR_C P_COMA   {: RESULT = new Inst("hacer_mientras", exp, sents);                                   :}
-                |   ID:id ASIG E:exp P_COMA                                     {: RESULT = new Inst("asig", id, exp);                 :}
                 ;
 
 TYPE            ::= STYPE:stype                                                 {: RESULT = new Type(false, stype);                     :}
@@ -164,27 +206,32 @@ LID             ::= ID:id COMA LID:lid                                          
                 ;
 
 E               ::= ECOMP:ecomp OPLOG:oplog E:exp                               {: RESULT = new E(ecomp, oplog, exp);                   :}
-                |   PAR_A ECOMP:ecomp OPLOG:oplog E:exp PAR_C                   {: RESULT = new E(ecomp, oplog, exp);                   :}
                 |   ECOMP:ecomp                                                 {: RESULT = new E(ecomp);                               :}
-                |   PAR_A ECOMP:ecomp PAR_C                                     {: RESULT = new E(ecomp);                               :}
+                |   ENTRADA:entrada                                             {: RESULT = new E(entrada);                             :}
+                ;
+
+ENTRADA         ::= LEERBOOL                                                    {: RESULT = Entrada.LEERBOOL;                           :}
+                |   LEERCAR                                                     {: RESULT = Entrada.LEERCAR;                            :}
+                |   LEERENT                                                     {: RESULT = Entrada.LEERENT;                            :}
                 ;
 
 ECOMP           ::= EARIT:earit OPCOMP:opcomp ECOMP:ecomp                       {: RESULT = new EComp(earit, opcomp, ecomp);            :}
-                |   PAR_A EARIT:earit OPCOMP:opcomp ECOMP:ecomp PAR_C           {: RESULT = new EComp(earit, opcomp, ecomp);            :}
                 |   EARIT:earit                                                 {: RESULT = new EComp(earit);                           :}
-                |   PAR_A EARIT:earit PAR_C                                     {: RESULT = new EComp(earit);                           :}
                 |   VAL_BOL:val_bol                                             {: RESULT = new EComp(val_bol);                         :}
                 ;
 
-EARIT           ::= VALUE:Value OPARIT:oparit EARIT:earit                       {: RESULT = new EArit(Value, oparit, earit);            :}
-                |   PAR_A VALUE:Value OPARIT:oparit EARIT:earit PAR_C           {: RESULT = new EArit(Value, oparit, earit);            :}
-                |   VALUE:Value                                                 {: RESULT = new EArit(Value);                           :}
+EARIT           ::= VALUE:value OPARIT:oparit EARIT:earit                       {: RESULT = new EArit(value, oparit, earit);            :}
+                |   VALUE:value                                                 {: RESULT = new EArit(value);                           :}
+                |   PAR_A E:exp PAR_C                                           {: RESULT = new Earit(exp);                             :}
                 ;
 
 VALUE           ::= DIGITO:num                                                  {: RESULT = new Value(num);                             :}
                 |   CALL_FN:call_fn                                             {: RESULT = new Value(call_fn);                         :}
-                |   ID:id                                                       {: RESULT = new Value(id,null);                         :}
-                |   CARACTER:car                                                {: RESULT = new Value(car,null,null);                   :}
+                |   ID:id                                                       {: RESULT = new Value(id, null);                        :}
+                |   CARACTER:car                                                {: RESULT = new Value(car, null, null);                 :}
+                ;
+
+CALL_FN         ::= ID:id ARGS_CALL:args_call                                   {: RESULT = new Call_fn(id, args_call);                 :}
                 ;
 
 OPLOG           ::= Y                                                           {: RESULT = OpLog.Y;                                    :}
