@@ -4,18 +4,18 @@ public class Cap {
 
     private SType stype;
     private String id;
-    private Args_p args_p;
+    private Args_Cap args_cap;
 
-    public Cap(SType stype, String id, Args_p args_p) {
+    public Cap(SType stype, String id, Args_Cap args_cap) {
         this.stype = stype;
         this.id = id;
-        this.args_p = args_p;
+        this.args_cap = args_cap;
     }
 
     // Constructor para cuando es una función void
-    public Cap(String id, Args_p args_p) {
+    public Cap(String id, Args_Cap args_cap) {
         this.stype = null;
         this.id = id;
-        this.args_p = args_p;
+        this.args_cap = args_cap;
     }
 }

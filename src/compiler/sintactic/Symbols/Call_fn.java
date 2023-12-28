@@ -2,11 +2,11 @@ package compiler.sintactic.Symbols;
 
 public class Call_fn {
     private String id;
-    private Args_Cap args_cap;
+    private Args_Call args_call;
 
-    public Call_fn(String id, Args_Cap args_cap) {
+    public Call_fn(String id, Args_Call args_call) {
         this.id = id;
-        this.args_cap = args_cap;
+        this.args_call = args_call;
     }
 
 }

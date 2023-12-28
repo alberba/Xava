@@ -3,11 +3,11 @@ package compiler.sintactic.Symbols;
 public class Exp {
 
     private Ecomp ecomp;
-    private Oplog oplog;
+    private OpLog oplog;
     private Exp exp;
     private Entrada entrada;
 
-    public Exp(Ecomp ecomp, Oplog oplog, Exp exp) {
+    public Exp(Ecomp ecomp, OpLog oplog, Exp exp) {
         this.ecomp = ecomp;
         this.oplog = oplog;
         this.exp = exp;

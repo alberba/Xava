@@ -2,11 +2,11 @@ package compiler.sintactic.Symbols;
 
 public class Earit {
     private Value value;
-    private Oparit oparit;
+    private OpArit oparit;
     private Earit earit;
     private Exp exp;
 
-    public Earit(Value value, Oparit oparit, Earit earit) {
+    public Earit(Value value, OpArit oparit, Earit earit) {
         this.value = value;
         this.oparit = oparit;
         this.earit = earit;

@@ -3,11 +3,11 @@ package compiler.sintactic.Symbols;
 public class Ecomp {
 
     private Earit earit;
-    private Opcomp opcomp;
+    private OpComp opcomp;
     private Ecomp ecomp;
     private String val_bol;
 
-    public Ecomp(Earit earit, Opcomp opcomp, Ecomp ecomp) {
+    public Ecomp(Earit earit, OpComp opcomp, Ecomp ecomp) {
         this.earit = earit;
         this.opcomp = opcomp;
         this.ecomp = ecomp;

@@ -1,0 +1,38 @@
+// Hola Mundo
+principal {
+    entero base = leerentero();
+    entero exponent = leerentero();
+    imprimir(pow(base, exponent));
+}
+
+funcion entero mod(entero a, entero b) {
+    devuelve a - (b * (a / b));
+}
+
+//
+funcion entero abs(entero n) {
+    si (n < 0) {
+        devuelve n * -1;
+    }
+    devuelve n;
+}
+
+funcion entero pow(entero b, entero e) {
+    entero result = 1;
+    entero absE = abs(e);
+
+    mientras(absE > 0){
+        si(mod(absE, 2) == 1){
+            result = result * b;
+        }
+
+        b = b * b;
+        absE = absE / 2;
+    }
+
+    si(e < 0){
+        devuelve 1 / result;
+    }
+    devuelve result;
+}
+
