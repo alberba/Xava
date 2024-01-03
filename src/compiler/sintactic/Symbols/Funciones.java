@@ -8,4 +8,11 @@ public class Funciones {
         this.f = f;
         this.sig = sig;
     }
+
+    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
+        f.generacionTresDirecciones(tresDirecciones);
+        if (sig != null) {
+            sig.generacionTresDirecciones(tresDirecciones);
+        }
+    }
 }

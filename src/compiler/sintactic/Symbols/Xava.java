@@ -12,6 +12,12 @@ public class Xava {
         this.funciones = funciones;
     }
 
+    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
+        declGlob.generacionTresDirecciones(tresDirecciones);
+        main.generacionTresDirecciones(tresDirecciones);
+        funciones.generacionTresDirecciones(tresDirecciones);
+    }
+
 
 
 }

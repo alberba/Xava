@@ -2,32 +2,26 @@ package compiler.sintactic.Symbols;
 
 public class Value {
     private String num;
+    String tipo;
     private Call_fn call_fn;
     private String id;
     private String car;
 
+
     public Value(String num) {
+        this.tipo = "Numero";
         this.num = num;
-        this.call_fn = null;
-        this.id = null;
-        this.car = null;
     }
     public Value(Call_fn call_fn) {
-        this.num = null;
+        this.tipo = "Call_fn";
         this.call_fn = call_fn;
-        this.id = null;
-        this.car = null;
     }
     public Value(String id, String nulo) {
-        this.num = null;
-        this.call_fn = null;
+        this.tipo = "Id";
         this.id = id;
-        this.car = null;
     }
     public Value(String car, String nulo1, String nulo2) {
-        this.num = null;
-        this.call_fn = null;
-        this.id = null;
+        this.tipo = "Car";
         this.car = car;
     }
 }

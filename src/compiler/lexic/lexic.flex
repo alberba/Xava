@@ -110,11 +110,11 @@ SALTO_LINEA = \n
 
 %%
 
-{PRINCIPAL}     { return symbol(ParserSym.PRINCIPAL); }
-{VERDADERO}     { return symbol(ParserSym.VAL_BOL, "verdadero"); }
-{FALSO}         { return symbol(ParserSym.VAL_BOL, "falso"); }
-{VACIO}         { return symbol(ParserSym.VACIO); }
-{DIGITO}        { return symbol(ParserSym.DIGITO); }
+{PRINCIPAL}     { return symbol(ParserSym.PRINCIPAL);               }
+{VERDADERO}     { return symbol(ParserSym.VAL_BOL, "verdadero");    }
+{FALSO}         { return symbol(ParserSym.VAL_BOL, "falso");        }
+{VACIO}         { return symbol(ParserSym.VACIO);                   }
+{DIGITO}        { return symbol(ParserSym.DIGITO, this.yytext());   }
 
 // TIPOS
 {ENTERO}        { return symbol(ParserSym.ENTERO); }

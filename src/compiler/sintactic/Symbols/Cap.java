@@ -18,4 +18,13 @@ public class Cap {
         this.id = id;
         this.args_cap = args_cap;
     }
+
+    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
+
+        if (stype != null) {
+            tresDirecciones.add(id + " = " + "new " + stype.getTipo() + "()");
+        }
+        id.generacionTresDirecciones(tresDirecciones);
+        args_cap.generacionTresDirecciones(tresDirecciones);
+    }
 }

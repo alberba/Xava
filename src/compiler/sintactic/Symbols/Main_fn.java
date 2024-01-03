@@ -7,4 +7,8 @@ public class Main_fn {
     public Main_fn(FSents fsents) {
         this.fsents = fsents;
     }
+
+    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
+        fsents.generacionTresDirecciones(tresDirecciones);
+    }
 }

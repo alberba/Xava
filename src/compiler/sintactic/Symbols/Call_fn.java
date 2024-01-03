@@ -9,4 +9,8 @@ public class Call_fn {
         this.args_call = args_call;
     }
 
+    public String getId(){
+        return this.id;
+    }
+
 }
