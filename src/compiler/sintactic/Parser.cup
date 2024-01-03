@@ -20,20 +20,7 @@ parser code {:
         this.scanner = scanner;
     }
 ***/
-
-    private HashMap<String, Double> tsymbol = new HashMap<>();
-
-    public Double getSymbolValue(String id) {
-        return tsymbol.get(id);
-    }
-
-    public void addSymbol(String id, Double value) {
-        if (!tsymbol.containsKey(id)) {
-            tsymbol.replace(id, value);
-        } else {
-            tsymbol.put(id, value);
-        }
-    }
+    TSimbolos tSimbolos = new TSimbolos();
 
     public void printVars(PrintStream out) {
         if (tsymbol.isEmpty()) {
@@ -56,6 +43,7 @@ terminal        String      ID;
 terminal        String      VAL_BOL;
 terminal        String      CARACTER;
 
+non terminal                M;
 non terminal    Xava        XAVA;
 non terminal    DeclGlob    DECLGLOB;
 non terminal    Main_fn     MAIN_FN;
@@ -71,6 +59,10 @@ non terminal    FSents      FSENTS;
 non terminal    RetProc     RET_PROC;
 non terminal    Sents       SENTS;
 non terminal    Sent        SENT;
+non terminal    Declsf      DECLSF;
+non terminal    DeclF       DECLF;
+non terminal    Args_Declf  ARGS_DECLF;
+non terminal    L_args_Declf L_ARGS_Declf;
 non terminal    Decls       DECLS;
 non terminal    Decl        DECL;
 non terminal    Inst        INST;
@@ -97,26 +89,68 @@ start with      XAVA;
 XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: RESULT = new Xava(gdecls, main, funciones);          :}
                 ;
 
-MAIN_FN         ::= PRINCIPAL LLAVE_A FSENTS:f_sents LLAVE_C                                        {: RESULT = new Main_fn(f_sents);                       :}
+MAIN_FN         ::= M PRINCIPAL LLAVE_A FSENTS:f_sents LLAVE_C                                      {: RESULT = new Main_fn(f_sents);                       :}
                 ;
 
-DECLGLOB        ::= DECLS:decls                                                                     {: RESULT = new DeclGlob(decls);                        :}
+DECLGLOB        ::= M DECLS:decls DECLSF:declsf                                                     {: RESULT = new DeclGlob(declsf, decls);                :}
+                ;
+
+DECLSF          ::= DECLF:declf DECLSF:declsf                                                       {: RESULT = new DeclsF(declf, declsf);                  :}
                 |                                                                                   {: :}
                 ;
 
+DECLF           ::= FUNCION STYPE:stype ID:id ARGS_DECLF:args_declf P_COMA
+                    {:  if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.FUNCION, stype, null, true, 0, idleft))) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // O la función ha sido declarada anteriormente o el nombre de la función ya esta usada
+                        }
+
+                        RESULT = new DeclsF(cap);
+                    :}
+                |   FUNCION VACIO ID:id ARGS_DECLF:args_declf P_COMA
+                    {:  if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.FUNCION, TipoElementoBasico.VOID, null, true, 0, capleft))){
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // O la función ha sido declarada anteriormente o el nombre de la función ya esta usada
+                        }
+
+                        RESULT = new DeclsF(cap);
+                    :}
+                ;
+
+ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C                                                   {: RESULT = new Args_Declf(args);                                                      :}
+                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Declf(null);                                                     :}
+                ;
+
+L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
+                    {:  if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // O la variable ha sido declarada anteriormente o el nombre de la variable ya esta usada
+                        }
+                        RESULT = new L_args_Declf(stype, id, l_args_cap);
+                    :}
+                |   STYPE:stype ID:id
+                    {:
+                        if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // O la variable ha sido declarada anteriormente o el nombre de la variable ya esta usada
+                        }
+                        RESULT = new L_args_Declf(stype, id);
+                    :}
+                ;
+
 DECLS           ::= DECL:decl DECLS:decls                                                           {: RESULT = new Decls(decl, decls);                     :}
-                |   DECL:decl                                                                       {: RESULT = new Decls(decl);                            :}
+                |                                                                                   {: :}
                 ;
 
 FUNCIONES       ::= FUNCIONG:f FUNCIONES:funciones                                                  {: RESULT = new Funciones(f, funciones);                :}
                 |                                                                                   {: :}
                 ;
 
-FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C                                  {: RESULT = new FuncionG(cap, f_sents);                  :}
+FUNCIONG        ::= M FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C                                  {: RESULT = new FuncionG(cap, f_sents);                 :}
                 ;
 
-CAP             ::= STYPE:stype ID:id ARGS_CAP:args_cap                                             {: RESULT = new Cap(stype, id, args_cap);                 :}
-                |   VACIO ID:id ARGS_CAP:args_cap                                                   {: RESULT = new Cap(id, args_cap);                        :}
+CAP             ::= STYPE:stype ID:id ARGS_CAP:args_cap                                             {: RESULT = new Cap(stype, id, args_cap);               :}
+                |   VACIO ID:id ARGS_CAP:args_cap                                                   {: RESULT = new Cap(id, args_cap);                      :}
                 ;
 
 STYPE           ::= ENTERO                                                                          {: RESULT = SType.ENTERO;                               :}
@@ -128,8 +162,8 @@ ARGS_CAP        ::= PAR_A L_ARGS_CAP:args PAR_C                                 
                 |   PAR_A PAR_C                                                                     {: RESULT = new Args_Cap(null);                         :}
                 ;
 
-ARGS_CALL       ::= PAR_A L_ARGS_CALL:l_args_call PAR_C                                             {: RESULT = new Args_Call(l_args_call);                  :}
-                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Call(null);                         :}
+ARGS_CALL       ::= PAR_A L_ARGS_CALL:l_args_call PAR_C                                             {: RESULT = new Args_Call(l_args_call);                 :}
+                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Call(null);                        :}
                 ;
 
 L_ARGS_CAP      ::= STYPE:stype ID:id COMA L_ARGS_CAP:l_args_cap                                    {: RESULT = new L_args_Cap(stype, id, l_args_cap);      :}
@@ -155,8 +189,26 @@ SENT            ::= DECL:decl                                                   
                 |   INST:inst                                                                       {: RESULT = new Sent(inst);                             :}
                 ;
 
-DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA                               {: RESULT = new Decl(type, lid, d_asignacion);          :}
-                |   TYPE:type ID:id CORCHETE_A DIGITO:num CORCHETE_C P_COMA                         {: RESULT = new Decl(type, id, num);                        :}
+DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
+                    {:
+                        for (Lid lid = lid; lid != null; lid = lid.getLid()) {
+                            if (tSimbolos.ponerSimbolo(new Symbol(lid.getId(), TipoElemento.VARIABLE, type, null, false, 0, lidleft))) {
+                                // MANEJO DE ERRORES SEMANTICOS
+                                // O la variable ha sido declarada anteriormente o el nombre de la variable ya esta usada
+                            }
+                        }
+                        RESULT = new Decl(type, lid, d_asignacion);
+                    :}
+                |   TYPE:type ID:id CORCHETE_A DIGITO:num CORCHETE_C P_COMA
+                    {:
+                        for (Lid lid = lid; lid != null; lid = lid.getLid()) {
+                            if (tSimbolos.ponerSimbolo(new Symbol(lid.getId(), TipoElemento.VARIABLE, type, null, false, Integer.parseInt(num), idleft))) {
+                                // MANEJO DE ERRORES SEMANTICOS
+                                // O la variable ha sido declarada anteriormente o el nombre de la variable ya esta usada
+                            }
+                        }
+                        RESULT = new Decl(type, id, num);
+                    :}
                 ;
 
 INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_COND:cont_cond
@@ -253,4 +305,7 @@ OPARIT          ::= SUMA                                                        
                 |   MULT                                                        {: RESULT = OpArit.MULT;                                :}
                 |   DIV                                                         {: RESULT = OpArit.DIV;                                 :}
                 |   MOD                                                         {: RESULT = OpArit.MOD;                                 :}
+                ;
+
+M               ::=                                                             {: tSimbolos.añadirAmbito();                            :}
                 ;
