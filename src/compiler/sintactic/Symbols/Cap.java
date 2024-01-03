@@ -27,4 +27,28 @@ public class Cap {
         id.generacionTresDirecciones(tresDirecciones);
         args_cap.generacionTresDirecciones(tresDirecciones);
     }
+
+    public SType getStype() {
+        return stype;
+    }
+
+    public void setStype(SType stype) {
+        this.stype = stype;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Args_Cap getArgs_cap() {
+        return args_cap;
+    }
+
+    public void setArgs_cap(Args_Cap args_cap) {
+        this.args_cap = args_cap;
+    }
 }

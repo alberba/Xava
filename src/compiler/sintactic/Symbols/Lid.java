@@ -13,4 +13,20 @@ public class Lid {
     public Lid(String id) {
         this.id = id;
     }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public Lid getLid() {
+        return lid;
+    }
+
+    public void setLid(Lid lid) {
+        this.lid = lid;
+    }
 }

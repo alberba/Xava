@@ -4,21 +4,21 @@ import java.util.ArrayList;
 
 public class Symbol {
     private final String nom;
-    private final StructureType tipo;
-    private final StructureReturnType tipoReturn;
+    private final TipoElemento tipo;
+    private final TipoElementoBasico tipoReturn;
     private ArrayList<Symbol> content;
-    private final boolean esGlobal;
     private final boolean esConst;
+    private final int dimension;
     private int line;
 
-    public Symbol(String nom, StructureType tipo, StructureReturnType tipoReturn,
-                  ArrayList<Symbol> content, boolean esGlobal, boolean esConst, int line) {
+    public Symbol(String nom, TipoElemento tipo, TipoElementoBasico tipoReturn,
+                  ArrayList<Symbol> content, boolean esConst, String dimension, int line) {
         this.nom = nom;
         this.tipo = tipo;
         this.tipoReturn = tipoReturn;
         this.content = content;
-        this.esGlobal = esGlobal;
         this.esConst = esConst;
+        this.dimension = Integer.parseInt(dimension);
         this.line = line;
     }
 
@@ -26,11 +26,11 @@ public class Symbol {
         return nom;
     }
 
-    public StructureType getStructureType() {
+    public TipoElemento getTipoElemento() {
         return tipo;
     }
 
-    public StructureReturnType getStructureReturnType() {
+    public TipoElementoBasico getTipoElementoBasico() {
         return tipoReturn;
     }
 
@@ -40,10 +40,6 @@ public class Symbol {
 
     public void setContent(ArrayList<Symbol> content) {
         this.content = content;
-    }
-
-    public boolean isGlobal() {
-        return esGlobal;
     }
 
     public boolean isConstant() {

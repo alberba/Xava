@@ -10,10 +10,6 @@ public class Decls {
         this.decls = decls;
     }
 
-    public Decls(Decl decl) {
-        this.decl = decl;
-    }
-
     public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
         decl.generacionTresDirecciones(tresDirecciones);
         if (decls != null) {

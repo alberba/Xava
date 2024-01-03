@@ -23,37 +23,37 @@ public class AnSem {
         return true;
     }
 
-    public boolean gestExp(Exp exp, SType tipo, int posicio) {
+    public boolean gestExp(Exp exp, SType tipo) {
 
         SType tipoExpr = exp.getTipusSubResultat();
 
         // No puede ser null
         if (tipoExpr == null) {
 
-            errors.add("ERROR Semántico: Expressión incorrecte. Línea: " + (posicio + 1));
+            errors.add("ERROR Semántico: Expressión incorrecte.");
             return false;
             // Se verifica que sea del mismo tipo
         } else if (tipoExpr != tipo) {
-            errors.add("ERROR Semántico: Se esperaba un " + tipo.toString() + " pero se ha encontrado un " + tipoExpr + ". Línea: " + (posicio + 1));
+            errors.add("ERROR Semántico: Se esperaba un " + tipo.toString() + " pero se ha encontrado un " + tipoExpr);
             //Ho afeigm al parser per identificar quin tipus de senténcia es incorrecte
             return false;
         }
         // Llegados a este punto, el tipo de expresión es correcto
         if (exp.getEntrada() != null) { // Caso con solo entrada
-            gestEntrada(exp.getEntrada(), int posicio);
+            gestEntrada(exp.getEntrada());
         } else {
-            gestEcomp(exp.getEcomp(), int posicio);
+            gestEcomp(exp.getEcomp());
             if (exp.getOplog() != null && exp.getExp() != null) { // Caso con Oplog y Exp
 
-                gestOplog(exp.getOplog(), int posicio);
-                gestExp(exp.getExp(), SType tipo, int posicio)
+                gestOplog(exp.getOplog());
+                gestExp(exp.getExp(), tipo);
             } else if (!(exp.getOplog() == null && exp.getExp() == null)) { // Una XOR de Oplog y Exp
-                errors.add("ERROR Semántico: Se tiene que poner un operador lógico junto a otra expresión. Línea: " + (posicio + 1));
+                errors.add("ERROR Semántico: Se tiene que poner un operador lógico junto a otra expresión.");
             }
         }
     }
 
-    public boolean gestOplog(Oplog oplog) {
+    public boolean gestOplog(OpLog oplog) {
         
     }
 
