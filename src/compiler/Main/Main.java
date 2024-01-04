@@ -1,12 +1,16 @@
 package compiler.Main;
 
+import compiler.grammar.Parser;
 import compiler.grammar.Scanner;
+import java_cup.runtime.SymbolFactory;
 
+import java.io.BufferedWriter;
 import java.io.FileReader;
+import java.io.FileWriter;
 
 public class Main {
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
 
         String rutaArchivo = conseguirPath(args[0]);
         FileReader programa = null;
@@ -23,6 +27,16 @@ public class Main {
         Scanner scanner = new Scanner(programa);
         long endTime = System.nanoTime();
         System.out.println("Scanner time: " + (endTime - startTime) / 1000000 + "ms");
+
+        SymbolFactory sf = null;
+        startTime = System.nanoTime();
+        Parser parser = new Parser(scanner, sf);
+        parser.parse();
+        endTime = System.nanoTime();
+        System.out.println("Parser time: " + (endTime - startTime) / 1000000 + "ms");
+
+        guardarTSimbolo("tSimbolo.txt", parser.getTSimbolos().toString());
+
 
     }
 
@@ -49,6 +63,18 @@ public class Main {
 
         return rutaArchivo;
 
+    }
+
+    public static void guardarTSimbolo(String nombreArchivo, String tabla) {
+        try {
+            BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/" + nombreArchivo));
+            archivo.write(tabla);
+            archivo.close();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            System.out.println("Error al guardar el archivo de la tabla de simbolos");
+            System.exit(1);
+        }
     }
 
 }

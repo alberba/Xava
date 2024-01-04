@@ -1,10 +1,11 @@
 package compiler.sintactic.Symbols;
 
-public class DeclGlob {
+public class DeclGlob extends SimboloBase {
     private DeclsF declsF;
     private Decls decls;
 
-    public DeclGlob(DeclsF declsF, Decls decls) {
+    public DeclGlob(DeclsF declsF, Decls decls, int linea, int columna) {
+        super(linea,columna);
         this.declsF =declsF;
         this.decls = decls;
     }

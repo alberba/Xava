@@ -1,16 +1,18 @@
 package compiler.sintactic.Symbols;
 
-public class Lid {
+public class Lid extends SimboloBase {
 
     private String id;
     private Lid lid;
 
-    public Lid(String id, Lid lid) {
+    public Lid(String id, Lid lid, int linea, int columna) {
+        super(linea,columna);
         this.id = id;
         this.lid = lid;
     }
 
-    public Lid(String id) {
+    public Lid(String id, int linea, int columna) {
+        super(linea,columna);
         this.id = id;
     }
 

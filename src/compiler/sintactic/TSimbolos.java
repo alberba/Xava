@@ -136,10 +136,11 @@ public class TSimbolos {
         return null;
     }
 
-    public ArrayList<Symbol> getParametros(String idFunc) {
+    public ArrayList<Symbol> getParametros(String idFunc){
 
         int globales = ta.get(0);
         int i = 0;
+        boolean encontrado = false;
         // Se recorren las declaraciones globales en busca de la función
         for (; i <= globales; i++) {
 
@@ -149,25 +150,43 @@ public class TSimbolos {
             }
 
             // Si no es la que se busca, se ignora también
-            if (td.get(i).getName().equals(idFunc)) {
+            if (!td.get(i).getName().equals(idFunc)) {
                 continue;
             }
 
+            encontrado = true;
             break;
         }
 
+        if (!encontrado) {
+            return null;
+        }
+
+        // Los parámetros estarán situados antes de la función
         ArrayList<Symbol> simbolos = new ArrayList<>();
         i--;
-        while(td.get(i).getTipoElemento() == TipoElemento.PARAMETRO){
+        while (td.get(i).getTipoElemento() == TipoElemento.PARAMETRO) {
             simbolos.add(0, td.get(i));
             i--;
         }
 
-        if(simbolos.isEmpty()){
-            return simbolos;
+        if (simbolos.isEmpty()) {
+            return null;
         }
 
-        return null;
+        return simbolos;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("Tabla de símbolos:\n");
+        sb.append("Tabla de ámbitos: ").append(this.ta.toString()).append("\n");
+        sb.append("Tabla de símbolos: \n");
+        for (int i = 0; i < this.td.size(); i++) {
+            sb.append(i).append(": ").append(this.td.get(i).toString()).append("\n");
+        }
+        return sb.toString();
     }
 
 }

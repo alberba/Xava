@@ -1,39 +1,41 @@
 package compiler.sintactic.Symbols;
 
-public class Cap {
+public class Cap extends SimboloBase {
 
-    private SType stype;
+    private TypeF typeF;
     private String id;
     private Args_Cap args_cap;
 
-    public Cap(SType stype, String id, Args_Cap args_cap) {
-        this.stype = stype;
+    public Cap(TypeF typeF, String id, Args_Cap args_cap, int linea, int columna) {
+        super(linea,columna);
+        this.typeF = typeF;
         this.id = id;
         this.args_cap = args_cap;
     }
 
     // Constructor para cuando es una función void
-    public Cap(String id, Args_Cap args_cap) {
-        this.stype = null;
+    public Cap(String id, Args_Cap args_cap, int linea, int columna) {
+        super(linea,columna);
+        this.typeF = null;
         this.id = id;
         this.args_cap = args_cap;
     }
 
     public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
 
-        if (stype != null) {
-            tresDirecciones.add(id + " = " + "new " + stype.getTipo() + "()");
+        if (typeF != null) {
+            tresDirecciones.add(id + " = " + "new " + typeF.toString() + "()");
         }
         id.generacionTresDirecciones(tresDirecciones);
         args_cap.generacionTresDirecciones(tresDirecciones);
     }
 
-    public SType getStype() {
-        return stype;
+    public TypeF getType() {
+        return typeF;
     }
 
-    public void setStype(SType stype) {
-        this.stype = stype;
+    public void setType(TypeF type) {
+        this.typeF = type;
     }
 
     public String getId() {

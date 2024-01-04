@@ -1,10 +1,11 @@
 package compiler.sintactic.Symbols;
 
-public class RetProc {
+public class RetProc extends SimboloBase {
 
     private Exp e;
 
-    public RetProc(Exp e) {
+    public RetProc(Exp e, int linea, int columna) {
+        super(linea,columna);
         this.e = e;
     }
 }

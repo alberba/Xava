@@ -2,7 +2,7 @@ package compiler.sintactic.Symbols;
 
 //import compiler.sintactic.AnSem;
 
-public class Inst {
+public class Inst extends SimboloBase {
     private String type;
     private Exp exp;
     private C_sents c_sents;
@@ -13,10 +13,11 @@ public class Inst {
     //private AnSem anSem;
 
     // Constructor para ifs, fors y whiles
-    public Inst(String type, Exp exp, C_sents c_sents, Decl decl_cap, Decl decl, Cont_cond contCond) {
+    public Inst(String type, Exp exp, C_sents c_sents, Decl decl_cap, Decl decl, Cont_cond contCond, int linea, int columna) {
         //anSem.esExpressionBooleana(exp);
         // añadir gestión error
 
+        super(linea,columna);
         this.type = type;
         this.exp = exp;
         this.c_sents = c_sents;
@@ -26,10 +27,11 @@ public class Inst {
 
     }
 
-    public Inst(String type, String id, Exp exp) {
+    public Inst(String type, String id, Exp exp, int linea, int columna) {
         //anSem.esExpressionBooleana(exp);
         // añadir gestión error
 
+        super(linea,columna);
         this.type = type;
         this.id = id;
         this.exp = exp;

@@ -1,24 +1,26 @@
 package compiler.sintactic;
 
+import compiler.sintactic.Symbols.TypeF;
+
 import java.util.ArrayList;
 
 public class Symbol {
     private final String nom;
     private final TipoElemento tipo;
-    private final TipoElementoBasico tipoReturn;
+    private final TypeF tipoReturn;
     private ArrayList<Symbol> content;
     private final boolean esConst;
     private final int dimension;
     private int line;
 
-    public Symbol(String nom, TipoElemento tipo, TipoElementoBasico tipoReturn,
-                  ArrayList<Symbol> content, boolean esConst, String dimension, int line) {
+    public Symbol(String nom, TipoElemento tipo, TypeF tipoReturn,
+                  ArrayList<Symbol> content, boolean esConst, int dimension, int line) {
         this.nom = nom;
         this.tipo = tipo;
         this.tipoReturn = tipoReturn;
         this.content = content;
         this.esConst = esConst;
-        this.dimension = Integer.parseInt(dimension);
+        this.dimension = dimension;
         this.line = line;
     }
 
@@ -30,7 +32,7 @@ public class Symbol {
         return tipo;
     }
 
-    public TipoElementoBasico getTipoElementoBasico() {
+    public TypeF getTipoReturn() {
         return tipoReturn;
     }
 
@@ -62,7 +64,7 @@ public class Symbol {
     @Override
     public String toString() {
         return "Symbol [nom=" + nom + ", tipo=" + tipo + ", tipoReturn="
-                + tipoReturn + ", content=" + content + ", esGlobal=" + esGlobal + ", esConst=" + esConst
+                + tipoReturn + ", content=" + content + ", esConst=" + esConst
                 + ", line=" + line + "]";
     }
 

@@ -1,6 +1,7 @@
 package compiler.sintactic;
 
 import compiler.sintactic.Symbols.*;
+import compiler.Error;
 
 public class AnSem {
     private final TSimbolos ts;
@@ -14,27 +15,24 @@ public class AnSem {
         //*****  if (ts.getFunction(call_fn.getId().getValue()) == null) {
         if (ts.getFunction(call_fn.getId()) == null) {
             // ERROR -> function not defined
-            ErrorHandler.addError(ErrorCode.UNDECLARED_FUNCTION,
-                    call_fn.getLine(),
-                    call_fn.getColumn(),
-                    Phase.SEMANTIC);
+            Error.añadirError(new Error("Función no definida", linea, Fase.SEMÁNTICO));
             return false;
         }
         return true;
     }
 
-    public boolean gestExp(Exp exp, SType tipo) {
+    public boolean gestExp(Exp exp, Type tipo) {
 
-        SType tipoExpr = exp.getTipusSubResultat();
+        Type tipoExpr = exp.getTipusSubResultat();
 
         // No puede ser null
         if (tipoExpr == null) {
 
-            errors.add("ERROR Semántico: Expressión incorrecte.");
+
             return false;
             // Se verifica que sea del mismo tipo
         } else if (tipoExpr != tipo) {
-            errors.add("ERROR Semántico: Se esperaba un " + tipo.toString() + " pero se ha encontrado un " + tipoExpr);
+            Error.añadirError(new Error("Se esperaba un " + tipo.toString() + " pero se ha encontrado un " + tipoExpr, exp.getLinea(), Fase.SEMÁNTICO));
             //Ho afeigm al parser per identificar quin tipus de senténcia es incorrecte
             return false;
         }
@@ -48,7 +46,7 @@ public class AnSem {
                 gestOplog(exp.getOplog());
                 gestExp(exp.getExp(), tipo);
             } else if (!(exp.getOplog() == null && exp.getExp() == null)) { // Una XOR de Oplog y Exp
-                errors.add("ERROR Semántico: Se tiene que poner un operador lógico junto a otra expresión.");
+                Error.añadirError(new Error("Se tiene que poner un operador lógico junto a otra expresión", exp.getLinea(), Fase.SEMÁNTICO));
             }
         }
     }
