@@ -61,6 +61,7 @@ MOD = \%
 Y = [yY]
 O = [oO]
 IGUAL = \=
+IGUALNT = \!\=
 MAQ = \>
 MEQ = \<
 MAI = {MAQ}{IGUAL}

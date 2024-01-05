@@ -2,42 +2,38 @@ package compiler.sintactic.Symbols;
 
 public class Exp extends SimboloBase {
 
-    private Ecomp ecomp;
-    private OpLog oplog;
+    private Value value;
+    private Op op;
     private Exp exp;
-    private Entrada entrada;
 
-    public Exp(Ecomp ecomp, OpLog oplog, Exp exp, int linea, int columna) {
-        super(linea,columna);
-        this.ecomp = ecomp;
-        this.oplog = oplog;
+    public Exp(Value value, Op op, Exp exp, int linea, int columna) {
+        super(linea, columna);
+        this.value = value;
+        this.op = op;
         this.exp = exp;
     }
 
-    public Exp(Ecomp ecomp, int linea, int columna) {
-        super(linea,columna);
-        this.ecomp = ecomp;
+    public Exp(Value value, int linea, int columna) {
+        super(linea, columna);
+        this.value = value;
+        this.op = null;
+        this.exp = null;
     }
 
-    public Exp(Entrada entrada, int linea, int columna) {
-        super(linea,columna);
-        this.entrada = entrada;
+    public Value getValue() {
+        return value;
     }
 
-    public Ecomp getEcomp() {
-        return ecomp;
+    public void setValue(Value value) {
+        this.value = value;
     }
 
-    public void setEcomp(Ecomp ecomp) {
-        this.ecomp = ecomp;
+    public Op getOp() {
+        return op;
     }
 
-    public OpLog getOplog() {
-        return oplog;
-    }
-
-    public void setOplog(OpLog oplog) {
-        this.oplog = oplog;
+    public void setOp(Op op) {
+        this.op = op;
     }
 
     public Exp getExp() {
@@ -46,13 +42,5 @@ public class Exp extends SimboloBase {
 
     public void setExp(Exp exp) {
         this.exp = exp;
-    }
-
-    public Entrada getEntrada() {
-        return entrada;
-    }
-
-    public void setEntrada(Entrada entrada) {
-        this.entrada = entrada;
     }
 }

@@ -1,31 +1,73 @@
 package compiler.sintactic.Symbols;
 
 public class Value extends SimboloBase {
-    private String num;
-    String tipo;
+    private String value;
+    private String tipo;
     private Call_fn call_fn;
-    private String id;
-    private String car;
+    private Entrada entrada;
+    private Exp exp;
 
 
-    public Value(String num, int linea, int columna) {
+    public Value(String value, String tipo, int linea, int columna) {
         super(linea,columna);
-        this.tipo = "Numero";
-        this.num = num;
+        this.tipo = tipo;
+        this.value = value;
     }
     public Value(Call_fn call_fn, int linea, int columna) {
         super(linea,columna);
         this.tipo = "Call_fn";
         this.call_fn = call_fn;
     }
-    public Value(String id, String nulo, int linea, int columna) {
+
+    public Value(Entrada entrada, int linea, int columna) {
         super(linea,columna);
-        this.tipo = "Id";
-        this.id = id;
+        this.tipo = "Entrada";
+        this.entrada = entrada;
     }
-    public Value(String car, String nulo1, String nulo2, int linea, int columna) {
+
+    public Value(Exp exp, int linea, int columna) {
         super(linea,columna);
-        this.tipo = "Car";
-        this.car = car;
+        this.tipo= "Exp";
+        this.exp = exp;
+    }
+
+    public String getValue() {
+        return value;
+    }
+
+    public void setValue(String value) {
+        this.value = value;
+    }
+
+    public Exp getExp() {
+        return exp;
+    }
+
+    public void setExp(Exp exp) {
+        this.exp = exp;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
+    }
+
+    public Call_fn getCall_fn() {
+        return call_fn;
+    }
+
+    public void setCall_fn(Call_fn call_fn) {
+        this.call_fn = call_fn;
+    }
+
+    public Entrada getEntrada() {
+        return entrada;
+    }
+
+    public void setEntrada(Entrada entrada) {
+        this.entrada = entrada;
     }
 }

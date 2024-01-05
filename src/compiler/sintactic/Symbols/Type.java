@@ -3,9 +3,9 @@ package compiler.sintactic.Symbols;
 public class Type extends SimboloBase {
 
     private Boolean constante;
-    private SType stype;
+    private EnumType stype;
 
-    public Type(Boolean constante, SType stype, int linea, int columna) {
+    public Type(Boolean constante, EnumType stype, int linea, int columna) {
         super(linea,columna);
         this.constante = constante;
         this.stype = stype;
@@ -19,11 +19,11 @@ public class Type extends SimboloBase {
         this.constante = constante;
     }
 
-    public SType getStype() {
+    public EnumType getStype() {
         return stype;
     }
 
-    public void setStype(SType stype) {
+    public void setStype(EnumType stype) {
         this.stype = stype;
     }
 }

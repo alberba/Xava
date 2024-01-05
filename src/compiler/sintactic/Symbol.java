@@ -1,19 +1,19 @@
 package compiler.sintactic;
 
-import compiler.sintactic.Symbols.TypeF;
+import compiler.sintactic.Symbols.EnumType;
 
 import java.util.ArrayList;
 
 public class Symbol {
     private final String nom;
     private final TipoElemento tipo;
-    private final TypeF tipoReturn;
+    private final EnumType tipoReturn;
     private ArrayList<Symbol> content;
     private final boolean esConst;
     private final int dimension;
     private int line;
 
-    public Symbol(String nom, TipoElemento tipo, TypeF tipoReturn,
+    public Symbol(String nom, TipoElemento tipo, EnumType tipoReturn,
                   ArrayList<Symbol> content, boolean esConst, int dimension, int line) {
         this.nom = nom;
         this.tipo = tipo;
@@ -32,7 +32,7 @@ public class Symbol {
         return tipo;
     }
 
-    public TypeF getTipoReturn() {
+    public EnumType getTipoReturn() {
         return tipoReturn;
     }
 

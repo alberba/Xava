@@ -2,13 +2,13 @@ package compiler.sintactic.Symbols;
 
 public class Cap extends SimboloBase {
 
-    private TypeF typeF;
+    private EnumType eType;
     private String id;
     private Args_Cap args_cap;
 
-    public Cap(TypeF typeF, String id, Args_Cap args_cap, int linea, int columna) {
+    public Cap(EnumType eType, String id, Args_Cap args_cap, int linea, int columna) {
         super(linea,columna);
-        this.typeF = typeF;
+        this.eType = eType;
         this.id = id;
         this.args_cap = args_cap;
     }
@@ -16,26 +16,26 @@ public class Cap extends SimboloBase {
     // Constructor para cuando es una función void
     public Cap(String id, Args_Cap args_cap, int linea, int columna) {
         super(linea,columna);
-        this.typeF = null;
+        this.eType = null;
         this.id = id;
         this.args_cap = args_cap;
     }
 
     public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
 
-        if (typeF != null) {
-            tresDirecciones.add(id + " = " + "new " + typeF.toString() + "()");
+        if (eType != null) {
+            tresDirecciones.add(id + " = " + "new " + eType.name() + "()");
         }
         id.generacionTresDirecciones(tresDirecciones);
         args_cap.generacionTresDirecciones(tresDirecciones);
     }
 
-    public TypeF getType() {
-        return typeF;
+    public EnumType geteType() {
+        return eType;
     }
 
-    public void setType(TypeF type) {
-        this.typeF = type;
+    public void seteType(EnumType eType) {
+        this.eType = eType;
     }
 
     public String getId() {
