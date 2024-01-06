@@ -21,15 +21,6 @@ public class Cap extends SimboloBase {
         this.args_cap = args_cap;
     }
 
-    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
-
-        if (eType != null) {
-            tresDirecciones.add(id + " = " + "new " + eType.name() + "()");
-        }
-        id.generacionTresDirecciones(tresDirecciones);
-        args_cap.generacionTresDirecciones(tresDirecciones);
-    }
-
     public EnumType geteType() {
         return eType;
     }

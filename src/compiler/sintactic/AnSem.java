@@ -1,7 +1,7 @@
 package compiler.sintactic;
 
 import compiler.sintactic.Symbols.*;
-import compiler.Error;
+import compiler.ErrorC;
 
 public class AnSem {
     private final TSimbolos ts;
@@ -10,18 +10,11 @@ public class AnSem {
         this.ts = ts;
     }
 
-    public boolean funcionDeclarada(Call_fn call_fn) {
-        //*****  Original :
-        //*****  if (ts.getFunction(call_fn.getId().getValue()) == null) {
-        if (ts.getFunction(call_fn.getId()) == null) {
-            // ERROR -> function not defined
-            Error.añadirError(new Error("Función no definida", call_fn.getLinea(), Fase.SEMÁNTICO));
-            return false;
-        }
-        return true;
-    }
-
-
+    /**
+     * Comprueba que la Expresión sea correcta y devuelve el tipo de la expresión
+     * @param exp Expresión a comprobar
+     * @return Tipo de la expresión resultante
+     */
     public EnumType gestExp(Exp exp) {
 
         EnumType tipo;
@@ -39,19 +32,32 @@ public class AnSem {
             case "Id":
                 Symbol s = ts.getSymbol(exp.getValue().getValue());
                 if (s == null) {
-                    Error.añadirError(new Error("La variable no existe", exp.getLinea(), Fase.SEMÁNTICO));
+                    ErrorC.añadirError(new ErrorC("La variable no existe", exp.getLinea(), Fase.SEMÁNTICO));
                     return null;
                 } else {
                     tipo = s.getTipoReturn();
                 }
                 break;
+            case "Arr":
+                Symbol sArr = ts.getSymbol(exp.getValue().getValue());
+                if (sArr == null) {
+                    ErrorC.añadirError(new ErrorC("El array no existe", exp.getLinea(), Fase.SEMÁNTICO));
+                    return null;
+                } else {
+                    tipo = sArr.getTipoReturn();
+                }
+                break;
             case "Call_fn":
                 Symbol sCall = ts.getSymbol(exp.getValue().getValue());
                 if (sCall == null) {
-                    Error.añadirError(new Error("La función no existe", exp.getLinea(), Fase.SEMÁNTICO));
+                    ErrorC.añadirError(new ErrorC("La función no existe", exp.getLinea(), Fase.SEMÁNTICO));
                     return null;
                 } else {
                     tipo = sCall.getTipoReturn();
+                    if (sCall.getTipoReturn() != EnumType.VACIO) {
+                        ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", exp.getLinea(), Fase.SEMÁNTICO));
+                        return null;
+                    }
                 }
                 break;
             case "Entrada":
@@ -64,7 +70,7 @@ public class AnSem {
                 }
                 break;
             default:
-                Error.añadirError(new Error("Tipo de valor erróneo", exp.getLinea(), Fase.SEMÁNTICO));
+                ErrorC.añadirError(new ErrorC("Tipo de valor erróneo", exp.getLinea(), Fase.SEMÁNTICO));
                 return null;
         }
 
@@ -73,32 +79,51 @@ public class AnSem {
             switch (tipo.name()) {
                 case "ENTERO":
                     if (op.equals(Op.Y) || op.equals(Op.O)) {
-                        Error.añadirError(new Error("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
+                        ErrorC.añadirError(new ErrorC("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
                     }
                     break;
                 case "CARACTER":
                     if (!op.equals(Op.IGUAL) && !op.equals(Op.IGUALNT)) {
-                        Error.añadirError(new Error("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
+                        ErrorC.añadirError(new ErrorC("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
                     }
                     break;
                 case "BOOLEANO":
                     if (!op.equals(Op.IGUAL) && !op.equals(Op.IGUALNT) && !op.equals(Op.Y) && !op.equals(Op.O)) {
-                        Error.añadirError(new Error("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
+                        ErrorC.añadirError(new ErrorC("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
                     }
                     break;
                 default:
-                    Error.añadirError(new Error("Tipo de dato no válido", exp.getLinea(), Fase.SEMÁNTICO));
+                    ErrorC.añadirError(new ErrorC("Tipo de dato no válido", exp.getLinea(), Fase.SEMÁNTICO));
                     return null;
             }
             // El tipo de ambos operandos ha de ser el mismo
             if (tipo != gestExp(exp.getExp())) {
-                Error.añadirError(new Error("Los tipos de los operandos no coinciden", exp.getLinea(), Fase.SEMÁNTICO));
+                ErrorC.añadirError(new ErrorC("Los tipos de los operandos no coinciden", exp.getLinea(), Fase.SEMÁNTICO));
                 return null;
+            } else {
+                switch (op) {
+                    case IGUAL:
+                    case IGUALNT:
+                    case Y:
+                    case O:
+                    case MAI:
+                    case MEI:
+                    case MAQ:
+                    case MEQ:
+                        return EnumType.BOOLEANO;
+                    case SUMA:
+                    case RESTA:
+                    case MULT:
+                    case DIV:
+                    case MOD:
+                        return EnumType.ENTERO;
+                    default:
+                        return null;
+                }
             }
-            return tipo;
 
 
         } else {
@@ -108,31 +133,70 @@ public class AnSem {
         }
     }
 
+    /**
+     * Comprueba si la asignación se realiza correctamente. Se encargará de comprobar que el tipo de la variable
+     * coincide con el tipo de la expresión de la derecha de la asignación
+     *
+     * @param eType Tipo de la variable
+     * @param exp Expresión de la derecha de la asignación
+     * @return true si la asignación se realiza correctamente, false en caso contrario
+     */
     public boolean gestAsig(EnumType eType, Exp exp) {
         EnumType eType2 = gestExp(exp);
         if (eType == eType2) {
             return true;
         } else {
-            Error.añadirError(new Error("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getLinea(), Fase.SEMÁNTICO));
+            ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getLinea(), Fase.SEMÁNTICO));
             return false;
         }
     }
 
-    public boolean esExpressionBooleana(Exp e) {
-        StructureReturnType returnE = checkExpresion(e);
+    /**
+     * Función que comprueba, en caso de que sea un array, si existe el simbolo y si es un array
+     *
+     * @param id ID del array
+     * @param dimension Dimension del array
+     * @param linea Linea del código donde se encuentra el array
+     */
+    public void gestArray(String id, Exp dimension, int linea) {
+        Symbol symbol = ts.getSymbol(id);
 
-        if (returnE == null) {
-            // el tipo de la expressión es null
-            // HAY QUE AÑADIR EL ERROR
-            return false;
+        if (symbol == null) {
+            ErrorC.añadirError(new ErrorC("El array no existe", linea, Fase.SEMÁNTICO));
+        } else {
+            if (symbol.getDimension() == 0) {
+                ErrorC.añadirError(new ErrorC("La variable no es un array", linea, Fase.SEMÁNTICO));
+            }
         }
-        if (returnE != StructureReturnType.BOOL) {
-            // La expresión no es booleana
-
-            // ERROR: AÑADIR ERROR
-            return false;
-        }
-        return true;
-
     }
+
+    /**
+     * Función que comprueba si la expresión del return de la función concide con el tipo de la función
+     * @param typeCapFunc Tipo de la función escrita en el cap
+     * @param fSents Sentencias de la función
+     */
+    public void gestReturnFunc(EnumType typeCapFunc, FSents fSents) {
+        if (fSents.getRetProc()!=null){
+            EnumType typeReturn = gestExp(fSents.getRetProc().getE());
+            if (typeReturn != typeCapFunc) {
+                ErrorC.añadirError(new ErrorC("El tipo de retorno no coincide con el tipo de la función", fSents.getRetProc().getLinea(), Fase.SEMÁNTICO));
+            }
+        } else {
+            if (typeCapFunc != EnumType.VACIO) {
+                ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", fSents.getLinea(), Fase.SEMÁNTICO));
+            }
+        }
+    }
+
+    /**
+     * Función que comprueba si la expresión es del tipo Logica o no
+     *
+     * @param exp Expresión a comprobar
+     */
+    public void gestExpLogica(Exp exp) {
+        if (gestExp(exp) != EnumType.BOOLEANO) {
+            ErrorC.añadirError(new ErrorC("La expresión no es booleana", exp.getLinea(), Fase.SEMÁNTICO));
+        }
+    }
+
 }

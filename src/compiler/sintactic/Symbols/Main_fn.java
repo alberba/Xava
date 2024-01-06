@@ -9,7 +9,4 @@ public class Main_fn extends SimboloBase {
         this.fsents = fsents;
     }
 
-    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
-        fsents.generacionTresDirecciones(tresDirecciones);
-    }
 }

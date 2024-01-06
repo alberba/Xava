@@ -10,7 +10,4 @@ public class DeclGlob extends SimboloBase {
         this.decls = decls;
     }
 
-    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
-        decls.generacionTresDirecciones(tresDirecciones);
-    }
 }

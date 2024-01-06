@@ -16,4 +16,19 @@ public class FSents extends SimboloBase {
         this.sents = sents;
     }
 
+    public Sents getSents() {
+        return sents;
+    }
+
+    public void setSents(Sents sents) {
+        this.sents = sents;
+    }
+
+    public RetProc getRetProc() {
+        return retProc;
+    }
+
+    public void setRetProc(RetProc retProc) {
+        this.retProc = retProc;
+    }
 }

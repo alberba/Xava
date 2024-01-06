@@ -1,7 +1,7 @@
 package compiler.sintactic;
 
 public enum Fase {
-    LÉXICO,
+    LEXICO,
     SINTÁCTICO,
     SEMÁNTICO,
 }

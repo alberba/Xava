@@ -9,4 +9,11 @@ public class D_asig extends SimboloBase {
         this.e = e;
     }
 
+    public Exp getE() {
+        return e;
+    }
+
+    public void setE(Exp e) {
+        this.e = e;
+    }
 }

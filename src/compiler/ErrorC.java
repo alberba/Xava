@@ -6,8 +6,11 @@ import compiler.sintactic.Fase;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
 
-public class Error {
+public class ErrorC {
+
+    private static ArrayList<ErrorC> errores = new ArrayList<>();
     // Mensaje de error
     private String mensaje;
     // Linea
@@ -15,20 +18,31 @@ public class Error {
     // Fase del compilador
     private Fase fase;
 
-    public Error(String msj, int linea, Fase fase) {
+    public ErrorC(String msj, int linea, Fase fase) {
         this.mensaje = msj;
         this.linea = linea;
         this.fase = fase;
     }
 
-    public static void añadirError(Error err) {
+    public static void añadirError(ErrorC err) {
         try {
             System.out.println(err);
+            errores.add(err);
             BufferedWriter writer = new BufferedWriter(new FileWriter("Resultado/errores.txt", true));
             writer.write(err.toString() + "\n");
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public static boolean hayErrores() {
+        return !errores.isEmpty();
+    }
+
+    public static void printErrores() {
+        for (ErrorC errorC : errores) {
+            System.out.println(errorC);
         }
     }
 

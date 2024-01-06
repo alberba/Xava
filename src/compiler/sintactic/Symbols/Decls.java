@@ -11,10 +11,4 @@ public class Decls extends SimboloBase {
         this.decls = decls;
     }
 
-    public void generacionTresDirecciones(TresDirecciones tresDirecciones) {
-        decl.generacionTresDirecciones(tresDirecciones);
-        if (decls != null) {
-            decls.generacionTresDirecciones(tresDirecciones);
-        }
-    }
 }

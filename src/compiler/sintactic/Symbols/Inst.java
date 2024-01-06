@@ -5,6 +5,7 @@ package compiler.sintactic.Symbols;
 public class Inst extends SimboloBase {
     private String type;
     private Exp exp;
+    private Exp dimArray;
     private C_sents c_sents;
     private Decl decl_cap;
     private Decl decl;
@@ -27,12 +28,13 @@ public class Inst extends SimboloBase {
 
     }
 
-    public Inst(String type, String id, Exp exp, int linea, int columna) {
+    public Inst(String type, String id, Exp dimArray, Exp exp, int linea, int columna) {
         //anSem.esExpressionBooleana(exp);
         // añadir gestión error
 
         super(linea,columna);
         this.type = type;
+        this.dimArray = dimArray;
         this.id = id;
         this.exp = exp;
     }

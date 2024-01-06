@@ -1,18 +1,26 @@
 package compiler.Main;
 
+import compiler.ErrorC;
 import compiler.grammar.Parser;
 import compiler.grammar.Scanner;
+import java_cup.runtime.ComplexSymbolFactory;
+import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.SymbolFactory;
 
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.ArrayList;
 
 public class Main {
 
     public static void main(String[] args) throws Exception {
 
-        String rutaArchivo = conseguirPath(args[0]);
+        java.util.Scanner sc = new java.util.Scanner(System.in);
+        System.out.println("Introduzca el nombre del archivo a compilar: ");
+
+        String archivo = sc.nextLine();
+        String rutaArchivo = conseguirPath(archivo);
         FileReader programa = null;
         try {
             programa = new FileReader(rutaArchivo);
@@ -23,25 +31,43 @@ public class Main {
             System.exit(1);
         }
 
+        System.out.println(rutaArchivo.toString());
+
         long startTime = System.nanoTime();
         Scanner scanner = new Scanner(programa);
         long endTime = System.nanoTime();
         System.out.println("Scanner time: " + (endTime - startTime) / 1000000 + "ms");
 
-        SymbolFactory sf = null;
-        startTime = System.nanoTime();
-        Parser parser = new Parser(scanner, sf);
-        parser.parse();
-        endTime = System.nanoTime();
-        System.out.println("Parser time: " + (endTime - startTime) / 1000000 + "ms");
+        Parser parser = null;
+        try {
+            SymbolFactory sf = new ComplexSymbolFactory();
+            startTime = System.nanoTime();
+            parser = new Parser(scanner, sf);
+            parser.parse();
+            endTime = System.nanoTime();
+            System.out.println("Parser time: " + (endTime - startTime) / 1000000 + "ms");
+        } catch (Exception e) {
+            guardarTokens(scanner.tokens);
+            if (!ErrorC.hayErrores()) {
+                e.printStackTrace();
+                System.out.println("Error al parsear el archivo");
+                System.exit(0);
+            }
 
-        guardarTSimbolo("tSimbolo.txt", parser.getTSimbolos().toString());
-
+        }
+        if (ErrorC.hayErrores()) {
+            ErrorC.printErrores();
+            System.exit(0);
+        } else {
+            guardarTSimbolo("tSimbolo.txt", parser.getTSimbolos().toString());
+            guardarTokens(scanner.tokens);
+        }
 
     }
 
     public static String conseguirPath(String rutaArchivo){
         String rutaActual = System.getProperty("user.dir");
+        System.out.println(rutaActual);
 
         if (rutaArchivo.startsWith(".\\")) {
             rutaArchivo = rutaArchivo.substring(1);
@@ -60,9 +86,25 @@ public class Main {
         } else {
             rutaArchivo = rutaActual + "\\" + rutaArchivo;
         }
+        rutaArchivo = rutaArchivo.replace("\\", "/");
 
         return rutaArchivo;
 
+    }
+
+    public static void guardarTokens(ArrayList<ComplexSymbol> tokens) {
+        try {
+            BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/tokens.txt"));
+            System.out.println("Tokens: " + tokens.toString());
+            for (int i = 0; i < tokens.size(); i++) {
+                archivo.write(tokens.get(i).getName() + "\n");
+            }
+            archivo.close();
+        } catch (Exception e) {
+            System.out.println(e.toString());
+            System.out.println("Error al guardar el archivo de los tokens");
+            System.exit(1);
+        }
     }
 
     public static void guardarTSimbolo(String nombreArchivo, String tabla) {

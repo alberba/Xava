@@ -8,4 +8,12 @@ public class RetProc extends SimboloBase {
         super(linea,columna);
         this.e = e;
     }
+
+    public Exp getE() {
+        return e;
+    }
+
+    public void setE(Exp e) {
+        this.e = e;
+    }
 }

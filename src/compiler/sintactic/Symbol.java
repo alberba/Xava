@@ -24,6 +24,22 @@ public class Symbol {
         this.line = line;
     }
 
+    public String getNom() {
+        return nom;
+    }
+
+    public TipoElemento getTipo() {
+        return tipo;
+    }
+
+    public boolean isEsConst() {
+        return esConst;
+    }
+
+    public int getDimension() {
+        return dimension;
+    }
+
     public String getName() {
         return nom;
     }

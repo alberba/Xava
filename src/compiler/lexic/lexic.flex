@@ -1,6 +1,9 @@
 package compiler.grammar;
 import java.io.*;
+import java.util.ArrayList;
 
+import compiler.ErrorC;
+import compiler.sintactic.Fase;
 import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
@@ -79,13 +82,15 @@ P_COMA = ;
 COMA = ,
 COMENTARIO = ## .* [\r|\n|\r\n]?
 MULT_COMT = \/\* [.|\r|\n]* \*\/
-ESPACIO = (' '|'\r'|{SALTO_LINEA}|'\f')+
+ESPACIO = [' '| \t|\r|\f]+
 SALTO_LINEA = \n
 
 %{
     /***
        Mecanismo de gestión de símbolos basado en ComplexSymbol
      ***/
+
+    public ArrayList<ComplexSymbol> tokens = new ArrayList<>();
 
     /**
        Construcción de un símbolo sin valor asociado.
@@ -155,6 +160,7 @@ SALTO_LINEA = \n
 {Y}             { return symbol(ParserSym.Y); }
 {O}             { return symbol(ParserSym.O); }
 {IGUAL}         { return symbol(ParserSym.IGUAL); }
+{IGUALNT}       { return symbol(ParserSym.IGUALNT); }
 {MAQ}           { return symbol(ParserSym.MAQ); }
 {MEQ}           { return symbol(ParserSym.MEQ); }
 {MAI}           { return symbol(ParserSym.MAI); }
@@ -179,5 +185,5 @@ SALTO_LINEA = \n
 {ID}            { return symbol(ParserSym.ID, this.yytext()); }
 
 
-[@]               { return symbol(ParserSym.error); }
+[@]               { ErrorC.añadirError(new ErrorC("Token invalido", 40, Fase.LEXICO)); }
 

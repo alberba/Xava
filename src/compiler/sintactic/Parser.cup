@@ -11,7 +11,7 @@ import java_cup.runtime.*;
 import compiler.sintactic.Symbols.*;
 import compiler.sintactic.*;
 import compiler.sintactic.Symbol;
-import compiler.Error;
+import compiler.ErrorC;
 
 class Parser;
 parser code {:
@@ -22,7 +22,7 @@ parser code {:
     }
 ***/
     TSimbolos tSimbolos = new TSimbolos();
-    Ansem ansem = new Ansem(tSimbolos);
+    AnSem ansem = new AnSem(tSimbolos);
 
     public TSimbolos getTSimbolos() {
         return tSimbolos;
@@ -94,10 +94,10 @@ DECLSF          ::= DECLF:declf DECLSF:declsf                                   
                 ;
 
 DECLF           ::= FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
-                    {:  if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.FUNCION, eType, null, true, 0, idleft))) {
+                    {:  if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.FUNCION, eType, null, true, 0, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
-                            Error.añadirError(new Error("Función declarada previamente", idleft, Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
 
                         RESULT = new DeclF(eType, id, args_declf, eTypeleft, eTyperight);
@@ -109,19 +109,19 @@ ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C                               
                 ;
 
 L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
-                    {:  if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                    {:  if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
-                            Error.añadirError(new Error("Variable declarada previamente", idleft, Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
                         RESULT = new L_args_Declf(stype, id, args, stypeleft, styperight);
                     :}
                 |   STYPE:stype ID:id
                     {:
-                        if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                        if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
-                            Error.añadirError(new Error("Variable declarada previamente", idleft, Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
                         RESULT = new L_args_Declf(stype, id, stypeleft, styperight);
                     :}
@@ -135,7 +135,11 @@ FUNCIONES       ::= FUNCIONG:f FUNCIONES:funciones                              
                 |                                                                                   {: :}
                 ;
 
-FUNCIONG        ::= M FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C                                {: RESULT = new FuncionG(cap, f_sents, capleft, capright);                          :}
+FUNCIONG        ::= M FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C
+                    {:
+                        ansem.gestReturnFunc(cap.geteType(), f_sents);
+                        RESULT = new FuncionG(cap, f_sents, capleft, capright);
+                    :}
                 ;
 
 CAP             ::= ETYPE:etype ID:id ARGS_CAP:args_cap                                             {: RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);                    :}
@@ -183,12 +187,12 @@ SENT            ::= DECL:decl                                                   
 
 DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                     {:
-                        ansem.gestAsig(type, d_asignacion.getExp());
+                        ansem.gestAsig(type.getStype(), d_asignacion.getE());
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
-                            if (tSimbolos.ponerSimbolo(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
+                            if (!tSimbolos.ponerSimbolo(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
-                                Error.añadirError(new Error("Variable declarada previamente", aux.getLinea(), Fase.SEMÁNTICO));
+                                ErrorC.añadirError(new ErrorC("Variable declarada previamente", aux.getLinea(), Fase.SEMÁNTICO));
                             }
                         }
 
@@ -198,16 +202,16 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                     {:
                         if (!type.getConstante()) {
 
-                            if (tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, Integer.parseInt(num), idleft))) {
+                            if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, Integer.parseInt(num), idleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
-                                Error.añadirError(new Error("Variable declarada previamente", idleft, Fase.SEMÁNTICO));
+                                ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                             }
                             RESULT = new Decl(type, id, num, typeleft, typeright);
                         } else {
                             // MANEJO DE ERRORES SEMANTICOS
                             // No se puede declarar un array de tipo constante
-                            Error.añadirError(new Error("Un array no puede ser constante", idleft, Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("Un array no puede ser constante", idleft, Fase.SEMÁNTICO));
                         }
                     :}
                 ;
@@ -230,11 +234,22 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
 
                 |   ID:id ASIG E:exp P_COMA
                     {:
-                        Symbol symbol = ts.getSymbol(id);
+                        Symbol symbol = tSimbolos.getSymbol(id);
                         ansem.gestAsig(symbol.getTipoReturn(), exp);
-                        RESULT = new Inst("asig", id, exp, idleft, idright);
+                        RESULT = new Inst("asig", id, null, exp, idleft, idright);
                     :}
-                |   IMPRIMIR PAR_A E:exp PAR_C P_COMA                                               {: RESULT = new Inst("impr", null, exp, expleft, expright);                     :}
+                |   ID:id CORCHETE_A E:expArr CORCHETE_C ASIG E:exp P_COMA
+                    {:
+                        if (ansem.gestExp(expArr) != EnumType.ENTERO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // El indice del array debe ser de tipo entero
+                            ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
+                        }
+                        Symbol symbol = tSimbolos.getSymbol(id);
+                        ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        RESULT = new Inst("asig", id, expArr, exp, idleft, idright);
+                    :}
+                |   IMPRIMIR PAR_A E:exp PAR_C P_COMA                                               {: RESULT = new Inst("impr", null, null, exp, expleft, expright);                     :}
                 ;
 
 C_SENTS         ::= SENT:sent C_SENTS:c_sents                                                       {: RESULT = new C_sents(sent, c_sents, sentleft, sentright);                    :}
@@ -293,6 +308,16 @@ OP              ::= Y                                                           
 VALUE           ::= DIGITO:num                                                                      {: RESULT = new Value(num, "Ent", numleft, numright);                                  :}
                 |   CALL_FN:call_fn                                                                 {: RESULT = new Value(call_fn, call_fnleft, call_fnright);                      :}
                 |   ID:id                                                                           {: RESULT = new Value(id, "Id", idleft, idright);                               :}
+                |   ID:id CORCHETE_A E:expArr CORCHETE_C
+                {:
+                    if (ansem.gestExp(expArr) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // El indice del array debe ser de tipo entero
+                        ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    ansem.gestArray(id, expArr, expArr.getLinea());
+                    RESULT = new Value(id, "Arr", expArr, idleft, idright);
+                :}
                 |   COMILLAS CARACTER:car COMILLAS                                                  {: RESULT = new Value(car, "Car", carleft, carright);                      :}
                 |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);          :}
                 |   PAR_A E:exp PAR_C                                                               {: RESULT = new Value(exp, expleft, expright);                                  :}
