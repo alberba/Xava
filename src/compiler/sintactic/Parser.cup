@@ -137,7 +137,14 @@ FUNCIONES       ::= FUNCIONG:f FUNCIONES:funciones                              
 
 FUNCIONG        ::= M FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C
                     {:
-                        ansem.gestReturnFunc(cap.geteType(), f_sents);
+                        if (ansem.existeFuncion(cap)) {
+                            ansem.gestReturnFunc(cap.geteType(), f_sents);
+                        } else {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // No se ha encontrado la función
+                            ErrorC.añadirError(new ErrorC("No se ha encontrado la función", cap.getEtypeleft(), Fase.SEMÁNTICO));
+                        }
+                        
                         RESULT = new FuncionG(cap, f_sents, capleft, capright);
                     :}
                 ;

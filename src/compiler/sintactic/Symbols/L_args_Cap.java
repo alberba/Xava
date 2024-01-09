@@ -18,4 +18,30 @@ public class L_args_Cap extends SimboloBase {
         this.enumType = enumType;
         this.id = id;
     }
+
+    public EnumType getEnumType() {
+        return enumType;
+    }
+
+    public void setEnumType(EnumType enumType) {
+        this.enumType = enumType;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public L_args_Cap getL_args_cap() {
+        return l_args_cap;
+    }
+
+    public void setL_args_cap(L_args_Cap l_args_cap) {
+        this.l_args_cap = l_args_cap;
+    }
+
+    
 }

@@ -1,6 +1,9 @@
 package compiler.sintactic;
 
 import compiler.sintactic.Symbols.*;
+
+import java.util.ArrayList;
+
 import compiler.ErrorC;
 
 public class AnSem {
@@ -185,6 +188,21 @@ public class AnSem {
             if (typeCapFunc != EnumType.VACIO) {
                 ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", fSents.getLinea(), Fase.SEMÁNTICO));
             }
+        }
+    }
+
+    public boolean existeFuncion(Cap cap) {
+        ArrayList <Symbol> simbolos = ts.getParametros(cap.getId());
+        if (simbolos == null) {
+            return false;
+        } else {
+            Arra
+            for (Symbol s : simbolos) {
+                if (s.getTipoElemento() == TipoElemento.PARAMETRO && ca) {
+                    return true;
+                }
+            }
+            return true;
         }
     }
 
