@@ -1,26 +1,26 @@
 package compiler.sintactic;
 
+import compiler.sintactic.Symbols.EnumType;
+
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 public class TSimbolos {
-    private ArrayList<Symbol> td;
-    private ArrayList<Integer> ta;
+    private ArrayList<ArrayList<Symbol>> tsimbolos;
     private int nActual;
     private final int NOT_FOUND = -1;
 
     public TSimbolos() {
-        this.td = new ArrayList<Symbol>();
-        this.ta = new ArrayList<Integer>();
+        this.tsimbolos = new ArrayList<ArrayList<Symbol>>();
         // El nivel al inicio del programa será el ámbito global (0)
         this.nActual = 0;
         // Se inicializa el ámbito global con final -1 (sin contenido)
-        ta.add(NOT_FOUND);
+        this.tsimbolos.add(new ArrayList<Symbol>());
     }
 
     public void añadirAmbito() {
-        ta.add(td.size() - 1);
         nActual++;
+        this.tsimbolos.add(new ArrayList<>());
     }
 
     public boolean ponerSimbolo(Symbol symbol) {
@@ -28,74 +28,59 @@ public class TSimbolos {
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
         // Solo accederá en el ámbito global
         if (symbol.getTipoElemento() == TipoElemento.FUNCION){
-            for (Symbol s : td) {
+            for (Symbol s : tsimbolos.get(0)) {
                 if (s.equals(symbol)) {
                     return false;
                 }
             }
+            // Se añade la función al ámbito global
+            tsimbolos.get(0).add(symbol);
         } else {
-
             // Se comprueba que el símbolo no esté ya en el ámbito actual
-            for (int i = ta.get(nActual - 1) + 1; i <= ta.get(nActual); i++) {
-                if (td.get(i).equals(symbol)) {
+            for (Symbol s : tsimbolos.get(nActual)) {
+                if (s.equals(symbol)) {
                     return false;
                 }
             }
 
             // Se comprueba que el símbolo no esté en el ámbito global
-            for (int i = 0; i <= ta.get(0); i++) {
-                if (td.get(i).equals(symbol)) {
+            for (Symbol s : tsimbolos.get(0)) {
+                if (s.equals(symbol)) {
                     return false;
                 }
             }
+            this.tsimbolos.get(nActual).add(symbol);
+
         }
 
-        // Se añade el símbolo a la tabla de símbolos y se actualiza la tabla de ámbitos
-        this.ta.set(nActual, ta.get(nActual) + 1);
-        this.td.add(symbol);
+        System.out.println("Nivel actual: " + nActual);
 
         return true;
     }
 
+
     public Symbol busquedaSymbolTA(int ambito, String id) {
-        // Primero se busca en el nivel actual y después se busca entre los globales,
-        // siguiendo el principio de localidad
-        int inicioNivel = 0;
-        int finNivel = this.ta.get(0);
-        Symbol simbolo = null;
 
         if (ambito != 0) { // Se mira si el nivel es el global
-            // La posición inicio de un nivel es el siguiente a la posición de final del nivel anterior
-            inicioNivel = this.ta.get(ambito - 1) + 1;
-            finNivel = this.ta.get(ambito);
             // Se verifica que el nivel tenga símbolos
-            if (inicioNivel == -1) {
+            if (this.tsimbolos.isEmpty()) {
                 return null;
             }
 
             // Se recorre el nivel en búsqueda del símbolo
-            for (int i = inicioNivel; i <= finNivel; i++) {
-                simbolo = this.td.get(i);
+            for (Symbol simbolo : this.tsimbolos.get(ambito)) {
                 if (simbolo.getName().equals(id)) {
                     return simbolo;
                 }
             }
-            // Si no se encuentra
-            finNivel = this.ta.get(0);
         }
 
-        // El ámbito no tiene símbolos
-        if (finNivel == NOT_FOUND) {
-            return null;
-        }
-
-        // Recorrido del ámbito global
-        for (int i = 0; i <= finNivel; i++) {
-            simbolo = this.td.get(i);
+        for (Symbol simbolo: this.tsimbolos.get(0)) {
             if (simbolo.getName().equals(id)) {
                 return simbolo;
             }
         }
+
         // Si no se ha encontrado, se devuelve null
         return null;
     }
@@ -105,7 +90,6 @@ public class TSimbolos {
     public Symbol getSymbol(String id) {
         // Buscamos el símbolo en el nivel actual y lo almacenamos en una variable temporal
         Symbol simbolo = this.busquedaSymbolTA(this.nActual, id);
-
         // Comprobamos si hemos encontrado el símbolo
         if (simbolo != null) {
             // Si existe el símbolo se devuelve
@@ -120,71 +104,82 @@ public class TSimbolos {
     public Symbol getFunction(String id) {
 
         // Iterar en todos los elementos del ambito global
-        for (int i = 0; i < ta.get(0); i++) {
-            // Obtenemos el elemento i de la td
-            Symbol simbolo = td.get(i);
-            // Comprobamos si es una función
-            if (simbolo.getTipoElemento() == TipoElemento.FUNCION) {
-                // Comprobamos si es la función correcta
-                if(simbolo.getName().equals(id)){
-                    // Devolvemos el símbolo correspondiente a la función
-                    return simbolo;
-                }
+        for (Symbol symbol : tsimbolos.get(0)) {
+            // Comprobamos si es una función y si es la función que buscamos
+            if (symbol.getTipoElemento() == TipoElemento.FUNCION && symbol.getName().equals(id)) {
+                return symbol;
             }
         }
+
         // No se ha encontrado la función
         return null;
     }
 
     public ArrayList<Symbol> getParametros(String idFunc){
 
-        int globales = ta.get(0);
-        int i = 0;
+        ArrayList<Symbol> globales = tsimbolos.get(0);
+        int ambitoFuncion = getAmbitoFuncion(idFunc);
+
+        // Si no se ha encontrado la función, se devuelve null
+        if (ambitoFuncion < 0) {
+            return null;
+        }
+        ArrayList<Symbol> funcion = tsimbolos.get(ambitoFuncion);
+        ArrayList<Symbol> parametros = new ArrayList<>();
+        // Los parámetros estarán situados al inicio del ámbito de la función
+        System.out.println(funcion.toString());
+        for (int i = 0; i < funcion.size() && (funcion.get(i).getTipoElemento() == TipoElemento.PARAMETRO); i++) {
+
+            parametros.add(globales.get(i));
+        }
+
+        return parametros.isEmpty() ? null : parametros;
+    }
+
+    public EnumType getTypeFuncionActual() {
+        return tsimbolos.get(nActual).get(0).getTipoReturn();
+    }
+    
+    private int getAmbitoFuncion(String idFunc) {
+        // Se empieza desde 1 porque no puede ser el ámbito global
+        int ambito = 1;
         boolean encontrado = false;
         // Se recorren las declaraciones globales en busca de la función
-        for (; i <= globales; i++) {
-
+        for (int i = 0; i <= tsimbolos.get(0).size(); i++) {
             // Si no es una función, se ignora
-            if (td.get(i).getTipoElemento() != TipoElemento.FUNCION) {
-                continue;
+            if (tsimbolos.get(0).get(i).getTipoElemento() == TipoElemento.FUNCION) {
+                // ES UNA FUNCIÓN
+                // Si no es la que se busca, se ignora también
+                if (!tsimbolos.get(0).get(i).getName().equals(idFunc)) {
+                    // Se incrementa el ámbito de la función, ya que el ambito de las funciones van con el mismo orden
+                    // que la que fueron declaradas
+                    ambito++;
+                    continue;
+                }
+                encontrado = true;
+                break;
             }
-
-            // Si no es la que se busca, se ignora también
-            if (!td.get(i).getName().equals(idFunc)) {
-                continue;
-            }
-
-            encontrado = true;
-            break;
         }
-
         if (!encontrado) {
-            return null;
+            ambito = -1;
         }
+        System.out.println("Ambito de la función: " + ambito);
+        return ambito;
+    }
 
-        // Los parámetros estarán situados antes de la función
-        ArrayList<Symbol> simbolos = new ArrayList<>();
-        i--;
-        while (td.get(i).getTipoElemento() == TipoElemento.PARAMETRO) {
-            simbolos.add(0, td.get(i));
-            i--;
-        }
-
-        if (simbolos.isEmpty()) {
-            return null;
-        }
-
-        return simbolos;
+    public void updatenActual(String idFuncion) {
+        nActual = getAmbitoFuncion(idFuncion);
     }
 
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("Tabla de símbolos:\n");
-        sb.append("Tabla de ámbitos: ").append(this.ta.toString()).append("\n");
-        sb.append("Tabla de símbolos: \n");
-        for (int i = 0; i < this.td.size(); i++) {
-            sb.append(i).append(": ").append(this.td.get(i).toString()).append("\n");
+        for (int ambito = 0; ambito < tsimbolos.size(); ambito++) {
+            sb.append("Ámbito ").append(ambito).append(":\n");
+            for (int i = 0; i < tsimbolos.get(ambito).size(); i++) {
+                sb.append(i).append(": ").append(tsimbolos.get(ambito).get(i).toString()).append("\n");
+            }
         }
         return sb.toString();
     }

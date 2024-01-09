@@ -3,6 +3,8 @@ package compiler.sintactic;
 import compiler.sintactic.Symbols.*;
 import compiler.ErrorC;
 
+import java.util.ArrayList;
+
 public class AnSem {
     private final TSimbolos ts;
 
@@ -18,7 +20,7 @@ public class AnSem {
     public EnumType gestExp(Exp exp) {
 
         EnumType tipo;
-
+        System.out.println(exp.getValue().getValue());
         switch (exp.getValue().getTipo()) {
             case "Ent":
                 tipo = EnumType.ENTERO;
@@ -64,7 +66,7 @@ public class AnSem {
                 tipo = exp.getValue().getEntrada().getEnumType();
                 break;
             case "Exp":
-                tipo = gestExp(exp.getExp());
+                tipo = gestExp(exp.getValue().getExp());
                 if (tipo == null) {
                     return null;
                 }
@@ -104,25 +106,11 @@ public class AnSem {
                 ErrorC.añadirError(new ErrorC("Los tipos de los operandos no coinciden", exp.getLinea(), Fase.SEMÁNTICO));
                 return null;
             } else {
-                switch (op) {
-                    case IGUAL:
-                    case IGUALNT:
-                    case Y:
-                    case O:
-                    case MAI:
-                    case MEI:
-                    case MAQ:
-                    case MEQ:
-                        return EnumType.BOOLEANO;
-                    case SUMA:
-                    case RESTA:
-                    case MULT:
-                    case DIV:
-                    case MOD:
-                        return EnumType.ENTERO;
-                    default:
-                        return null;
-                }
+                return switch (op) {
+                    case IGUAL, IGUALNT, Y, O, MAI, MEI, MAQ, MEQ -> EnumType.BOOLEANO;
+                    case SUMA, RESTA, MULT, DIV, MOD -> EnumType.ENTERO;
+                    default -> null;
+                };
             }
 
 
@@ -172,19 +160,57 @@ public class AnSem {
 
     /**
      * Función que comprueba si la expresión del return de la función concide con el tipo de la función
-     * @param typeCapFunc Tipo de la función escrita en el cap
-     * @param fSents Sentencias de la función
+     * @param retProc
      */
-    public void gestReturnFunc(EnumType typeCapFunc, FSents fSents) {
-        if (fSents.getRetProc()!=null){
-            EnumType typeReturn = gestExp(fSents.getRetProc().getE());
-            if (typeReturn != typeCapFunc) {
-                ErrorC.añadirError(new ErrorC("El tipo de retorno no coincide con el tipo de la función", fSents.getRetProc().getLinea(), Fase.SEMÁNTICO));
-            }
+    public void gestReturnFunc(RetProc retProc) {
+        EnumType typeFunc = ts.getTypeFuncionActual();
+        if (typeFunc == EnumType.VACIO) {
+            ErrorC.añadirError(new ErrorC("No se puede poner un DEVOLVER en una función vacío", retProc.getLinea(), Fase.SEMÁNTICO));
+
         } else {
-            if (typeCapFunc != EnumType.VACIO) {
-                ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", fSents.getLinea(), Fase.SEMÁNTICO));
+            EnumType typeReturn = gestExp(retProc.getE());
+            if (typeReturn != typeFunc) {
+                ErrorC.añadirError(new ErrorC("El tipo de devolución no coincide con el tipo de la función", retProc.getLinea(), Fase.SEMÁNTICO));
             }
+        }
+    }
+
+    /**
+     * Comprueba si en el caso de que la Función sea una función no vacía, que haya un return al final de la función
+     *
+     * @param fsents conjunto de sentencias de la función
+     */
+    public void isReturn(FSents fsents) {
+        if (fsents.getRetProc() == null && ts.getTypeFuncionActual() != EnumType.VACIO) {
+            ErrorC.añadirError(new ErrorC("Se debe poner un DEVOLVER al final de la función", fsents.getLinea(), Fase.SEMÁNTICO));
+        } else {
+            // Comprobará que el return esté bien hecho
+            gestReturnFunc(fsents.getRetProc());
+        }
+
+    }
+
+    /**
+     * Función que comprueba si la función existe y si los parámetros son correctos
+     *
+     * @param cap Cap de la función para obtener el ID de la función y de los parámetros
+     * @return true si la función existe y los parámetros son correctos, false en caso contrario
+     */
+    public boolean existeFuncion(Cap cap) {
+        Symbol symbol = ts.getFunction(cap.getId());
+        if (symbol == null) {
+            ErrorC.añadirError(new ErrorC("La función no existe", cap.getLinea(), Fase.SEMÁNTICO));
+            return false;
+        } else {
+            ArrayList<Symbol> parametros = ts.getParametros(cap.getId());
+            for (L_args_Cap l_args_cap = cap.getArgs_cap().getL_args_cap(); l_args_cap != null; l_args_cap = l_args_cap.getL_args_cap()) {
+                if (ts.getSymbol(l_args_cap.getId()).equals(parametros.get(0))) {
+                    ErrorC.añadirError(new ErrorC("El parámetro " + l_args_cap.getId() + " no existe", l_args_cap.getLinea(), Fase.SEMÁNTICO));
+                    return false;
+                }
+                parametros.remove(0);
+            }
+            return true;
         }
     }
 
