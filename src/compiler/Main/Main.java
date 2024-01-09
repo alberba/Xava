@@ -63,6 +63,9 @@ public class Main {
             guardarTokens(scanner.tokens);
         }
 
+
+        sc.close();
+
     }
 
     public static String conseguirPath(String rutaArchivo){

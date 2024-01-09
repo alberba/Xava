@@ -1,6 +1,9 @@
 package compiler.sintactic;
 
 import compiler.sintactic.Symbols.*;
+
+import java.util.ArrayList;
+
 import compiler.ErrorC;
 
 import java.util.ArrayList;
@@ -172,6 +175,21 @@ public class AnSem {
             if (typeReturn != typeFunc) {
                 ErrorC.añadirError(new ErrorC("El tipo de devolución no coincide con el tipo de la función", retProc.getLinea(), Fase.SEMÁNTICO));
             }
+        }
+    }
+
+    public boolean existeFuncion(Cap cap) {
+        ArrayList <Symbol> simbolos = ts.getParametros(cap.getId());
+        if (simbolos == null) {
+            return false;
+        } else {
+            Arra
+            for (Symbol s : simbolos) {
+                if (s.getTipoElemento() == TipoElemento.PARAMETRO && ca) {
+                    return true;
+                }
+            }
+            return true;
         }
     }
 

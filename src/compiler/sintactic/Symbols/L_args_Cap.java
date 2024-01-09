@@ -42,4 +42,6 @@ public class L_args_Cap extends SimboloBase {
     public void setL_args_cap(L_args_Cap l_args_cap) {
         this.l_args_cap = l_args_cap;
     }
+
+    
 }
