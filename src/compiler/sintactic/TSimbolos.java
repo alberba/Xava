@@ -2,8 +2,6 @@ package compiler.sintactic;
 
 import compiler.sintactic.Symbols.EnumType;
 
-import compiler.sintactic.Symbols.EnumType;
-
 import java.util.ArrayList;
 
 public class TSimbolos {
