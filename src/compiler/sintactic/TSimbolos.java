@@ -126,7 +126,7 @@ public class TSimbolos {
         ArrayList<Symbol> funcion = tsimbolos.get(ambitoFuncion);
         ArrayList<Symbol> parametros = new ArrayList<>();
         // Los parámetros estarán situados al inicio del ámbito de la función
-        System.out.println(funcion.toString());
+        System.out.println("getParametros - " + funcion.toString());
         for (int i = 0; i < funcion.size() && (funcion.get(i).getTipoElemento() == TipoElemento.PARAMETRO); i++) {
 
             parametros.add(globales.get(i));

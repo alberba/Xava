@@ -31,8 +31,6 @@ public class Main {
             System.exit(1);
         }
 
-        System.out.println(rutaArchivo.toString());
-
         long startTime = System.nanoTime();
         Scanner scanner = new Scanner(programa);
         long endTime = System.nanoTime();
@@ -47,7 +45,6 @@ public class Main {
             endTime = System.nanoTime();
             System.out.println("Parser time: " + (endTime - startTime) / 1000000 + "ms");
         } catch (Exception e) {
-            guardarTokens(scanner.tokens);
             if (!ErrorC.hayErrores()) {
                 e.printStackTrace();
                 System.out.println("Error al parsear el archivo");
@@ -98,7 +95,6 @@ public class Main {
     public static void guardarTokens(ArrayList<ComplexSymbol> tokens) {
         try {
             BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/tokens.txt"));
-            System.out.println("Tokens: " + tokens.toString());
             for (int i = 0; i < tokens.size(); i++) {
                 archivo.write(tokens.get(i).getName() + "\n");
             }

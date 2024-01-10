@@ -85,6 +85,8 @@ MULT_COMT = \/\* [.|\r|\n]* \*\/
 ESPACIO = [' '| \t|\r|\f]+
 SALTO_LINEA = \n
 
+ERROR = [^]
+
 %{
     /***
        Mecanismo de gestión de símbolos basado en ComplexSymbol
@@ -100,6 +102,7 @@ SALTO_LINEA = \n
         Location l = new Location(yyline+1, yycolumn+1); // primera posición del token
         Location r = new Location(yyline+1, yycolumn+1+yylength()); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r);
+        tokens.add(c);
         return  c;
     }
 
@@ -110,6 +113,7 @@ SALTO_LINEA = \n
         Location l = new Location(yyline+1, yycolumn+1); // primera posición del token
         Location r = new Location(yyline+1, yycolumn+1+yylength()); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r, value);
+        tokens.add(c);
         return  c;
     }
 %}
@@ -185,5 +189,5 @@ SALTO_LINEA = \n
 {ID}            { return symbol(ParserSym.ID, this.yytext()); }
 
 
-[@]               { ErrorC.añadirError(new ErrorC("Token invalido", 40, Fase.LEXICO)); }
+{ERROR}         { ErrorC.añadirError(new ErrorC("Token invalido", yyline + 1, Fase.LEXICO)); }
 

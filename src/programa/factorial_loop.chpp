@@ -1,0 +1,31 @@
+funcion ent factorial(ent number);
+
+principal {
+    ent [3] nums;
+
+    nums [0] := 3;
+    nums [1] := 5;
+    nums [2] := 8;
+
+    imprimir(factorial(nums[0]));
+    imprimir(factorial(nums[1]));
+    imprimir(factorial(nums[2]));
+}
+
+funcion ent factorial(ent number){
+    ent result := 1;
+    ent iter := number;
+
+    ## No se permite factoriales de numeros negativos
+    si (number < 0) {
+        devuelve 0;
+    }
+
+    mientras(number > 0) {
+        number := number - 1;
+        result := result * iter;
+        iter := iter - 1;
+    }
+
+    devuelve result;
+}

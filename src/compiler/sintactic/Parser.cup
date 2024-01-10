@@ -12,6 +12,7 @@ import compiler.sintactic.Symbols.*;
 import compiler.sintactic.*;
 import compiler.sintactic.Symbol;
 import compiler.ErrorC;
+import java.util.List;
 
 class Parser;
 parser code {:
@@ -28,6 +29,18 @@ parser code {:
         return tSimbolos;
     }
 
+
+    @Override
+    public void syntax_error(java_cup.runtime.Symbol cur_token) {
+        String message = "Obtuvimos " + cur_token.toString().split(" ")[1] + " y esperabamos " + this.showExpectedTokenIds();
+        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+        ErrorC.añadirError(new ErrorC(message, cs.getLeft().getLine(), Fase.SINTÁCTICO));
+    }
+
+    private String showExpectedTokenIds() {
+        List<String> list = this.expected_token_ids().stream().map(this::symbl_name_from_id).toList();
+        return (list.size() > 0) ? list.toString() : "something else";
+    }
 :}
 
 terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CONST,
@@ -86,7 +99,11 @@ XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones            
 MAIN_FN         ::= M PRINCIPAL LLAVE_A FSENTS:fsents LLAVE_C                                       {: System.out.println("He analizado el principal");RESULT = new Main_fn(fsents, fsentsleft, fsentsright);                       :}
                 ;
 
-DECLGLOB        ::= DECLS:decls DECLSF:declsf                                                     {: RESULT = new DeclGlob(declsf, decls, declsleft, declsright);                 :}
+DECLGLOB        ::= DECLS:decls DECLSF:declsf
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new DeclGlob(declsf, decls, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
                 ;
 
 DECLSF          ::= DECLF:declf DECLSF:declsf                                                       {: RESULT = new DeclsF(declf, declsf, declfleft, declfright);                   :}
@@ -103,8 +120,15 @@ DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
                     :}
                 ;
 
-ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C                                                   {: RESULT = new Args_Declf(args, argsleft, argsright);                                                      :}
-                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Declf(null, cur_token.left, cur_token.right);                                                     :}
+ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C
+                    {:
+                        RESULT = new Args_Declf(args, args.getLinea(), args.getColumna());
+                    :}
+                |   PAR_A PAR_C
+                {:
+                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                    RESULT = new Args_Declf(null, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                :}
                 ;
 
 L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
@@ -161,20 +185,28 @@ STYPE           ::= ENTERO                                                      
                 |   CARACTER                                                                        {: RESULT = EnumType.CARACTER;                                                     :}
                 ;
 
-ARGS_CAP        ::= PAR_A L_ARGS_CAP:args PAR_C                                                     {: RESULT = new Args_Cap(args, argsleft, argsright);                            :}
-                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Cap(null, cur_token.left, cur_token.right);                  :}
+ARGS_CAP        ::= PAR_A L_ARGS_CAP:args PAR_C                                                     {: RESULT = new Args_Cap(args, args.getLinea(), args.getColumna());                            :}
+                |   PAR_A PAR_C
+                {:
+                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                    RESULT = new Args_Cap(null, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                :}
                 ;
 
-ARGS_CALL       ::= PAR_A L_ARGS_CALL:l_args_call PAR_C                                             {: RESULT = new Args_Call(l_args_call, l_args_callleft, l_args_callright);      :}
-                |   PAR_A PAR_C                                                                     {: RESULT = new Args_Call(null, cur_token.left, cur_token.right);                 :}
+ARGS_CALL       ::= PAR_A L_ARGS_CALL:l_args_call PAR_C                                             {: RESULT = new Args_Call(l_args_call, l_args_call.getLinea(), l_args_call.getColumna());      :}
+                |   PAR_A PAR_C
+                {:
+                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                    RESULT = new Args_Call(null, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                :}
                 ;
 
 L_ARGS_CAP      ::= STYPE:stype ID:id COMA L_ARGS_CAP:l_args_cap                                    {: RESULT = new L_args_Cap(stype, id, l_args_cap, stypeleft, styperight);       :}
                 |   STYPE:stype ID:id                                                               {: RESULT = new L_args_Cap(stype, id, stypeleft, styperight);                   :}
                 ;
 
-L_ARGS_CALL     ::= ID:id                                                                           {: RESULT = new L_args_Call(id, idleft, idright);                               :}
-                |   ID:id COMA L_ARGS_CALL:l_args_call                                              {: RESULT = new L_args_Call(id, l_args_call, idleft, idright);                  :}
+L_ARGS_CALL     ::= VALUE:value                                                                     {: RESULT = new L_args_Call(value, valueleft, valueright);                               :}
+                |   VALUE:value COMA L_ARGS_CALL:l_args_call                                        {: RESULT = new L_args_Call(value, l_args_call, valueleft, valueright);                  :}
                 ;
 
 FSENTS          ::= SENTS:sents RET_PROC:ret_proc                                                   {: System.out.println("He analizado el fsents");RESULT = new FSents(sents, ret_proc, sentsleft, sentsright);                 :}
@@ -205,7 +237,7 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
 
                         RESULT = new Decl(type, lid, d_asignacion, typeleft, typeright);
                     :}
-                |   TYPE:type ID:id CORCHETE_A DIGITO:num CORCHETE_C P_COMA
+                |   TYPE:type CORCHETE_A DIGITO:num CORCHETE_C ID:id P_COMA
                     {:
                         if (!type.getConstante()) {
 
@@ -249,7 +281,7 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                     {:
                         if (ansem.gestExp(expArr) != EnumType.ENTERO) {
                             // MANEJO DE ERRORES SEMANTICOS
-                            // El indice del array debe ser de tipo entero
+                            // El índice del array debe ser de tipo entero
                             ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
                         }
                         Symbol symbol = tSimbolos.getSymbol(id);
@@ -264,8 +296,16 @@ C_SENTS         ::= SENT:sent C_SENTS:c_sents                                   
                 |                                                                                   {: :}
                 ;
 
-C_SENT          ::= ROMPER P_COMA                                                                   {: RESULT = new C_sent("Romper", null, cur_token.left, cur_token.right);        :}
-                |   CONTINUAR P_COMA                                                                {: RESULT = new C_sent("Continuar", null, cur_token.left, cur_token.right);     :}
+C_SENT          ::= ROMPER P_COMA
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new C_sent("Romper", null, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
+                |   CONTINUAR P_COMA
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new C_sent("Continuar", null, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
                 |   RET_PROC:ret_proc
                     {: ansem.gestReturnFunc(ret_proc);
                        RESULT = new C_sent("ret_proc", ret_proc, ret_procleft, ret_procright);
@@ -280,8 +320,16 @@ CONT_COND       ::= SINO LLAVE_A SENTS:sents LLAVE_C                            
                 |                                                                                   {: :}
                 ;
 
-TYPE            ::= STYPE:stype                                                                     {: RESULT = new Type(false, stype, stypeleft, styperight);                      :}
-                |   CONST STYPE:stype                                                               {: RESULT = new Type(true, stype, stypeleft, styperight);                       :}
+TYPE            ::= STYPE:stype
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new Type(false, stype, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
+                |   CONST STYPE:stype
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new Type(true, stype, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
                 ;
 
 DASIGNACION     ::= ASIG E:exp                                                                      {: RESULT = new D_asig(exp, expleft, expright);                                 :}
@@ -292,9 +340,21 @@ LID             ::= ID:id COMA LID:lid                                          
                 |   ID:id                                                                           {: RESULT = new Lid(id, idleft, idright);                                       :}
                 ;
 
-ENTRADA         ::= LEERBOOL                                                                        {: RESULT = new Entrada(EnumType.BOOLEANO, cur_token.left, cur_token.right);     :}
-                |   LEERCAR                                                                         {: RESULT = new Entrada(EnumType.CARACTER, cur_token.left, cur_token.right);     :}
-                |   LEERENT                                                                         {: RESULT = new Entrada(EnumType.ENTERO, cur_token.left, cur_token.right);       :}
+ENTRADA         ::= LEERBOOL
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new Entrada(EnumType.BOOLEANO, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
+                |   LEERCAR
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new Entrada(EnumType.CARACTER, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
+                |   LEERENT
+                {:
+                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                    RESULT = new Entrada(EnumType.ENTERO, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                :}
                 ;
 
 E               ::= VALUE:value OP:op E:exp                                                         {: System.out.println("Expresion con op");RESULT = new Exp(value, op, exp, valueleft, valueright);                      :}

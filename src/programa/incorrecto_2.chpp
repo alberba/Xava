@@ -1,0 +1,20 @@
+## declaracion de tupla constante por lenguaje
+ent [3] arr;
+ent global_integer := 3;
+
+principal{
+    arr[0] := 1;
+    arr[1] := 2;
+    arr[2] := 3;
+    const ent a := 5;
+    ent input := 0;
+ 
+    ## ERROR: no se puede modificar una variable constante
+    a := 3;
+
+    ## ERROR: no se le puede asignar un valor boleano a una variable numérica
+    input := leerBool();
+
+    ## WARNING: División por 0
+    global_integer := global_integer/0;
+}

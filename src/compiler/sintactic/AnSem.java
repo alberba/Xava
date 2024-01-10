@@ -23,7 +23,7 @@ public class AnSem {
     public EnumType gestExp(Exp exp) {
 
         EnumType tipo;
-        System.out.println(exp.getValue().getValue());
+        System.out.println("Value del primer value con op/Value del exp:" + exp.getValue().getValue());
         switch (exp.getValue().getTipo()) {
             case "Ent":
                 tipo = EnumType.ENTERO;
@@ -53,13 +53,13 @@ public class AnSem {
                 }
                 break;
             case "Call_fn":
-                Symbol sCall = ts.getSymbol(exp.getValue().getValue());
+                Symbol sCall = ts.getSymbol(exp.getValue().getCall_fn().getId());
                 if (sCall == null) {
                     ErrorC.añadirError(new ErrorC("La función no existe", exp.getLinea(), Fase.SEMÁNTICO));
                     return null;
                 } else {
                     tipo = sCall.getTipoReturn();
-                    if (sCall.getTipoReturn() != EnumType.VACIO) {
+                    if (sCall.getTipoReturn() == EnumType.VACIO) {
                         ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
                     }
@@ -137,7 +137,12 @@ public class AnSem {
         if (eType == eType2) {
             return true;
         } else {
-            ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getLinea(), Fase.SEMÁNTICO));
+            if (exp.getValue().getCall_fn() != null) {
+                ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getValue().getCall_fn().getLinea(), Fase.SEMÁNTICO));
+            } else {
+                ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getLinea(), Fase.SEMÁNTICO));
+            }
+
             return false;
         }
     }
@@ -175,21 +180,6 @@ public class AnSem {
             if (typeReturn != typeFunc) {
                 ErrorC.añadirError(new ErrorC("El tipo de devolución no coincide con el tipo de la función", retProc.getLinea(), Fase.SEMÁNTICO));
             }
-        }
-    }
-
-    public boolean existeFuncion(Cap cap) {
-        ArrayList <Symbol> simbolos = ts.getParametros(cap.getId());
-        if (simbolos == null) {
-            return false;
-        } else {
-            Arra
-            for (Symbol s : simbolos) {
-                if (s.getTipoElemento() == TipoElemento.PARAMETRO && ca) {
-                    return true;
-                }
-            }
-            return true;
         }
     }
 

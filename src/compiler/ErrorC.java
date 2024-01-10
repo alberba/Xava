@@ -26,7 +26,6 @@ public class ErrorC {
 
     public static void añadirError(ErrorC err) {
         try {
-            System.out.println(err);
             errores.add(err);
             BufferedWriter writer = new BufferedWriter(new FileWriter("Resultado/errores.txt", true));
             writer.write(err.toString() + "\n");
@@ -48,6 +47,6 @@ public class ErrorC {
 
     @Override
     public String toString() {
-        return "Error de " + fase.name() + ": " + mensaje + ". Línea: " + linea + ".\n";
+        return "Error de " + fase.name() + ": " + mensaje + ". Línea: " + linea + ".";
     }
 }
