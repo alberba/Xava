@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class D_asig extends SimboloBase {
 
     private Exp e;
@@ -15,5 +16,9 @@ public class D_asig extends SimboloBase {
 
     public void setE(Exp e) {
         this.e = e;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        e.generarIntermedio(intermedio);
     }
 }

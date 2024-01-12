@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class Exp extends SimboloBase {
 
     private Value value;
@@ -42,5 +43,12 @@ public class Exp extends SimboloBase {
 
     public void setExp(Exp exp) {
         this.exp = exp;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        value.generarIntermedio(intermedio);
+        if (exp != null) {
+            exp.generarIntermedio(intermedio);
+        }
     }
 }

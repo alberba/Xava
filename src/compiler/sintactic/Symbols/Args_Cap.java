@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import compiler.sintactic.Symbol;
 import compiler.sintactic.TipoElemento;
+import compiler.Intermedio.Intermedio;
 
 public class Args_Cap extends SimboloBase {
 
@@ -22,5 +23,9 @@ public class Args_Cap extends SimboloBase {
         this.l_args_cap = l_args_cap;
     }
 
-    
+    public void generarIntermedio(Intermedio intermedio) {
+        if (l_args_cap != null) {
+            l_args_cap.generarIntermedio(intermedio);
+        }
+    }
 }

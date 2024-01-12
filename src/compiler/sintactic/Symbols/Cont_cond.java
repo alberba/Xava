@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class Cont_cond extends SimboloBase {
 
         private Exp exp;
@@ -16,4 +17,14 @@ public class Cont_cond extends SimboloBase {
         public Cont_cond(int linea, int columna) {
             super(linea,columna);
         }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        if (exp != null) {
+            exp.generarIntermedio(intermedio);
+        }
+        sents.generarIntermedio(intermedio);
+        if (cont_cond != null) {
+            cont_cond.generarIntermedio(intermedio);
+        }
+    }
 }

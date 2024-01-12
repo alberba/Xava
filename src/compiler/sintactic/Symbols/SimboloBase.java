@@ -1,6 +1,8 @@
 package compiler.sintactic.Symbols;
 
-public class SimboloBase {
+import compiler.Intermedio.Intermedio;
+
+public abstract class SimboloBase {
     private int linea;
     private int columna;
     public SimboloBase(int linea, int columna){
@@ -14,4 +16,6 @@ public class SimboloBase {
     public int getColumna(){
         return this.linea;
     }
+
+    public abstract void generarIntermedio(Intermedio intermedio);
 }

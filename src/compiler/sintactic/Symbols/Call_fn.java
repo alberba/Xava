@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class Call_fn extends SimboloBase {
     private String id;
     private Args_Call args_call;
@@ -14,4 +15,7 @@ public class Call_fn extends SimboloBase {
         return this.id;
     }
 
+    public void generarIntermedio(Intermedio intermedio) {
+        args_call.generarIntermedio(intermedio);
+    }
 }

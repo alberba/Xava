@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class L_args_Declf extends SimboloBase {
 
     private EnumType enumType;
@@ -17,5 +18,11 @@ public class L_args_Declf extends SimboloBase {
         super(linea,columna);
         this.enumType = enumType;
         this.id = id;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        if(args != null){
+            args.generarIntermedio(intermedio);
+        }
     }
 }

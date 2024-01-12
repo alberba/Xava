@@ -151,17 +151,17 @@ public class AnSem {
      * Función que comprueba, en caso de que sea un array, si existe el simbolo y si es un array
      *
      * @param id ID del array
-     * @param dimension Dimension del array
+     * @param nDimensiones cuantas dimensiones tiene el array
      * @param linea Linea del código donde se encuentra el array
      */
-    public void gestArray(String id, Exp dimension, int linea) {
+    public void gestArray(String id, int nDimensiones, int linea) {
         Symbol symbol = ts.getSymbol(id);
 
         if (symbol == null) {
             ErrorC.añadirError(new ErrorC("El array no existe", linea, Fase.SEMÁNTICO));
         } else {
-            if (symbol.getDimension() == 0) {
-                ErrorC.añadirError(new ErrorC("La variable no es un array", linea, Fase.SEMÁNTICO));
+            if (symbol.getDimension() != nDimensiones) {
+                ErrorC.añadirError(new ErrorC("La variable no tiene esas dimensiones", linea, Fase.SEMÁNTICO));
             }
         }
     }

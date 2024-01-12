@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class RetProc extends SimboloBase {
 
     private Exp e;
@@ -15,5 +16,11 @@ public class RetProc extends SimboloBase {
 
     public void setE(Exp e) {
         this.e = e;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        if(e != null){
+            e.generarIntermedio(intermedio);
+        }
     }
 }

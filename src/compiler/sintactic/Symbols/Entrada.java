@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class Entrada extends SimboloBase {
 
     private EnumType enumType;
@@ -15,5 +16,9 @@ public class Entrada extends SimboloBase {
 
     public void setEnumType(EnumType enumType) {
         this.enumType = enumType;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+
     }
 }

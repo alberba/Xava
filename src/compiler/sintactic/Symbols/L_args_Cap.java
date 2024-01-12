@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class L_args_Cap extends SimboloBase {
 
     private EnumType enumType;
@@ -43,5 +44,9 @@ public class L_args_Cap extends SimboloBase {
         this.l_args_cap = l_args_cap;
     }
 
-    
+    public void generarIntermedio(Intermedio intermedio) {
+        if(l_args_cap != null){
+            l_args_cap.generarIntermedio(intermedio);
+        }
+    }
 }

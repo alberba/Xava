@@ -2,6 +2,7 @@ package compiler.sintactic.Symbols;
 
 //import compiler.sintactic.AnSem;
 
+import compiler.Intermedio.Intermedio;
 public class Inst extends SimboloBase {
     private String type;
     private Exp exp;
@@ -37,6 +38,25 @@ public class Inst extends SimboloBase {
         this.dimArray = dimArray;
         this.id = id;
         this.exp = exp;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        exp.generarIntermedio(intermedio);
+        if (dimArray != null) {
+            dimArray.generarIntermedio(intermedio);
+        }
+        if (c_sents != null) {
+            c_sents.generarIntermedio(intermedio);
+        }
+        if (decl_cap != null) {
+            decl_cap.generarIntermedio(intermedio);
+        }
+        if (decl != null) {
+            decl.generarIntermedio(intermedio);
+        }
+        if (contCond != null) {
+            contCond.generarIntermedio(intermedio);
+        }
     }
 
 

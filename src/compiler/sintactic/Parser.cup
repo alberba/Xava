@@ -41,6 +41,14 @@ parser code {:
         List<String> list = this.expected_token_ids().stream().map(this::symbl_name_from_id).toList();
         return (list.size() > 0) ? list.toString() : "something else";
     }
+
+    private int getDimensionesArray(List_arr list_arr) {
+        int dimensiones = 0;
+        for (List_arr aux = list_arr; aux != null; aux = aux.getList_arr()) {
+            dimensiones++;
+        }
+        return dimensiones;
+    }
 :}
 
 terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CONST,
@@ -87,6 +95,9 @@ non terminal    Exp             E;
 non terminal    Entrada         ENTRADA;
 non terminal    Op              OP;
 non terminal    Value           VALUE;
+non terminal    ArrayG          ARRAY;
+non terminal    L_array         L_ARR;
+
 non terminal    Call_fn         CALL_FN;
 
 
@@ -237,16 +248,16 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
 
                         RESULT = new Decl(type, lid, d_asignacion, typeleft, typeright);
                     :}
-                |   TYPE:type CORCHETE_A DIGITO:num CORCHETE_C ID:id P_COMA
+                |   TYPE:type ARRAY:array ID:id P_COMA
                     {:
                         if (!type.getConstante()) {
 
-                            if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, Integer.parseInt(num), idleft))) {
+                            if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), idleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                             }
-                            RESULT = new Decl(type, id, num, typeleft, typeright);
+                            RESULT = new Decl(type, id, array, typeleft, typeright);
                         } else {
                             // MANEJO DE ERRORES SEMANTICOS
                             // No se puede declarar un array de tipo constante
@@ -379,20 +390,34 @@ OP              ::= Y                                                           
 VALUE           ::= DIGITO:num                                                                      {: RESULT = new Value(num, "Ent", numleft, numright);                                  :}
                 |   CALL_FN:call_fn                                                                 {: RESULT = new Value(call_fn, call_fnleft, call_fnright);                      :}
                 |   ID:id                                                                           {: RESULT = new Value(id, "Id", idleft, idright);                               :}
-                |   ID:id CORCHETE_A E:expArr CORCHETE_C
+                |   ARRAY:array
+                {:
+                    RESULT = new Value(array, "Arr", arrayleft, arrayright);
+                :}
+                |   COMILLAS CARACTER:car COMILLAS                                                  {: RESULT = new Value(car, "Car", carleft, carright);                      :}
+                |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);          :}
+                |   PAR_A E:exp PAR_C                                                               {: RESULT = new Value(exp, expleft, expright);                                  :}
+                |   ENTRADA:entrada                                                                 {: RESULT = new Value(entrada, entradaleft, entradaright);                      :}
+                ;
+
+ARRAY           ::= ID:id L_ARR:list_arr
+                {:
+                    nDimensiones = getDimensionesArray(list_arr);
+                    ansem.gestArray(id, nDimensiones, list_arrleft);
+                    RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
+                :}
+                ;
+
+L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C LIST_ARR:list_array
                 {:
                     if (ansem.gestExp(expArr) != EnumType.ENTERO) {
                         // MANEJO DE ERRORES SEMANTICOS
                         // El índice del array debe ser de tipo entero
                         ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
                     }
-                    ansem.gestArray(id, expArr, expArr.getLinea());
-                    RESULT = new Value(id, "Arr", expArr, idleft, idright);
+                    RESULT = new List_arr(expArr, list_array, expArrleft, expArrright);
                 :}
-                |   COMILLAS CARACTER:car COMILLAS                                                  {: RESULT = new Value(car, "Car", carleft, carright);                      :}
-                |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);          :}
-                |   PAR_A E:exp PAR_C                                                               {: RESULT = new Value(exp, expleft, expright);                                  :}
-                |   ENTRADA:entrada                                                                 {: RESULT = new Value(entrada, entradaleft, entradaright);                      :}
+                |                                                                                   {: :}
                 ;
 
 CALL_FN         ::= ID:id ARGS_CALL:args_call                                                       {: RESULT = new Call_fn(id, args_call, args_callleft, args_callright);          :}

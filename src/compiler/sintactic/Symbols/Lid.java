@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class Lid extends SimboloBase {
 
     private String id;
@@ -30,5 +31,11 @@ public class Lid extends SimboloBase {
 
     public void setLid(Lid lid) {
         this.lid = lid;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        if(lid != null){
+            lid.generarIntermedio(intermedio);
+        }
     }
 }

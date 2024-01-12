@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class Decls extends SimboloBase {
 
     private Decl decl;
@@ -9,6 +10,13 @@ public class Decls extends SimboloBase {
         super(linea,columna);
         this.decl = decl;
         this.decls = decls;
+    }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        decl.generarIntermedio(intermedio);
+        if (decls != null) {
+            decls.generarIntermedio(intermedio);
+        }
     }
 
 }

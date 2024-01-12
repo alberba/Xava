@@ -1,5 +1,6 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Intermedio;
 public class C_sents extends SimboloBase {
 
         private Sent sent;
@@ -17,4 +18,14 @@ public class C_sents extends SimboloBase {
             this.sent = sent;
             this.c_sents = c_sents;
         }
+
+    public void generarIntermedio(Intermedio intermedio) {
+        if (c_sent != null) {
+            c_sent.generarIntermedio(intermedio);
+        }
+        if (sent != null) {
+            sent.generarIntermedio(intermedio);
+        }
+        c_sents.generarIntermedio(intermedio);
+    }
 }
