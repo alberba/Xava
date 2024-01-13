@@ -22,7 +22,7 @@ parser code {:
         this.scanner = scanner;
     }
 ***/
-    TSimbolos tSimbolos = new TSimbolos();
+    public TSimbolos tSimbolos = new TSimbolos();
     AnSem ansem = new AnSem(tSimbolos);
 
     public TSimbolos getTSimbolos() {
@@ -408,7 +408,7 @@ ARRAY           ::= ID:id L_ARR:list_arr
                 :}
                 ;
 
-L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C LIST_ARR:list_array
+L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C L_ARR:list_array
                 {:
                     if (ansem.gestExp(expArr) != EnumType.ENTERO) {
                         // MANEJO DE ERRORES SEMANTICOS

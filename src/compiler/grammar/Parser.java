@@ -439,7 +439,7 @@ public class Parser extends java_cup.runtime.lr_parser {
         this.scanner = scanner;
     }
 ***/
-    TSimbolos tSimbolos = new TSimbolos();
+    public TSimbolos tSimbolos = new TSimbolos();
     AnSem ansem = new AnSem(tSimbolos);
 
     public TSimbolos getTSimbolos() {

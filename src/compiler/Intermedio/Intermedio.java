@@ -1,10 +1,14 @@
 package compiler.Intermedio;
 
+import compiler.sintactic.Symbols.ArrayG;
 import compiler.sintactic.Symbols.EnumType;
+import compiler.sintactic.TSimbolos;
 
 import java.util.ArrayList;
 
 public class Intermedio {
+
+    private ArrayList<Instruccion> codigo;
 
     private ArrayList<Variable> tv;
 
@@ -15,6 +19,15 @@ public class Intermedio {
     private boolean esParametro = false;
 
     private ArrayList<Procedimiento> tp;
+
+    private final TSimbolos ts;
+
+    public Intermedio(TSimbolos tsimbolos) {
+        codigo = new ArrayList<>();
+        tv = new ArrayList<>();
+        tp = new ArrayList<>();
+        this.ts = tsimbolos;
+    }
 
     public Variable añadirVariable(String id, EnumType tipo) {
         Variable v = null;
@@ -73,6 +86,29 @@ public class Intermedio {
     }
 
     public void añadirInstruccion(Instruccion inst) {
+        codigo.add(inst);
+    }
 
+    public void añadirArray(ArrayG arrayG, Intermedio intermedio) {
+        EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
+        int nbytes = 0;
+        switch (typeArr) {
+            case CARACTER -> nbytes = 2;
+            case ENTERO -> nbytes = 4;
+            case BOOLEANO -> nbytes = 1;
+            default -> {
+            }
+        }
+        arrayG.getlArray().getExp().generarIntermedio(intermedio);
+
+
+    }
+
+    public Variable getUltimaVariable() {
+        return tv.get(tv.size() - 1);
+    }
+
+    public TSimbolos getTs() {
+        return ts;
     }
 }

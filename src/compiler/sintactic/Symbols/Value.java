@@ -97,17 +97,26 @@ public class Value extends SimboloBase {
         if (value != null) {
             Variable v;
             switch (tipo) {
-                case "Int":
+                case "Id":
+                    // Guardamos el valor de la variable en una variable temporal
                     v = intermedio.añadirVariable(value, EnumType.ENTERO);
                     String temp = intermedio.añadirVariable(null, EnumType.ENTERO).getId();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, v.getId(), null, temp));
                     break;
                 case "Ent":
+                    // Guardamos el valor entero en una variable temporal
                     v = intermedio.añadirVariable(null, EnumType.ENTERO);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, value, null, v.getId()));
                     break;
                 case "Car":
-
+                    // Guardamos el valor carácter en una variable temporal
+                    v = intermedio.añadirVariable(null, EnumType.CARACTER);
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, value, null, v.getId()));
+                case "Bol":
+                    // Guardamos el valor booleano en una variable temporal
+                    v = intermedio.añadirVariable(null, EnumType.BOOLEANO);
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, value, null, v.getId()));
+                    break;
             }
         }
         if(arrayG != null){
