@@ -87,13 +87,26 @@ public class Exp extends SimboloBase {
                 case MULT:
                 case DIV:
                     generarIntermedioArit(listaObjetos, intermedio);
+                    break;
+                case IGUAL:
+                case IGUALNT:
+                case Y:
+                case O:
+                case MAI:
+                case MEI:
+                case MAQ:
+                case MEQ:
+                    generarIntermedioLogic(listaObjetos, intermedio);
+                    break;
+                default:
+                    break;
             }
         } else {
             // Se trata de una expresión simple, por lo que se debe generar el intermedio de la expresión
             value.generarIntermedio(intermedio);
         }
         
-        }
+    }
 
     /**
      * Genera el intermedio de una operación aritmética
@@ -156,6 +169,38 @@ public class Exp extends SimboloBase {
             listaObjeto.remove(indexMin - 1);
 
             listaObjeto.add(indexMin - 1, intermedio.getUltimaVariable());
+        }
+    }
+
+    private void generarIntermedioLogic(ArrayList<Object> listaObjeto, Intermedio intermedio) {
+        Variable[] variables;
+        OperacionInst op = null;
+
+        while(listaObjeto.size() > 1){
+            // Se obtienen las variables de la operación más hacia la izquierda
+            variables = obtenerVariablesOperacion(1, listaObjeto, intermedio);
+
+            Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, 0);
+            switch ((Op) listaObjeto.get(1)) {
+                case IGUAL -> op = OperacionInst.IGUAL;
+                case IGUALNT -> op = OperacionInst.DIFERENTE;
+                case Y -> op = OperacionInst.Y;
+                case O -> op = OperacionInst.O;
+                case MAI -> op = OperacionInst.MAYOR_IGUAL;
+                case MEI -> op = OperacionInst.MENOR_IGUAL;
+                case MAQ -> op = OperacionInst.MAYOR;
+                case MEQ -> op = OperacionInst.MENOR;
+            }
+
+            // Se añade la instrucción
+            intermedio.añadirInstruccion(new Instruccion(op, variables[0].getId(), variables[1].getId(), temp.getId()));
+
+            // Se sustituye la operación por la variable temporal
+            listaObjeto.remove(2);
+            listaObjeto.remove(1);
+            listaObjeto.remove(0);
+
+            listaObjeto.add(0, intermedio.getUltimaVariable());
         }
     }
 

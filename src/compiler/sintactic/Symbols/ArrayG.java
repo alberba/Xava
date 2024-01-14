@@ -39,7 +39,6 @@ public class ArrayG extends SimboloBase {
         this.dimension = dimension;
     }
 
-    @Override
     public void generarIntermedio(Intermedio intermedio) {
         intermedio.añadirArray(this, intermedio);
     }

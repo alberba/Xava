@@ -1,6 +1,12 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.OperacionInst;
+import compiler.Intermedio.Variable;
+
+import java.util.ArrayList;
+
 public class D_asig extends SimboloBase {
 
     private Exp e;
@@ -18,7 +24,10 @@ public class D_asig extends SimboloBase {
         this.e = e;
     }
 
-    public void generarIntermedio(Intermedio intermedio) {
+    public void generarIntermedio(Intermedio intermedio, ArrayList<Variable> varLids) {
         e.generarIntermedio(intermedio);
+        for (Variable varLid : varLids) {
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, intermedio.getUltimaVariable().getId(), null, varLid.getId()));
+        }
     }
 }

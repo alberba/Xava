@@ -7,11 +7,13 @@ public class Variable {
     private String id;
     private EnumType tipo;
     private boolean esTemp;
+    private int longitud;
 
-    public Variable(String id, EnumType tipo, boolean esTemp) {
+    public Variable(String id, EnumType tipo, boolean esTemp, int longitud) {
         this.id = id;
         this.tipo = tipo;
         this.esTemp = esTemp;
+        this.longitud = longitud;
     }
 
     public String getId() {

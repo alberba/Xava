@@ -1,15 +1,17 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Variable;
 import compiler.sintactic.Symbols.D_asig;
 import compiler.sintactic.Symbols.Lid;
 import compiler.sintactic.Symbols.Type;
 import compiler.Intermedio.Intermedio;
 
+import java.util.ArrayList;
+
 public class Decl extends SimboloBase {
 
     private Type type;
     private Lid lid;
-    private String id;
     private ArrayG arrayG;
     private D_asig d_asignacion;
 
@@ -20,21 +22,29 @@ public class Decl extends SimboloBase {
         this.d_asignacion = d_asignacion;
     }
 
-    public Decl(Type type, String id, ArrayG arrayG, int linea, int columna) {
+    public Decl(Type type, ArrayG arrayG, int linea, int columna) {
         super(linea,columna);
         this.type = type;
-        this.id = id;
         this.arrayG = arrayG;
     }
 
     public void generarIntermedio(Intermedio intermedio) {
         type.generarIntermedio(intermedio);
+
         if(lid != null){
-            lid.generarIntermedio(intermedio);
+            ArrayList<Variable> varLids = new ArrayList<>();
+            for (Lid lid = this.lid; lid != null; lid = lid.getLid()) {
+                varLids.add(intermedio.añadirVariable(lid.getId(), type.getStype()));
+            }
+            if(d_asignacion != null){
+                d_asignacion.generarIntermedio(intermedio, varLids);
+            }
         }
-        if(d_asignacion != null){
-            d_asignacion.generarIntermedio(intermedio);
+
+        if(arrayG != null){
+            arrayG.generarIntermedio(intermedio);
         }
+
     }
 
 

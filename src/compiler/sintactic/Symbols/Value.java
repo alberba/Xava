@@ -92,7 +92,6 @@ public class Value extends SimboloBase {
         this.arrayG = arrayG;
     }
 
-    @Override
     public void generarIntermedio(Intermedio intermedio) {
         if (value != null) {
             Variable v;

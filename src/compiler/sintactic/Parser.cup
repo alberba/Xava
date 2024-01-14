@@ -248,16 +248,16 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
 
                         RESULT = new Decl(type, lid, d_asignacion, typeleft, typeright);
                     :}
-                |   TYPE:type ARRAY:array ID:id P_COMA
+                |   TYPE:type ARRAY:array P_COMA
                     {:
                         if (!type.getConstante()) {
 
-                            if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), idleft))) {
+                            if (!tSimbolos.ponerSimbolo(new Symbol(array.getId(), TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), arrayleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
-                                ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
+                                ErrorC.añadirError(new ErrorC("Variable " + array.getId() + "declarada previamente", arrayleft, Fase.SEMÁNTICO));
                             }
-                            RESULT = new Decl(type, id, array, typeleft, typeright);
+                            RESULT = new Decl(type, array, typeleft, typeright);
                         } else {
                             // MANEJO DE ERRORES SEMANTICOS
                             // No se puede declarar un array de tipo constante

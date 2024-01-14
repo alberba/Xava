@@ -2,23 +2,26 @@ package compiler.Intermedio;
 
 import compiler.sintactic.Symbols.ArrayG;
 import compiler.sintactic.Symbols.EnumType;
+import compiler.sintactic.Symbols.Exp;
+import compiler.sintactic.Symbols.L_array;
 import compiler.sintactic.TSimbolos;
 
 import java.util.ArrayList;
 
 public class Intermedio {
 
+    // Lista de instrucciones
     private ArrayList<Instruccion> codigo;
 
     private ArrayList<Variable> tv;
+
+    private ArrayList<Procedimiento> tp;
 
     private int counterTemps = 0;
 
     private int counterGlobales = 0;
 
     private boolean esParametro = false;
-
-    private ArrayList<Procedimiento> tp;
 
     private final TSimbolos ts;
 
@@ -29,17 +32,17 @@ public class Intermedio {
         this.ts = tsimbolos;
     }
 
-    public Variable añadirVariable(String id, EnumType tipo) {
+    public Variable añadirVariable(String id, EnumType tipo, int longitud) {
         Variable v = null;
         // Se mira si es una variable temporal
         if (id == null) {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
-            v = new Variable("t" + counterTemps, tipo, true); // esTemp a true
+            v = new Variable("t" + counterTemps, tipo, true, longitud); // esTemp a true
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) {
-                v = new Variable(id + "_" + tp.size(), tipo, false);
+                v = new Variable(id + "_" + tp.size(), tipo, false, longitud);
                 counterGlobales++;
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el último procedimiento de la tabla (el actual)
@@ -65,7 +68,7 @@ public class Intermedio {
                 }
 
                 // Llegados a este punto, se puede asumir que la variable no existe, entonces será creada
-                v = new Variable(id + "_" + tp.size(), tipo, false);
+                v = new Variable(id + "_" + tp.size(), tipo, false, longitud);
                 // Se añade la variable a la lista correspondiente
                 if (esParametro) {
                     proc.addParametro(v);
@@ -99,7 +102,13 @@ public class Intermedio {
             default -> {
             }
         }
-        arrayG.getlArray().getExp().generarIntermedio(intermedio);
+        int posicion = 0;
+        ArrayList<Exp> exps = new ArrayList<>();
+        for(L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()){
+            exps.add(lArray.getExp());
+        }
+
+
 
 
     }
