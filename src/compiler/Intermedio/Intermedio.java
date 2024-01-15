@@ -175,13 +175,17 @@ public class Intermedio {
         return tv.get(tv.size() - 1);
     }
 
-    public FuncionG getFuncion(String id) {
-        for (FuncionG func : tp) {
-            if (procedimiento.getId().equals(id)) {
-                return procedimiento;
+    public Procedimiento getProcedimiento(String id) {
+        for (Procedimiento proc : tp) {
+            if (proc.getId().equals(id)) {
+                return proc;
             }
         }
         return null;
+    }
+
+    public void setEsParametro(boolean esParametro) {
+        this.esParametro = esParametro;
     }
 
     public TSimbolos getTs() {

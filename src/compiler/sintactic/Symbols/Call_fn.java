@@ -1,6 +1,10 @@
 package compiler.sintactic.Symbols;
 
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.Procedimiento;
+import compiler.Intermedio.Instruccion;
+import compiler.Intermedio.OperacionInst;
+
 public class Call_fn extends SimboloBase {
     private String id;
     private Args_Call args_call;
@@ -16,7 +20,12 @@ public class Call_fn extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        FuncionG func = intermedio.getProcedimiento(this.id);
-        args_call.generarIntermedio(intermedio);
+        Procedimiento proc = intermedio.getProcedimiento(id);
+        if (args_call != null) {
+            intermedio.setEsParametro(true);
+            args_call.generarIntermedio(intermedio);
+            intermedio.setEsParametro(false);
+        }
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, id));
     }
 }
