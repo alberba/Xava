@@ -1,9 +1,6 @@
 package compiler.Intermedio;
 
-import compiler.sintactic.Symbols.ArrayG;
-import compiler.sintactic.Symbols.EnumType;
-import compiler.sintactic.Symbols.Exp;
-import compiler.sintactic.Symbols.L_array;
+import compiler.sintactic.Symbols.*;
 import compiler.sintactic.TSimbolos;
 
 import java.util.ArrayList;
@@ -25,6 +22,8 @@ public class Intermedio {
 
     private final TSimbolos ts;
 
+    private int contadorEtiquetas = 0;
+
     public Intermedio(TSimbolos tsimbolos) {
         codigo = new ArrayList<>();
         tv = new ArrayList<>();
@@ -32,7 +31,12 @@ public class Intermedio {
         this.ts = tsimbolos;
     }
 
-    public Variable añadirVariable(String id, EnumType tipo, int longitud) {
+    public String nuevaEtiqueta(){
+        contadorEtiquetas++;
+        return "e" + contadorEtiquetas;
+    }
+
+    public Variable añadirVariable(String id, EnumType tipo, ArrayList<Variable> longitud) {
         Variable v = null;
         // Se mira si es una variable temporal
         if (id == null) {
@@ -92,7 +96,19 @@ public class Intermedio {
         codigo.add(inst);
     }
 
-    public void añadirArray(ArrayG arrayG, Intermedio intermedio) {
+    public void añadirArray(ArrayG arrayG) {
+        EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
+
+        ArrayList<Variable> variables = new ArrayList<>();
+        for (L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()) {
+            lArray.getExp().generarIntermedio(this);
+            variables.add(this.getUltimaVariable());
+        }
+        this.añadirVariable(arrayG.getId(), typeArr, variables);
+    }
+
+    public void consultarArray(ArrayG arrayG){
+        // Obtenemos el tipo del array
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
         int nbytes = 0;
         switch (typeArr) {
@@ -102,19 +118,70 @@ public class Intermedio {
             default -> {
             }
         }
-        int posicion = 0;
-        ArrayList<Exp> exps = new ArrayList<>();
-        for(L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()){
-            exps.add(lArray.getExp());
+        // Obtener las posiciones a las que se quiere acceder
+        ArrayList<Variable> varArray = new ArrayList<>();
+        for (L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()) {
+            lArray.getExp().generarIntermedio(this);
+            varArray.add(this.getUltimaVariable());
+        }
+
+        // Obtener la posición del array
+        boolean encontrado = false;
+        int i = 0;
+        for(; i < tv.size() && !encontrado; i++){
+            if(tv.get(i).getId().equals(arrayG.getId())){
+                encontrado = true;
+            }
+        }
+
+        // Obtener el array
+        Variable array = tv.get(i);
+        // Obtener las dimensiones del array
+        ArrayList<Variable> varArrayDecl = array.getLongitud();
+
+        // Bucle que añade todas las instrucciones que calculan la dirección de memoria a la que se quiere acceder
+        Variable tempAnt = varArray.get(0);
+        for (int j = 0; j < varArray.size() - 1; j++) {
+            Variable temp = this.añadirVariable(null, EnumType.ENTERO, null);
+            // En el ejemplo a [2] [1], se obtiene el valor de a [2] y se multiplica por 3, ya que la declaración de "a" es a[3] [3]
+            this.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, tempAnt.getId(), varArrayDecl.get(j+1).getId(), temp.getId()));
+            if (j != 0) {
+                this.añadirInstruccion(new Instruccion(OperacionInst.SUMA, temp.getId(), varArray.get(j+1).getId(), temp.getId()));
+            }
+
+            tempAnt = temp;
+        }
+
+        Variable temp = null;
+        // tempAnt sera null si el array es de una dimensión
+        if (tempAnt != null) {
+            // Se obtiene el índice
+            temp = this.añadirVariable(null, EnumType.ENTERO, null);
+            this.añadirInstruccion(new Instruccion(OperacionInst.SUMA, tempAnt.getId(), varArray.get(varArray.size() - 1).getId(), temp.getId()));
+        } else {
+            temp = varArray.get(0);
         }
 
 
+        // Se multiplica el índice por nbytes
+        Variable temp2 = this.añadirVariable(null, EnumType.ENTERO, null);
+        this.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, temp.getId(), String.valueOf(nbytes), temp2.getId()));
 
-
+        Variable tempFinal = this.añadirVariable(null, EnumType.ENTERO, null);
+        this.añadirInstruccion(new Instruccion(OperacionInst.INDEXADO, array.getId(), temp2.getId(), tempFinal.getId()));
     }
 
     public Variable getUltimaVariable() {
         return tv.get(tv.size() - 1);
+    }
+
+    public FuncionG getFuncion(String id) {
+        for (FuncionG func : tp) {
+            if (procedimiento.getId().equals(id)) {
+                return procedimiento;
+            }
+        }
+        return null;
     }
 
     public TSimbolos getTs() {

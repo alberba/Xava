@@ -2,7 +2,10 @@ package compiler.sintactic.Symbols;
 
 //import compiler.sintactic.AnSem;
 
+import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.OperacionInst;
+
 public class Inst extends SimboloBase {
     private String type;
     private Exp exp;
@@ -41,12 +44,35 @@ public class Inst extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        exp.generarIntermedio(intermedio);
+
         if (dimArray != null) {
             dimArray.generarIntermedio(intermedio);
         }
         if (c_sents != null) {
-            c_sents.generarIntermedio(intermedio);
+            switch (type) {
+                case "cond":
+                    exp.generarIntermedio(intermedio);
+                    String labelTrue = intermedio.nuevaEtiqueta();
+                    String labelFalse = intermedio.nuevaEtiqueta();
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelTrue));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFalse));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelTrue));
+                    c_sents.generarIntermedio(intermedio);
+                    break;
+                case "mientras":
+                    String labelInit = intermedio.nuevaEtiqueta();
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelInit));
+                    exp.generarIntermedio(intermedio);
+                    String labelFinal = intermedio.nuevaEtiqueta();
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelFinal));
+                    c_sents.generarIntermedio(intermedio);
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal));
+                    break;
+                case "para":
+                    break;
+            }
+
         }
         if (decl_cap != null) {
             decl_cap.generarIntermedio(intermedio);

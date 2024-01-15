@@ -16,6 +16,7 @@ public class Call_fn extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
+        FuncionG func = intermedio.getProcedimiento(this.id);
         args_call.generarIntermedio(intermedio);
     }
 }

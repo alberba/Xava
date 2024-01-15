@@ -131,7 +131,7 @@ public class Exp extends SimboloBase {
                 variables = obtenerVariablesOperacion(indexMin, listaObjeto, intermedio);
 
                 // Creamos la variable destino de la operación
-                Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO);
+                Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
 
                 // Se añade la primera instrucción encontrada (mult vs div)
                 if (listaObjeto.get(indexMin) == Op.MULT) {
@@ -152,7 +152,7 @@ public class Exp extends SimboloBase {
                 variables = obtenerVariablesOperacion(indexMin, listaObjeto, intermedio);
 
                 // Creamos la variable destino de la operación
-                Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO);
+                Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
 
                 // Se añade la primera instrucción encontrada (sum vs rest)
                 if (listaObjeto.get(indexMin) == Op.SUMA) {
@@ -180,7 +180,7 @@ public class Exp extends SimboloBase {
             // Se obtienen las variables de la operación más hacia la izquierda
             variables = obtenerVariablesOperacion(1, listaObjeto, intermedio);
 
-            Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, 0);
+            Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
             switch ((Op) listaObjeto.get(1)) {
                 case IGUAL -> op = OperacionInst.IGUAL;
                 case IGUALNT -> op = OperacionInst.DIFERENTE;

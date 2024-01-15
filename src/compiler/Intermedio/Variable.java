@@ -2,14 +2,16 @@ package compiler.Intermedio;
 
 import compiler.sintactic.Symbols.EnumType;
 
+import java.util.ArrayList;
+
 public class Variable {
 
     private String id;
     private EnumType tipo;
     private boolean esTemp;
-    private int longitud;
+    private ArrayList<Variable> longitud;
 
-    public Variable(String id, EnumType tipo, boolean esTemp, int longitud) {
+    public Variable(String id, EnumType tipo, boolean esTemp, ArrayList<Variable> longitud) {
         this.id = id;
         this.tipo = tipo;
         this.esTemp = esTemp;
@@ -38,5 +40,13 @@ public class Variable {
 
     public void setEsTemp(boolean esTemp) {
         this.esTemp = esTemp;
+    }
+
+    public ArrayList<Variable> getLongitud() {
+        return longitud;
+    }
+
+    public void setLongitud(ArrayList<Variable> longitud) {
+        this.longitud = longitud;
     }
 }

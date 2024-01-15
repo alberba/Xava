@@ -40,6 +40,6 @@ public class ArrayG extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        intermedio.añadirArray(this, intermedio);
+        intermedio.añadirArray(this);
     }
 }
