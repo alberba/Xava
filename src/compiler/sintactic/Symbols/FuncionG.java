@@ -13,6 +13,7 @@ public class FuncionG extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
+        intermedio.añadirProcedimiento(cap.getId(), cap.geteType());
         cap.generarIntermedio(intermedio);
         fsents.generarIntermedio(intermedio);
     }

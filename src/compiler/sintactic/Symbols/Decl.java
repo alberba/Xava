@@ -34,7 +34,7 @@ public class Decl extends SimboloBase {
         if(lid != null){
             ArrayList<Variable> varLids = new ArrayList<>();
             for (Lid lid = this.lid; lid != null; lid = lid.getLid()) {
-                varLids.add(intermedio.añadirVariable(lid.getId(), type.getStype()));
+                varLids.add(intermedio.añadirVariable(lid.getId(), type.getStype(), null));
             }
             if(d_asignacion != null){
                 d_asignacion.generarIntermedio(intermedio, varLids);
@@ -45,6 +45,10 @@ public class Decl extends SimboloBase {
             arrayG.generarIntermedio(intermedio);
         }
 
+    }
+
+    public Lid getLid(){
+        return this.lid;
     }
 
 

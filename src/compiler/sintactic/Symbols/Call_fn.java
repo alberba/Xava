@@ -26,6 +26,7 @@ public class Call_fn extends SimboloBase {
             args_call.generarIntermedio(intermedio);
             intermedio.setEsParametro(false);
         }
+
         intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, id));
     }
 }

@@ -11,6 +11,7 @@ import java_cup.runtime.*;
 import compiler.sintactic.Symbols.*;
 import compiler.sintactic.*;
 import compiler.sintactic.Symbol;
+import compiler.sintactic.Symbols.L_array;
 import compiler.ErrorC;
 import java.util.List;
 
@@ -42,9 +43,9 @@ parser code {:
         return (list.size() > 0) ? list.toString() : "something else";
     }
 
-    private int getDimensionesArray(List_arr list_arr) {
+    private int getDimensionesArray(L_array list_array) {
         int dimensiones = 0;
-        for (List_arr aux = list_arr; aux != null; aux = aux.getList_arr()) {
+        for (L_array aux = list_array; aux != null; aux = aux.getlArray()) {
             dimensiones++;
         }
         return dimensiones;
@@ -261,25 +262,39 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                         } else {
                             // MANEJO DE ERRORES SEMANTICOS
                             // No se puede declarar un array de tipo constante
-                            ErrorC.añadirError(new ErrorC("Un array no puede ser constante", idleft, Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("Un array no puede ser constante", typeleft, Fase.SEMÁNTICO));
                         }
                     :}
                 ;
 
 INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_COND:cont_cond
                     {:
-                        RESULT = new Inst("cond", exp, c_sents, null, null, cont_cond, expleft, expright);
+                        RESULT = new Inst("cond", exp, c_sents, null, null, cont_cond, null, expleft, expright);
                     :}
 
-                |   PARA PAR_A DECL:decl_cap P_COMA E:exp P_COMA DECL:decl PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C
+                |   PARA PAR_A DECL:decl_cap P_COMA E:exp P_COMA INST:inst PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C
                     {:
-                        RESULT = new Inst("para", exp, c_sents, decl_cap, decl, null, decl_capleft, decl_capright);
+                        int n = 0;
+                        for (Lid aux = decl_cap.getLid(); aux != null; aux = aux.getLid()) {
+                            n++;
+                            if (n > 1) {
+                                // MANEJO DE ERRORES SEMANTICOS
+                                // Solo se puede declarar una variable en el para
+                                ErrorC.añadirError(new ErrorC("Solo se puede declarar una variable en el para", aux.getLinea(), Fase.SEMÁNTICO));
+                            }
+                        }
+                        if (inst.getType() != "asig") {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La instrucción del para debe ser una asignación
+                            ErrorC.añadirError(new ErrorC("La instrucción del para debe ser una asignación", inst.getLinea(), Fase.SEMÁNTICO));
+                        }
+                        RESULT = new Inst("para", exp, c_sents, decl_cap, inst, null, null, decl_capleft, decl_capright);
                     :}
 
-                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C                      {: RESULT = new Inst("mientras", exp, c_sents, null, null, null, expleft, expright);     :}
+                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C                      {: RESULT = new Inst("mientras", exp, c_sents, null, null, null, null, expleft, expright);     :}
                 |   HACER LLAVE_A C_SENTS:c_sents LLAVE_C MIENTRAS PAR_A E:exp PAR_C P_COMA
                     {:
-                        RESULT = new Inst("hacer_mientras", exp, c_sents, null, null, null, c_sentsleft, c_sentsright);
+                        RESULT = new Inst("hacer_mientras", exp, c_sents, null, null, null, null, c_sentsleft, c_sentsright);
                     :}
 
                 |   ID:id ASIG E:exp P_COMA
@@ -300,6 +315,16 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         RESULT = new Inst("asig", id, expArr, exp, idleft, idright);
                     :}
                 |   IMPRIMIR PAR_A E:exp PAR_C P_COMA                                               {: RESULT = new Inst("impr", null, null, exp, expleft, expright);                     :}
+                |   CALL_FN:call_fn
+                    {:
+                        Symbol symbol = tSimbolos.getSymbol(call_fn.getId());
+                        if (symbol.getTipoReturn() != EnumType.VACIO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La función no devuelve nada
+                            ErrorC.añadirError(new ErrorC("La función devuelve nada", call_fn.getLinea(), Fase.SEMÁNTICO));
+                        }
+                        RESULT = new Inst("call_fn", null, null, null, null, null, call_fn, call_fnleft, call_fnright);
+                    :}
                 ;
 
 C_SENTS         ::= SENT:sent C_SENTS:c_sents                                                       {: RESULT = new C_sents(sent, c_sents, sentleft, sentright);                    :}
@@ -323,10 +348,10 @@ C_SENT          ::= ROMPER P_COMA
                     :}
                 ;
 
-CONT_COND       ::= SINO LLAVE_A SENTS:sents LLAVE_C                                                {: RESULT = new Cont_cond(null, sents, null, sentsleft, sentsright);            :}
-                |   SINOSI PAR_A E:exp PAR_C LLAVE_A SENTS:sents LLAVE_C CONT_COND:cont_cond
+CONT_COND       ::= SINO LLAVE_A C_SENTS:c_sents LLAVE_C                                                {: RESULT = new Cont_cond(null, c_sents, null, c_sentsleft, c_sentsright);            :}
+                |   SINOSI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_COND:cont_cond
                     {:
-                        RESULT = new Cont_cond(exp, sents, cont_cond, expleft, expright);
+                        RESULT = new Cont_cond(exp, c_sents, cont_cond, expleft, expright);
                     :}
                 |                                                                                   {: :}
                 ;
@@ -388,11 +413,21 @@ OP              ::= Y                                                           
                 ;
 
 VALUE           ::= DIGITO:num                                                                      {: RESULT = new Value(num, "Ent", numleft, numright);                                  :}
-                |   CALL_FN:call_fn                                                                 {: RESULT = new Value(call_fn, call_fnleft, call_fnright);                      :}
+                |   CALL_FN:call_fn
+                {:
+                    Symbol symbol = tSimbolos.getSymbol(call_fn.getId());
+                    if (symbol.getTipoReturn() == EnumType.VACIO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // La función no devuelve nada
+                        ErrorC.añadirError(new ErrorC("La función no devuelve nada", call_fn.getLinea(), Fase.SEMÁNTICO));
+                    }
+
+                    RESULT = new Value(call_fn, call_fnleft, call_fnright);
+                :}
                 |   ID:id                                                                           {: RESULT = new Value(id, "Id", idleft, idright);                               :}
                 |   ARRAY:array
                 {:
-                    RESULT = new Value(array, "Arr", arrayleft, arrayright);
+                    RESULT = new Value(array, arrayleft, arrayright);
                 :}
                 |   COMILLAS CARACTER:car COMILLAS                                                  {: RESULT = new Value(car, "Car", carleft, carright);                      :}
                 |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);          :}
@@ -400,9 +435,9 @@ VALUE           ::= DIGITO:num                                                  
                 |   ENTRADA:entrada                                                                 {: RESULT = new Value(entrada, entradaleft, entradaright);                      :}
                 ;
 
-ARRAY           ::= ID:id L_ARR:list_arr
+ARRAY           ::= L_ARR:list_arr ID:id
                 {:
-                    nDimensiones = getDimensionesArray(list_arr);
+                    int nDimensiones = getDimensionesArray(list_arr);
                     ansem.gestArray(id, nDimensiones, list_arrleft);
                     RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
                 :}
@@ -415,9 +450,17 @@ L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C L_ARR:list_array
                         // El índice del array debe ser de tipo entero
                         ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
                     }
-                    RESULT = new List_arr(expArr, list_array, expArrleft, expArrright);
+                    RESULT = new L_array(expArr, list_array, expArrleft, expArrright);
                 :}
-                |                                                                                   {: :}
+                | CORCHETE_A E:expArr CORCHETE_C
+                {:
+                    if (ansem.gestExp(expArr) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // El índice del array debe ser de tipo entero
+                        ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    RESULT = new L_array(expArr, null, expArrleft, expArrright);
+                :}
                 ;
 
 CALL_FN         ::= ID:id ARGS_CALL:args_call                                                       {: RESULT = new Call_fn(id, args_call, args_callleft, args_callright);          :}

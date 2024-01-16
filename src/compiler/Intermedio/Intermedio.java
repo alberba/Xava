@@ -184,6 +184,10 @@ public class Intermedio {
         return null;
     }
 
+    public int getNp() {
+        return tp.size();
+    }
+
     public void setEsParametro(boolean esParametro) {
         this.esParametro = esParametro;
     }

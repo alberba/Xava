@@ -29,8 +29,4 @@ public class L_array extends SimboloBase {
         this.lArray = lArray;
     }
 
-    @Override
-    public void generarIntermedio(Intermedio intermedio) {
-
-    }
 }

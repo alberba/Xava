@@ -120,12 +120,15 @@ public class Exp extends SimboloBase {
 
             int indexMult = listaObjeto.indexOf(Op.MULT);
             int indexDiv = listaObjeto.indexOf(Op.DIV);
+            int indexMod = listaObjeto.indexOf(Op.MOD);
 
             // Se mira que haya una multiplicación o una división
-            if (indexMult != -1 || indexDiv != -1) {
+            if (indexMult != -1 || indexDiv != -1 || indexMod != -1) {
 
                 //Se revisa cuál de las operaciones aparece antes (y si aparece), se recoge su índice
                 indexMin = indexMult != -1 && indexDiv != -1 ? Math.min(indexMult, indexDiv) : Math.max(indexMult, indexDiv);
+
+                indexMin = indexMod != -1 && indexMin != -1 ? Math.min(indexMin, indexMod) : Math.max(indexMin, indexMod);
 
                 // Se obtiene el valor de la operación, sea un literal o una variable
                 variables = obtenerVariablesOperacion(indexMin, listaObjeto, intermedio);
@@ -135,9 +138,11 @@ public class Exp extends SimboloBase {
 
                 // Se añade la primera instrucción encontrada (mult vs div)
                 if (listaObjeto.get(indexMin) == Op.MULT) {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, variables[0].getId(), variables[1].getId(), temp.getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, variables[1].getId(), variables[0].getId(), temp.getId()));
+                } else if (listaObjeto.get(indexMin) == Op.DIV) {
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.DIVISION, variables[1].getId(), variables[0].getId(), temp.getId()));
                 } else {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.DIVISION, variables[1].getId(), variables[1].getId(), temp.getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MODULO, variables[1].getId(), variables[0].getId(), temp.getId()));
                 }
 
             } else {

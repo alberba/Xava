@@ -19,13 +19,18 @@ public class C_sents extends SimboloBase {
             this.c_sents = c_sents;
         }
 
-    public void generarIntermedio(Intermedio intermedio) {
-        if (c_sent != null) {
-            c_sent.generarIntermedio(intermedio);
+    public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit, String retorno) {
+        if(labelFinal != null){
+            if (c_sent != null) {
+                c_sent.generarIntermedio(intermedio, labelFinal, labelInit, retorno);
+            }
         }
         if (sent != null) {
             sent.generarIntermedio(intermedio);
         }
-        c_sents.generarIntermedio(intermedio);
+        if(c_sents != null) {
+            c_sents.generarIntermedio(intermedio, labelFinal, labelInit, retorno);
+        }
     }
+
 }
