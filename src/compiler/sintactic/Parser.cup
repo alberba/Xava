@@ -115,7 +115,7 @@ start with      XAVA;
 XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: xava = new Xava(gdecls, main, funciones, 0, 0);                            :}
                 ;
 
-MAIN_FN         ::= M PRINCIPAL LLAVE_A FSENTS:fsents LLAVE_C                                       {: System.out.println("He analizado el principal");RESULT = new Main_fn(fsents, fsentsleft, fsentsright);                       :}
+MAIN_FN         ::= M PRINCIPAL LLAVE_A SENTS:sents LLAVE_C                                         {: System.out.println("He analizado el principal"); RESULT = new Main_fn(sents, sentsleft, sentsright);                       :}
                 ;
 
 DECLGLOB        ::= DECLS:decls DECLSF:declsf

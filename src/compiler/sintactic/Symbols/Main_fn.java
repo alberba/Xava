@@ -3,15 +3,15 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Intermedio;
 public class Main_fn extends SimboloBase {
 
-    private FSents fsents;
+    private Sents sents;
 
-    public Main_fn(FSents fsents, int linea, int columna) {
+    public Main_fn(Sents sents, int linea, int columna) {
         super(linea,columna);
-        this.fsents = fsents;
+        this.sents = sents;
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        fsents.generarIntermedio(intermedio);
+        sents.generarIntermedio(intermedio);
     }
 
 }
