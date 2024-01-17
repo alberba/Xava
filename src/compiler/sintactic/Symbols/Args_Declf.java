@@ -11,6 +11,7 @@ public class Args_Declf extends SimboloBase {
 
     public void generarIntermedio(Intermedio intermedio) {
         if(args != null){
+
             args.generarIntermedio(intermedio);
         }
     }

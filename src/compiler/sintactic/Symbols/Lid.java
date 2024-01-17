@@ -33,4 +33,6 @@ public class Lid extends SimboloBase {
         this.lid = lid;
     }
 
+    // generarIntermedio se hace en Decl
+
 }

@@ -13,19 +13,22 @@ public class Procedimiento {
     private ArrayList<Variable> parametros;
     // Declaraciones que tiene dentro
     private ArrayList<Variable> declaraciones;
+    private String etiqueta;
 
-    public Procedimiento(String id, EnumType tipo, ArrayList<Variable> parametros, ArrayList<Variable> declaraciones) {
+    public Procedimiento(String id, EnumType tipo, ArrayList<Variable> parametros, ArrayList<Variable> declaraciones, String etiqueta) {
         this.id = id;
         this.tipo = tipo;
         this.parametros = parametros;
         this.declaraciones = declaraciones;
+        this.etiqueta = etiqueta;
     }
 
-    public Procedimiento(String id, EnumType tipo) {
+    public Procedimiento(String id, EnumType tipo, String etiqueta) {
         this.id = id;
         this.tipo = tipo;
         this.parametros = new ArrayList<>();
         this.declaraciones = new ArrayList<>();
+        this.etiqueta = etiqueta;
     }
 
     // Añade un parametro
@@ -68,6 +71,27 @@ public class Procedimiento {
         return declaraciones.size();
     }
 
+    public void setId(String id) {
+        this.id = id;
+    }
 
+    public void setTipo(EnumType tipo) {
+        this.tipo = tipo;
+    }
 
+    public void setParametros(ArrayList<Variable> parametros) {
+        this.parametros = parametros;
+    }
+
+    public void setDeclaraciones(ArrayList<Variable> declaraciones) {
+        this.declaraciones = declaraciones;
+    }
+
+    public String getEtiqueta() {
+        return etiqueta;
+    }
+
+    public void setEtiqueta(String etiqueta) {
+        this.etiqueta = etiqueta;
+    }
 }

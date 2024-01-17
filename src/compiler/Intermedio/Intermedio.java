@@ -4,6 +4,7 @@ import compiler.sintactic.Symbols.*;
 import compiler.sintactic.TSimbolos;
 
 import java.util.ArrayList;
+import java.util.Stack;
 
 public class Intermedio {
 
@@ -13,6 +14,7 @@ public class Intermedio {
     private ArrayList<Variable> tv;
 
     private ArrayList<Procedimiento> tp;
+    private Stack<String> pproc;
 
     private int counterTemps = 0;
 
@@ -42,11 +44,11 @@ public class Intermedio {
         if (id == null) {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
-            v = new Variable("t" + counterTemps, tipo, true, longitud); // esTemp a true
+            v = new Variable("t" + counterTemps, tipo, true, longitud, pproc.peek()); // esTemp a true
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
-            if (tp.isEmpty()) {
-                v = new Variable(id + "_" + tp.size(), tipo, false, longitud);
+            if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
+                v = new Variable(id, tipo, false, longitud, pproc.peek());
                 counterGlobales++;
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el último procedimiento de la tabla (el actual)
@@ -72,7 +74,7 @@ public class Intermedio {
                 }
 
                 // Llegados a este punto, se puede asumir que la variable no existe, entonces será creada
-                v = new Variable(id + "_" + tp.size(), tipo, false, longitud);
+                v = new Variable(id, tipo, false, longitud, pproc.peek());
                 // Se añade la variable a la lista correspondiente
                 if (esParametro) {
                     proc.addParametro(v);
@@ -87,7 +89,8 @@ public class Intermedio {
     }
 
     public Procedimiento añadirProcedimiento(String id, EnumType tipo) {
-        Procedimiento proc = new Procedimiento(id, tipo);
+        String etiquetaFuncion = nuevaEtiqueta();
+        Procedimiento proc = new Procedimiento(id, tipo, etiquetaFuncion);
         tp.add(proc);
         return proc;
     }
@@ -192,7 +195,24 @@ public class Intermedio {
         this.esParametro = esParametro;
     }
 
+    public void addPproc(String proc){
+        pproc.push(proc);
+    }
+
     public TSimbolos getTs() {
         return ts;
+    }
+
+    public void subPproc() {
+        pproc.pop();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (Instruccion instruccion : codigo) {
+            sb.append(instruccion.toString()).append("\n");
+        }
+        return sb.toString();
     }
 }

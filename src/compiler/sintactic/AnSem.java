@@ -229,7 +229,7 @@ public class AnSem {
      */
     public void gestExpLogica(Exp exp) {
         if (gestExp(exp) != EnumType.BOOLEANO) {
-            ErrorC.añadirError(new ErrorC("La expresión no es booleana", exp.getLinea(), Fase.SEMÁNTICO));
+            ErrorC.añadirError(new ErrorC("La expresión debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
         }
     }
 

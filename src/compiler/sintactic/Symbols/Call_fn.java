@@ -15,7 +15,7 @@ public class Call_fn extends SimboloBase {
         this.args_call = args_call;
     }
 
-    public String getId(){
+    public String getId() {
         return this.id;
     }
 
@@ -27,6 +27,6 @@ public class Call_fn extends SimboloBase {
             intermedio.setEsParametro(false);
         }
 
-        intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, id));
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, proc.getEtiqueta()));
     }
 }

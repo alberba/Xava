@@ -10,12 +10,14 @@ public class Variable {
     private EnumType tipo;
     private boolean esTemp;
     private ArrayList<Variable> longitud;
+    private String ambito;
 
-    public Variable(String id, EnumType tipo, boolean esTemp, ArrayList<Variable> longitud) {
+    public Variable(String id, EnumType tipo, boolean esTemp, ArrayList<Variable> longitud, String ambito) {
         this.id = id;
         this.tipo = tipo;
         this.esTemp = esTemp;
         this.longitud = longitud;
+        this.ambito = ambito;
     }
 
     public String getId() {

@@ -27,27 +27,28 @@ public class ParserSym {
   public static final int LEERENT = 16;
   public static final int PRINCIPAL = 19;
   public static final int IGUAL = 27;
-  public static final int CARACTER = 47;
+  public static final int CARACTER = 48;
   public static final int SINO = 3;
   public static final int DEVUELVE = 13;
   public static final int MIENTRAS = 6;
   public static final int DIV = 23;
   public static final int CONTINUAR = 14;
   public static final int SUMA = 20;
-  public static final int ID = 45;
+  public static final int ID = 46;
   public static final int EOF = 0;
   public static final int ASIG = 33;
   public static final int COMILLAS = 41;
   public static final int error = 1;
-  public static final int DIGITO = 44;
+  public static final int DIGITO = 45;
   public static final int COMA = 40;
   public static final int PAR_C = 35;
   public static final int MOD = 24;
   public static final int PAR_A = 34;
   public static final int LEERBOOL = 18;
   public static final int ROMPER = 8;
+  public static final int NO = 44;
   public static final int MEQ = 30;
-  public static final int VAL_BOL = 46;
+  public static final int VAL_BOL = 47;
   public static final int VACIO = 43;
   public static final int LEERCAR = 17;
   public static final int MEI = 32;
@@ -101,6 +102,7 @@ public class ParserSym {
   "COMILLAS",
   "P_COMA",
   "VACIO",
+  "NO",
   "DIGITO",
   "ID",
   "VAL_BOL",

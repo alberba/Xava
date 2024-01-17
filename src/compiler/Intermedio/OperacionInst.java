@@ -26,5 +26,8 @@ public enum OperacionInst {
     RETORNO,
     PARAMETRO_SIMPLE,
     PARAMETRO_ARRAY,
-    IMPRIMIR
+    IMPRIMIR,
+    ENTRADA_ENT,
+    ENTRADA_BOOL,
+    ENTRADA_CAR
 }

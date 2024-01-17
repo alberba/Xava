@@ -11,9 +11,7 @@ public class Main_fn extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        if(fsents != null){
-            fsents.generarIntermedio(intermedio);
-        }
+        fsents.generarIntermedio(intermedio);
     }
 
 }

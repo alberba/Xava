@@ -54,6 +54,7 @@ PRINCIPAL = principal
 VERDADERO = verdadero
 FALSO = falso
 VACIO = vacio
+NO = no
 
 // Simbolos
 SUMA = \+
@@ -163,6 +164,8 @@ ERROR = [^]
 {MOD}           { return symbol(ParserSym.MOD); }
 {Y}             { return symbol(ParserSym.Y); }
 {O}             { return symbol(ParserSym.O); }
+{NO}            { return symbol(ParserSym.NO); }
+
 {IGUAL}         { return symbol(ParserSym.IGUAL); }
 {IGUALNT}       { return symbol(ParserSym.IGUALNT); }
 {MAQ}           { return symbol(ParserSym.MAQ); }

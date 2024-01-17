@@ -81,7 +81,7 @@ public class Exp extends SimboloBase {
 
             }
 
-            switch ((Op)listaObjetos.get(1)) {
+            switch ((Op) listaObjetos.get(1)) {
                 case SUMA:
                 case RESTA:
                 case MULT:
@@ -102,8 +102,14 @@ public class Exp extends SimboloBase {
                     break;
             }
         } else {
-            // Se trata de una expresión simple, por lo que se debe generar el intermedio de la expresión
-            value.generarIntermedio(intermedio);
+            if (value != null) {
+                // Se trata de una expresión simple, por lo que se debe generar el intermedio de la expresión
+                value.generarIntermedio(intermedio);
+            } else {
+                // Si no tiene value ni op, se trata de la negación de una expresión
+                exp.generarIntermedio(intermedio);
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, null, null, intermedio.getUltimaVariable().getId()));
+            }
         }
         
     }

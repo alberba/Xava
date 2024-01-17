@@ -31,23 +31,23 @@ public class Decl extends SimboloBase {
     public void generarIntermedio(Intermedio intermedio) {
         type.generarIntermedio(intermedio);
 
-        if(lid != null){
+        if (lid != null) {
             ArrayList<Variable> varLids = new ArrayList<>();
             for (Lid lid = this.lid; lid != null; lid = lid.getLid()) {
                 varLids.add(intermedio.añadirVariable(lid.getId(), type.getStype(), null));
             }
-            if(d_asignacion != null){
+            if (d_asignacion != null) {
                 d_asignacion.generarIntermedio(intermedio, varLids);
             }
         }
 
-        if(arrayG != null){
+        if (arrayG != null) {
             arrayG.generarIntermedio(intermedio);
         }
 
     }
 
-    public Lid getLid(){
+    public Lid getLid() {
         return this.lid;
     }
 

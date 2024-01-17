@@ -1,6 +1,6 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.*;
 public class Entrada extends SimboloBase {
 
     private EnumType enumType;
@@ -19,6 +19,11 @@ public class Entrada extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-
+        Variable var = intermedio.añadirVariable(null, enumType, null);
+        switch (enumType) {
+            case CARACTER -> intermedio.añadirInstruccion(new Instruccion(OperacionInst.ENTRADA_CAR, null, null, var.getId()));
+            case ENTERO -> intermedio.añadirInstruccion(new Instruccion(OperacionInst.ENTRADA_ENT, null, null, var.getId()));
+            case BOOLEANO -> intermedio.añadirInstruccion(new Instruccion(OperacionInst.ENTRADA_BOOL, null, null, var.getId()));
+        }
     }
 }

@@ -1,6 +1,7 @@
 package compiler.Main;
 
 import compiler.ErrorC;
+import compiler.Intermedio.Intermedio;
 import compiler.grammar.Parser;
 import compiler.grammar.Scanner;
 import java_cup.runtime.ComplexSymbolFactory;
@@ -60,12 +61,23 @@ public class Main {
             guardarTokens(scanner.tokens);
         }
 
+        Intermedio intermedio = new Intermedio(parser.getTSimbolos());
+        try{
+            startTime = System.nanoTime();
+            parser.getXavaArbol().generarIntermedio(intermedio);
+            endTime = System.nanoTime();
+            System.out.println("Intermedio time: " + (endTime - startTime) / 1000000 + "ms");
+        } catch (Exception e) {
+            System.out.println("Error al generar el intermedio");
+            System.exit(0);
+        }
+
 
         sc.close();
 
     }
 
-    public static String conseguirPath(String rutaArchivo){
+    public static String conseguirPath(String rutaArchivo) {
         String rutaActual = System.getProperty("user.dir");
         System.out.println(rutaActual);
 
@@ -73,7 +85,7 @@ public class Main {
             rutaArchivo = rutaArchivo.substring(1);
         }
 
-        // Se comprueba si el archivo esta en la carpeta actual
+        // Se comprueba si el archivo está en la carpeta actual
         if (rutaArchivo.contains("\\")) {
 
             // Comprobamos si la ruta esta en formato /home/usuario/... o home/usuario/...

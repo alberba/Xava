@@ -23,11 +23,18 @@ parser code {:
         this.scanner = scanner;
     }
 ***/
+
+    private Xava xava;
+    private ComplexSymbolFactory csf = new ComplexSymbolFactory();
     public TSimbolos tSimbolos = new TSimbolos();
     AnSem ansem = new AnSem(tSimbolos);
 
     public TSimbolos getTSimbolos() {
         return tSimbolos;
+    }
+
+    public Xava getXavaArbol() {
+        return xava;
     }
 
 
@@ -55,7 +62,7 @@ parser code {:
 terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CONST,
                 FUNCION, DEVUELVE, CONTINUAR, IMPRIMIR, LEERENT, LEERCAR, LEERBOOL, PRINCIPAL, SUMA, RESTA,
                 MULT, DIV, MOD, Y, O, IGUAL, IGUALNT, MAQ, MEQ, MAI, MEI, ASIG, PAR_A, PAR_C, LLAVE_A,
-                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, COMILLAS, P_COMA, VACIO;
+                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, COMILLAS, P_COMA, VACIO, NO;
 
 terminal        String          DIGITO;
 terminal        String          ID;
@@ -105,7 +112,7 @@ non terminal    Call_fn         CALL_FN;
 
 start with      XAVA;
 
-XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: RESULT = new Xava(gdecls, main, funciones, 0, 0);                            :}
+XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: xava = new Xava(gdecls, main, funciones, 0, 0);                            :}
                 ;
 
 MAIN_FN         ::= M PRINCIPAL LLAVE_A FSENTS:fsents LLAVE_C                                       {: System.out.println("He analizado el principal");RESULT = new Main_fn(fsents, fsentsleft, fsentsright);                       :}
@@ -136,11 +143,7 @@ ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C
                     {:
                         RESULT = new Args_Declf(args, args.getLinea(), args.getColumna());
                     :}
-                |   PAR_A PAR_C
-                {:
-                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
-                    RESULT = new Args_Declf(null, cs.getLeft().getLine(), cs.getLeft().getColumn());
-                :}
+                |   PAR_A PAR_C                                                                     {: :}
                 ;
 
 L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
@@ -198,19 +201,11 @@ STYPE           ::= ENTERO                                                      
                 ;
 
 ARGS_CAP        ::= PAR_A L_ARGS_CAP:args PAR_C                                                     {: RESULT = new Args_Cap(args, args.getLinea(), args.getColumna());                            :}
-                |   PAR_A PAR_C
-                {:
-                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
-                    RESULT = new Args_Cap(null, cs.getLeft().getLine(), cs.getLeft().getColumn());
-                :}
+                |   PAR_A PAR_C                                                                     {: :}
                 ;
 
 ARGS_CALL       ::= PAR_A L_ARGS_CALL:l_args_call PAR_C                                             {: RESULT = new Args_Call(l_args_call, l_args_call.getLinea(), l_args_call.getColumna());      :}
-                |   PAR_A PAR_C
-                {:
-                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
-                    RESULT = new Args_Call(null, cs.getLeft().getLine(), cs.getLeft().getColumn());
-                :}
+                |   PAR_A PAR_C                                                                     {: :}
                 ;
 
 L_ARGS_CAP      ::= STYPE:stype ID:id COMA L_ARGS_CAP:l_args_cap                                    {: RESULT = new L_args_Cap(stype, id, l_args_cap, stypeleft, styperight);       :}
@@ -221,8 +216,8 @@ L_ARGS_CALL     ::= VALUE:value                                                 
                 |   VALUE:value COMA L_ARGS_CALL:l_args_call                                        {: RESULT = new L_args_Call(value, l_args_call, valueleft, valueright);                  :}
                 ;
 
-FSENTS          ::= SENTS:sents RET_PROC:ret_proc                                                   {: System.out.println("He analizado el fsents");RESULT = new FSents(sents, ret_proc, sentsleft, sentsright);                 :}
-                |   SENTS:sents                                                                     {: System.out.println("He analizado el fsents");RESULT = new FSents(sents, sentsleft, sentsright);                           :}
+FSENTS          ::= SENTS:sents RET_PROC:ret_proc                                                   {: RESULT = new FSents(sents, ret_proc, sentsleft, sentsright);                 :}
+                |   SENTS:sents                                                                     {: RESULT = new FSents(sents, sentsleft, sentsright);                           :}
                 ;
 
 RET_PROC        ::= DEVUELVE E:exp P_COMA                                                           {: RESULT = new RetProc(exp, expleft, expright);                                :}
@@ -395,6 +390,11 @@ ENTRADA         ::= LEERBOOL
 
 E               ::= VALUE:value OP:op E:exp                                                         {: System.out.println("Expresion con op");RESULT = new Exp(value, op, exp, valueleft, valueright);                      :}
                 |   VALUE:value                                                                     {: System.out.println("Expresion sin op");RESULT = new Exp(value, valueleft, valueright);                               :}
+                |   NO E:exp
+                {:
+                    ansem.gestExpLogica(exp);
+                    RESULT = new Exp(exp, expleft, expright);
+                :}
                 ;
 
 OP              ::= Y                                                                               {: RESULT = Op.Y;                                                               :}

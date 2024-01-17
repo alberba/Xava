@@ -1,6 +1,10 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.OperacionInst;
+import compiler.Intermedio.Procedimiento;
+
 public class FuncionG extends SimboloBase {
 
     private Cap cap;
@@ -13,9 +17,13 @@ public class FuncionG extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        intermedio.añadirProcedimiento(cap.getId(), cap.geteType());
+        Procedimiento proc = intermedio.getProcedimiento(cap.getId());
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, proc.getEtiqueta()));
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.INICIALIZACION, null, null, proc.getId()));
+        intermedio.addPproc(proc.getId());
         cap.generarIntermedio(intermedio);
         fsents.generarIntermedio(intermedio);
+        intermedio.subPproc();
     }
 
 }

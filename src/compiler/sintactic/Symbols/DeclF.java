@@ -1,6 +1,8 @@
 package compiler.sintactic.Symbols;
 
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.Procedimiento;
+
 public class DeclF extends SimboloBase {
     private EnumType eType;
     private String id;
@@ -13,6 +15,10 @@ public class DeclF extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
+        Procedimiento proc = intermedio.añadirProcedimiento(id, eType);
+        if (args_declf != null) {
+            args_declf.generarIntermedio(intermedio);
+        }
         args_declf.generarIntermedio(intermedio);
     }
 }
