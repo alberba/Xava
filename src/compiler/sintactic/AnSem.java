@@ -6,8 +6,6 @@ import java.util.ArrayList;
 
 import compiler.ErrorC;
 
-import java.util.ArrayList;
-
 public class AnSem {
     private final TSimbolos ts;
 
@@ -109,10 +107,10 @@ public class AnSem {
                 ErrorC.añadirError(new ErrorC("Los tipos de los operandos no coinciden", exp.getLinea(), Fase.SEMÁNTICO));
                 return null;
             } else {
+                // El tipo de la expresión será el tipo de los operandos
                 return switch (op) {
                     case IGUAL, IGUALNT, Y, O, MAI, MEI, MAQ, MEQ -> EnumType.BOOLEANO;
                     case SUMA, RESTA, MULT, DIV, MOD -> EnumType.ENTERO;
-                    default -> null;
                 };
             }
 
@@ -148,7 +146,8 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba, en caso de que sea un array, si existe el simbolo y si es un array
+     * Función que comprueba, en caso de que sea un array, si existe el simbolo y si tiene las mismas dimensiones
+     * que la declaración.
      *
      * @param id ID del array
      * @param nDimensiones cuantas dimensiones tiene el array
@@ -168,7 +167,7 @@ public class AnSem {
 
     /**
      * Función que comprueba si la expresión del return de la función concide con el tipo de la función
-     * @param retProc
+     * @param retProc Objeto de la clase RetProc
      */
     public void gestReturnFunc(RetProc retProc) {
         EnumType typeFunc = ts.getTypeFuncionActual();
@@ -199,13 +198,14 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba si la función existe y si los parámetros son correctos
+     * Comprueba a partir del encabezado de una función si esta existe y si los parámetros son correctos,
+     * devuelve true si es el caso, false en caso contrario.
      *
      * @param cap Cap de la función para obtener el ID de la función y de los parámetros
      * @return true si la función existe y los parámetros son correctos, false en caso contrario
      */
     public boolean existeFuncion(Cap cap) {
-        Symbol symbol = ts.getFunction(cap.getId());
+        Symbol symbol = ts.getFuncion(cap.getId());
         if (symbol == null) {
             ErrorC.añadirError(new ErrorC("La función no existe", cap.getLinea(), Fase.SEMÁNTICO));
             return false;

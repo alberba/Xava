@@ -22,7 +22,7 @@ public class TSimbolos {
         this.tsimbolos.add(new ArrayList<>());
     }
 
-    public boolean ponerSimbolo(Symbol symbol) {
+    public boolean ponerSymbol(Symbol symbol) {
 
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
         // Solo accederá en el ámbito global
@@ -100,7 +100,7 @@ public class TSimbolos {
         return this.busquedaSymbolTA(0, id);
     }
 
-    public Symbol getFunction(String id) {
+    public Symbol getFuncion(String id) {
 
         // Iterar en todos los elementos del ambito global
         for (Symbol symbol : tsimbolos.get(0)) {
