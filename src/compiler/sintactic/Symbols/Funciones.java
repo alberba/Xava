@@ -13,7 +13,9 @@ public class Funciones extends SimboloBase {
 
     public void generarIntermedio(Intermedio intermedio) {
             f.generarIntermedio(intermedio);
-            sig.generarIntermedio(intermedio);
+            if (sig != null) {
+                sig.generarIntermedio(intermedio);
+            }
     }
 
 }

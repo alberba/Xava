@@ -1,6 +1,9 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.OperacionInst;
+
 public class RetProc extends SimboloBase {
 
     private Exp e;
@@ -19,8 +22,7 @@ public class RetProc extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        if(e != null){
-            e.generarIntermedio(intermedio);
-        }
+        e.generarIntermedio(intermedio);
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.RETORNO, null, null, null));
     }
 }

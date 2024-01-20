@@ -14,6 +14,7 @@ public class Intermedio {
     private ArrayList<Variable> tv;
 
     private ArrayList<Procedimiento> tp;
+    private int nProdActual;
     private Stack<String> pproc;
 
     private int counterTemps = 0;
@@ -30,6 +31,7 @@ public class Intermedio {
         codigo = new ArrayList<>();
         tv = new ArrayList<>();
         tp = new ArrayList<>();
+        pproc = new Stack<>();
         this.ts = tsimbolos;
     }
 
@@ -51,8 +53,8 @@ public class Intermedio {
                 v = new Variable(id, tipo, false, longitud, pproc.peek());
                 counterGlobales++;
             } else { // En caso contrario, se busca en el procedimiento actual
-                // Se obtiene el último procedimiento de la tabla (el actual)
-                Procedimiento proc = tp.get(tp.size() - 1);
+                // Se obtiene el procedimiento actual de la tabla
+                Procedimiento proc = tp.get(nProdActual);
                 // Se guardan las cantidades para recorrer los arrays posteriormente
                 int nProcs = proc.getNumParametros();
                 int nVars = nProcs + proc.getNumDeclaraciones();
@@ -89,7 +91,7 @@ public class Intermedio {
     }
 
     public Procedimiento añadirProcedimiento(String id, EnumType tipo) {
-        String etiquetaFuncion = nuevaEtiqueta();
+        String etiquetaFuncion = "e_" + id;
         Procedimiento proc = new Procedimiento(id, tipo, etiquetaFuncion);
         tp.add(proc);
         return proc;
@@ -185,6 +187,14 @@ public class Intermedio {
             }
         }
         return null;
+    }
+
+    public void setNprodActual(String id){
+        for (Procedimiento p: tp) {
+            if(p.getId().equals(id)){
+                nProdActual = tp.indexOf(p);
+            }
+        }
     }
 
     public int getNp() {

@@ -11,6 +11,7 @@ public class Main_fn extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
+        intermedio.addPproc("main");
         sents.generarIntermedio(intermedio);
     }
 

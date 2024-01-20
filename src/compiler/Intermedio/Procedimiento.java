@@ -13,6 +13,7 @@ public class Procedimiento {
     private ArrayList<Variable> parametros;
     // Declaraciones que tiene dentro
     private ArrayList<Variable> declaraciones;
+
     private String etiqueta;
 
     public Procedimiento(String id, EnumType tipo, ArrayList<Variable> parametros, ArrayList<Variable> declaraciones, String etiqueta) {

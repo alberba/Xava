@@ -118,18 +118,19 @@ public class Value extends SimboloBase {
                     break;
             }
         }
-        if(arrayG != null){
-            // Consultar el valor de array. b = a[3][2]
+        if(arrayG != null) {
+            // Consultar el valor de array, b = a[3][2]
             // 1. Obtener la dirección de a[3][2]
             intermedio.consultarArray(arrayG);
         }
-        if(call_fn != null){
-            call_fn.generarIntermedio(intermedio);
+        if(call_fn != null) {
+            Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
+            call_fn.generarIntermedio(intermedio, temp);
         }
-        if(entrada != null){
+        if(entrada != null) {
             entrada.generarIntermedio(intermedio);
         }
-        if(exp != null){
+        if(exp != null) {
             exp.generarIntermedio(intermedio);
         }
     }

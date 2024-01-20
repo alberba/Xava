@@ -57,7 +57,7 @@ public class Main {
             ErrorC.printErrores();
             System.exit(0);
         } else {
-            guardarTSimbolo("tSimbolo.txt", parser.getTSimbolos().toString());
+            guardarFichero("tSimbolo.txt", parser.getTSimbolos().toString());
             guardarTokens(scanner.tokens);
         }
 
@@ -67,8 +67,10 @@ public class Main {
             parser.getXavaArbol().generarIntermedio(intermedio);
             endTime = System.nanoTime();
             System.out.println("Intermedio time: " + (endTime - startTime) / 1000000 + "ms");
+            guardarFichero("intermedio.txt", intermedio.toString());
         } catch (Exception e) {
             System.out.println("Error al generar el intermedio");
+            e.printStackTrace();
             System.exit(0);
         }
 
@@ -118,7 +120,7 @@ public class Main {
         }
     }
 
-    public static void guardarTSimbolo(String nombreArchivo, String tabla) {
+    public static void guardarFichero(String nombreArchivo, String tabla) {
         try {
             BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/" + nombreArchivo));
             archivo.write(tabla);

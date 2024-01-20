@@ -52,7 +52,7 @@ public class Instruccion {
             case ASIGNADO:
                 return destino + "[" + operador2 + "] = " + operador1;
             case ETIQUETA:
-                return destino + ":";
+                return destino + ": skip";
             case SALTO_INCON:
                 return "goto " + destino;
             case SALTO_COND:
@@ -62,9 +62,11 @@ public class Instruccion {
             case LLAMADA:
                 return "call " + destino;
             case RETORNO:
-                return "retorno " + destino;
+                return "retorno";
             case PARAMETRO_SIMPLE:
-                return "param " + destino;
+                return "param_s " + destino;
+            case PARAMETRO_R:
+                return "param_r " + destino;
             case PARAMETRO_ARRAY:
                 return "param " + destino + "[" + operador1 + "]";
             case IMPRIMIR:

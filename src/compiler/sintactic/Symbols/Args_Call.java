@@ -1,6 +1,10 @@
 package compiler.sintactic.Symbols;
 
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.Variable;
+
+import java.util.ArrayList;
+
 public class Args_Call extends SimboloBase {
 
     private L_args_Call l_args_call;
@@ -10,10 +14,10 @@ public class Args_Call extends SimboloBase {
         this.l_args_call = l_args_call;
     }
 
-    @Override
-    public void generarIntermedio(Intermedio intermedio) {
+    public ArrayList<Variable> generarIntermedio(Intermedio intermedio, ArrayList<Variable> variables) {
         if(l_args_call != null){
-            l_args_call.generarIntermedio(intermedio);
+            variables = l_args_call.generarIntermedio(intermedio, variables);
         }
+        return variables;
     }
 }

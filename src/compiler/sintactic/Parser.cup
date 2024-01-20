@@ -115,7 +115,7 @@ start with      XAVA;
 XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: xava = new Xava(gdecls, main, funciones, 0, 0);                            :}
                 ;
 
-MAIN_FN         ::= M PRINCIPAL LLAVE_A SENTS:sents LLAVE_C                                         {: System.out.println("He analizado el principal"); RESULT = new Main_fn(sents, sentsleft, sentsright);                       :}
+MAIN_FN         ::= M PRINCIPAL LLAVE_A SENTS:sents LLAVE_C                                         {: RESULT = new Main_fn(sents, sentsleft, sentsright);                       :}
                 ;
 
 DECLGLOB        ::= DECLS:decls DECLSF:declsf
@@ -130,7 +130,7 @@ DECLSF          ::= DECLF:declf DECLSF:declsf                                   
                 ;
 
 DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
-                    {:  if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.FUNCION, eType, null, true, 0, idleft))) {
+                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true, 0, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
                             ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -147,7 +147,7 @@ ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C
                 ;
 
 L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
-                    {:  if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -156,7 +156,7 @@ L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
                     :}
                 |   STYPE:stype ID:id
                     {:
-                        if (!tSimbolos.ponerSimbolo(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -179,7 +179,6 @@ FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C
                             ansem.isReturn(f_sents);
                             RESULT = new FuncionG(cap, f_sents, capleft, capright);
                         }
-                        System.out.println("He analizado la funcion");
 
                     :}
                 ;
@@ -187,7 +186,7 @@ FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C
 CAP             ::= ETYPE:etype ID:id ARGS_CAP:args_cap
                     {:
                         tSimbolos.updatenActual(id);
-                        System.out.println("He analizado el cap"); RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
+                        RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
                     :}
                 ;
 
@@ -235,7 +234,7 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                     {:
                         ansem.gestAsig(type.getStype(), d_asignacion.getE());
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
-                            if (!tSimbolos.ponerSimbolo(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable declarada previamente", aux.getLinea(), Fase.SEMÁNTICO));
@@ -248,7 +247,7 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                     {:
                         if (!type.getConstante()) {
 
-                            if (!tSimbolos.ponerSimbolo(new Symbol(array.getId(), TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), arrayleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(array.getId(), TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), arrayleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + array.getId() + "declarada previamente", arrayleft, Fase.SEMÁNTICO));
@@ -388,8 +387,8 @@ ENTRADA         ::= LEERBOOL
                 :}
                 ;
 
-E               ::= VALUE:value OP:op E:exp                                                         {: System.out.println("Expresion con op");RESULT = new Exp(value, op, exp, valueleft, valueright);                      :}
-                |   VALUE:value                                                                     {: System.out.println("Expresion sin op");RESULT = new Exp(value, valueleft, valueright);                               :}
+E               ::= VALUE:value OP:op E:exp                                                         {: RESULT = new Exp(value, op, exp, valueleft, valueright);                      :}
+                |   VALUE:value                                                                     {: RESULT = new Exp(value, valueleft, valueright);                               :}
                 |   NO E:exp
                 {:
                     ansem.gestExpLogica(exp);

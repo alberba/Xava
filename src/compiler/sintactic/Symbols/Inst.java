@@ -101,19 +101,23 @@ public class Inst extends SimboloBase {
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit_hm));
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal_hm));
                     break;
-                case "asig":
-                    exp.generarIntermedio(intermedio);
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, intermedio.getUltimaVariable().getId(), null, id));
-                    break;
-                case "impr":
-                    exp.generarIntermedio(intermedio);
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.IMPRIMIR, intermedio.getUltimaVariable().getId(), null, null));
-                    break;
-                case "call_fn":
-                    call_fn.generarIntermedio(intermedio);
-                    break;
             }
 
+        }
+
+        switch (type) {
+            case "asig":
+                exp.generarIntermedio(intermedio);
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, intermedio.getUltimaVariable().getId(), null, id));
+                break;
+            case "impr":
+                exp.generarIntermedio(intermedio);
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.IMPRIMIR, intermedio.getUltimaVariable().getId(), null, null));
+                break;
+            case "call_fn":
+                // Llamada a función que no devuelve nada
+                call_fn.generarIntermedio(intermedio, null);
+                break;
         }
     }
 

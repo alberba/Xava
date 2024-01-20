@@ -34,7 +34,9 @@ public class FSents extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        sents.generarIntermedio(intermedio);
+        if (sents != null) {
+            sents.generarIntermedio(intermedio);
+        }
         if (retProc != null) {
             retProc.generarIntermedio(intermedio);
         }

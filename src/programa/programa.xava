@@ -18,7 +18,7 @@ funcion ent abs(ent n) {
     si (n < 0) {
         devuelve n * -1;
     }
-    devuelve devuelve;
+    devuelve n;
 }
 
 funcion ent pow(ent b, ent e) {

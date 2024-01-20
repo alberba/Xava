@@ -12,6 +12,7 @@ import compiler.sintactic.Symbol;
 import compiler.sintactic.Symbols.L_array;
 import compiler.ErrorC;
 import java.util.List;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -576,7 +577,7 @@ class CUP$Parser$actions {
 		int sentsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int sentsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Sents sents = (Sents)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 System.out.println("He analizado el principal"); RESULT = new Main_fn(sents, sentsleft, sentsright);                       
+		 RESULT = new Main_fn(sents, sentsleft, sentsright);
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("MAIN_FN",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -779,7 +780,6 @@ class CUP$Parser$actions {
                             ansem.isReturn(f_sents);
                             RESULT = new FuncionG(cap, f_sents, capleft, capright);
                         }
-                        System.out.println("He analizado la funcion");
 
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("FUNCIONG",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -801,7 +801,7 @@ class CUP$Parser$actions {
 		Args_Cap args_cap = (Args_Cap)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         tSimbolos.updatenActual(id);
-                        System.out.println("He analizado el cap"); RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
+                        RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("CAP",6, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -1514,7 +1514,7 @@ class CUP$Parser$actions {
 		int expleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 System.out.println("Expresion con op");RESULT = new Exp(value, op, exp, valueleft, valueright);                      
+		 RESULT = new Exp(value, op, exp, valueleft, valueright);
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("E",30, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1526,7 +1526,7 @@ class CUP$Parser$actions {
 		int valueleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int valueright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Value value = (Value)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 System.out.println("Expresion sin op");RESULT = new Exp(value, valueleft, valueright);                               
+		 RESULT = new Exp(value, valueleft, valueright);
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("E",30, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

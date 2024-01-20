@@ -52,13 +52,13 @@ public class TSimbolos {
 
         }
 
-        System.out.println("Nivel actual: " + nActual);
 
         return true;
     }
 
 
-    public Symbol busquedaSymbolTA(int ambito, String id) {
+    // Busca el símbolo a partir de su id en el ámbito indicado
+    public Symbol busquedaSymbolAmbito(int ambito, String id) {
 
         if (ambito != 0) { // Se mira si el nivel es el global
             // Se verifica que el nivel tenga símbolos
@@ -88,7 +88,7 @@ public class TSimbolos {
     // global
     public Symbol getSymbol(String id) {
         // Buscamos el símbolo en el nivel actual y lo almacenamos en una variable temporal
-        Symbol simbolo = this.busquedaSymbolTA(this.nActual, id);
+        Symbol simbolo = this.busquedaSymbolAmbito(this.nActual, id);
         // Comprobamos si hemos encontrado el símbolo
         if (simbolo != null) {
             // Si existe el símbolo se devuelve
@@ -97,7 +97,7 @@ public class TSimbolos {
 
         // Si no está en el nivel actual, se busca a nivel global y se envía. En caso de no encontrarse a nivel global
         // tampoco, se enviaría un valor nulo.
-        return this.busquedaSymbolTA(0, id);
+        return this.busquedaSymbolAmbito(0, id);
     }
 
     public Symbol getFuncion(String id) {
@@ -114,7 +114,7 @@ public class TSimbolos {
         return null;
     }
 
-    public ArrayList<Symbol> getParametros(String idFunc){
+    public ArrayList<Symbol> getParametros(String idFunc) {
 
         ArrayList<Symbol> globales = tsimbolos.get(0);
         int ambitoFuncion = getAmbitoFuncion(idFunc);
@@ -126,7 +126,6 @@ public class TSimbolos {
         ArrayList<Symbol> funcion = tsimbolos.get(ambitoFuncion);
         ArrayList<Symbol> parametros = new ArrayList<>();
         // Los parámetros estarán situados al inicio del ámbito de la función
-        System.out.println("getParametros - " + funcion.toString());
         for (int i = 0; i < funcion.size() && (funcion.get(i).getTipoElemento() == TipoElemento.PARAMETRO); i++) {
 
             parametros.add(globales.get(i));
@@ -162,7 +161,6 @@ public class TSimbolos {
         if (!encontrado) {
             ambito = -1;
         }
-        System.out.println("Ambito de la función: " + ambito);
         return ambito;
     }
 

@@ -28,6 +28,13 @@ public class Exp extends SimboloBase {
         this.exp = null;
     }
 
+    public Exp(Exp exp, int linea, int columna) {
+        super(linea, columna);
+        this.value = null;
+        this.op = null;
+        this.exp = exp;
+    }
+
     public Value getValue() {
         return value;
     }
@@ -53,7 +60,6 @@ public class Exp extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-
         if (op != null) {
             // Se trata de una operación, por lo que se debe generar el intermedio de la expresión
             ArrayList<Object> listaObjetos = new ArrayList<>();
@@ -61,12 +67,11 @@ public class Exp extends SimboloBase {
             // Este bucle recorre todas las expresiones y las guarda en un arraylist. Esto nos servirá después para
             // hacer uso de las jerarquias de operaciones
             for(Exp exp = this; exp != null; exp = exp.getExp()) {
-
-                if (Objects.equals(value.getTipo(), "Exp")) {
+                if (Objects.equals(exp.getValue().getTipo(), "Exp")) {
                     // Se trata de una operación en paréntesis, el cual tiene prioridad 1 en la jerarquia de operaciones
 
                     // Se genera el intermedio de la expresión
-                    value.getExp().generarIntermedio(intermedio);
+                    exp.getValue().getExp().generarIntermedio(intermedio);
                     listaObjetos.add(intermedio.getUltimaVariable());
 
                 } else {
@@ -86,6 +91,7 @@ public class Exp extends SimboloBase {
                 case RESTA:
                 case MULT:
                 case DIV:
+                case MOD:
                     generarIntermedioArit(listaObjetos, intermedio);
                     break;
                 case IGUAL:
@@ -111,8 +117,9 @@ public class Exp extends SimboloBase {
                 intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, null, null, intermedio.getUltimaVariable().getId()));
             }
         }
-        
+
     }
+
 
     /**
      * Genera el intermedio de una operación aritmética
@@ -122,7 +129,7 @@ public class Exp extends SimboloBase {
     private void generarIntermedioArit(ArrayList<Object> listaObjeto, Intermedio intermedio) {
         int indexMin;
         Variable[] variables;
-        while (!listaObjeto.isEmpty()) {
+        while (listaObjeto.size() > 1) {
 
             int indexMult = listaObjeto.indexOf(Op.MULT);
             int indexDiv = listaObjeto.indexOf(Op.DIV);
@@ -243,7 +250,7 @@ public class Exp extends SimboloBase {
             aux.generarIntermedio(intermedio);
             variables[1] = intermedio.getUltimaVariable();
         } else {
-            variables[0] = (Variable) listaObjeto.get(index + 1);
+            variables[1] = (Variable) listaObjeto.get(index + 1);
         }
 
         return variables.clone();

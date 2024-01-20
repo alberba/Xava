@@ -13,6 +13,9 @@ public class Sents extends SimboloBase {
 
     public void generarIntermedio(Intermedio intermedio) {
         sent.generarIntermedio(intermedio);
-        sig.generarIntermedio(intermedio);
+        if (sig != null) {
+            sig.generarIntermedio(intermedio);
+        }
+
     }
 }

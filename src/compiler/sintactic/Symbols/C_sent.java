@@ -23,7 +23,6 @@ public class C_sent extends SimboloBase{
                 intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit));
                 break;
             case"ret_proc":
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.RETORNO, null, null, null));
                 retProc.generarIntermedio(intermedio);
                 break;
         }

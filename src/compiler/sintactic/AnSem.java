@@ -21,7 +21,6 @@ public class AnSem {
     public EnumType gestExp(Exp exp) {
 
         EnumType tipo;
-        System.out.println("Value del primer value con op/Value del exp:" + exp.getValue().getValue());
         switch (exp.getValue().getTipo()) {
             case "Ent":
                 tipo = EnumType.ENTERO;
