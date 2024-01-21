@@ -15,7 +15,7 @@ public class C_sent extends SimboloBase{
     }
 
     public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit, String retorno) {
-        switch(type){
+        switch(type) {
             case "Romper":
                 intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
                 break;

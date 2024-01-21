@@ -56,6 +56,7 @@ public class AnSem {
                     return null;
                 } else {
                     tipo = sCall.getTipoReturn();
+                    // Comprobación de retorno de función
                     if (sCall.getTipoReturn() == EnumType.VACIO) {
                         ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
@@ -78,6 +79,7 @@ public class AnSem {
 
         Op op = exp.getOp();
         if (op != null) {
+            // Comprobación de operadores según el tipo de dato
             switch (tipo.name()) {
                 case "ENTERO":
                     if (op.equals(Op.Y) || op.equals(Op.O)) {
@@ -129,18 +131,14 @@ public class AnSem {
      * @param exp Expresión de la derecha de la asignación
      * @return true si la asignación se realiza correctamente, false en caso contrario
      */
-    public boolean gestAsig(EnumType eType, Exp exp) {
+    public void gestAsig(EnumType eType, Exp exp) {
         EnumType eType2 = gestExp(exp);
-        if (eType == eType2) {
-            return true;
-        } else {
+        if (eType != eType2) {
             if (exp.getValue().getCall_fn() != null) {
                 ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getValue().getCall_fn().getLinea(), Fase.SEMÁNTICO));
             } else {
                 ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getLinea(), Fase.SEMÁNTICO));
             }
-
-            return false;
         }
     }
 

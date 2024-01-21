@@ -1,0 +1,12 @@
+principal{
+    ent userInput := 0;
+    userInput := leerEnt();
+    si(userInput = 0){
+        imprimir(0);
+    }
+    si(userInput = 1){
+        mientras(verdadero){
+            imprimir(1);
+        }
+    }
+}

@@ -28,23 +28,23 @@ public class Instruccion {
             case MODULO:
                 return destino + " = " + operador1 + " % " + operador2;
             case IGUAL:
-                return destino + " = " + operador1 + " == " + operador2;
+                return "if " + operador1 + " = " + operador2 + " goto " + destino;
             case DIFERENTE:
-                return destino + " = " + operador1 + " != " + operador2;
+                return "if " + operador1 + " != " + operador2 + " goto " + destino;
             case MENOR:
-                return destino + " = " + operador1 + " < " + operador2;
+                return "if " + operador1 + " < " + operador2 + " goto " + destino;
             case MENOR_IGUAL:
-                return destino + " = " + operador1 + " <= " + operador2;
+                return "if " + operador1 + " <= " + operador2 + " goto " + destino;
             case MAYOR:
-                return destino + " = " + operador1 + " > " + operador2;
+                return "if " + operador1 + " > " + operador2 + " goto " + destino;
             case MAYOR_IGUAL:
-                return destino + " = " + operador1 + " >= " + operador2;
+                return "if " + operador1 + " >= " + operador2 + " goto " + destino;
             case Y:
-                return destino + " = " + operador1 + " && " + operador2;
+                return "if " + operador1 + " and " + operador2 + " goto " + destino;
             case O:
-                return destino + " = " + operador1 + " || " + operador2;
+                return "if " + operador1 + " or " + operador2 + " goto " + destino;
             case NO:
-                return destino + " != " + operador1;
+                return "if not " + operador1 + " goto " + destino;
             case ASIG:
                 return destino + " = " + operador1;
             case INDEXADO:
@@ -56,17 +56,23 @@ public class Instruccion {
             case SALTO_INCON:
                 return "goto " + destino;
             case SALTO_COND:
-                return "if " + operador1 + " goto " + destino;
+                return "if " + operador1 + " = 0 goto " + destino;
             case INICIALIZACION:
                 return "pmb " + destino;
             case LLAMADA:
-                return "call " + destino;
+                if (operador1 != null) {
+                    return "call " + destino + ", " + operador1;
+                } else {
+                    return "call " + destino;
+                }
             case RETORNO:
-                return "retorno";
+                if (destino != null){
+                    return "retorno " + destino;
+                } else {
+                    return "retorno";
+                }
             case PARAMETRO_SIMPLE:
                 return "param_s " + destino;
-            case PARAMETRO_R:
-                return "param_r " + destino;
             case PARAMETRO_ARRAY:
                 return "param " + destino + "[" + operador1 + "]";
             case IMPRIMIR:

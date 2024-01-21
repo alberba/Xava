@@ -92,7 +92,11 @@ public class Value extends SimboloBase {
         this.arrayG = arrayG;
     }
 
+    /**
+     * Método que crea las etiquetas e instrucciones necesarias para la ejecución
+     */
     public void generarIntermedio(Intermedio intermedio) {
+        // Comprobamos si es un simple Valor
         if (value != null) {
             Variable v;
             switch (tipo) {
@@ -124,10 +128,12 @@ public class Value extends SimboloBase {
             intermedio.consultarArray(arrayG);
         }
         if(call_fn != null) {
+            // Llamada a un subprograma
             Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
-            call_fn.generarIntermedio(intermedio, temp);
+            call_fn.generarIntermedio(intermedio, true);
         }
         if(entrada != null) {
+            // Llamada a entrada por teclado
             entrada.generarIntermedio(intermedio);
         }
         if(exp != null) {

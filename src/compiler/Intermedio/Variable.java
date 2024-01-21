@@ -3,6 +3,7 @@ package compiler.Intermedio;
 import compiler.sintactic.Symbols.EnumType;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Variable {
 
@@ -17,7 +18,7 @@ public class Variable {
         this.tipo = tipo;
         this.esTemp = esTemp;
         this.longitud = longitud;
-        this.ambito = ambito;
+        this.ambito = Objects.requireNonNullElse(ambito, "global");
     }
 
     public String getId() {

@@ -19,7 +19,6 @@ public class FuncionG extends SimboloBase {
     public void generarIntermedio(Intermedio intermedio) {
         Procedimiento proc = intermedio.getProcedimiento(cap.getId());
         intermedio.setNprodActual(cap.getId());
-        intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, proc.getEtiqueta()));
         intermedio.añadirInstruccion(new Instruccion(OperacionInst.INICIALIZACION, null, null, proc.getId()));
         intermedio.addPproc(proc.getId());
         cap.generarIntermedio(intermedio);

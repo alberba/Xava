@@ -18,20 +18,28 @@ public class Call_fn extends SimboloBase {
         return this.id;
     }
 
-    public void generarIntermedio(Intermedio intermedio, Variable varReturn) {
+    public void generarIntermedio(Intermedio intermedio, boolean devolver) {
         Procedimiento proc = intermedio.getProcedimiento(id);
         ArrayList<Variable> parametros = new ArrayList<>();
         if (args_call != null) {
+            // comprobamos si hay algún parametro a enviar a la función
             intermedio.setEsParametro(true);
             parametros = args_call.generarIntermedio(intermedio, parametros);
             intermedio.setEsParametro(false);
         }
-        if (varReturn != null) {
-            intermedio.añadirInstruccion(new Instruccion(OperacionInst.PARAMETRO_R, null, null, varReturn.getId()));
-        }
+
+        // añadimos las instrucciones correpondientes para poder enviar los parametros a la función
         for (Variable parametro: parametros) {
             intermedio.añadirInstruccion(new Instruccion(OperacionInst.PARAMETRO_SIMPLE, null, null, parametro.getId()));
         }
-        intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, proc.getEtiqueta()));
+
+        // Si Call_fn llama a una función que tiene un return, se guarda el valor de retorno en una variable temporal
+        if (devolver) {
+            Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, temp.getId(), null, proc.getEtiqueta()));
+        } else {
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.LLAMADA, null, null, proc.getEtiqueta()));
+        }
+
     }
 }

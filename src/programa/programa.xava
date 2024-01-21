@@ -17,6 +17,10 @@ funcion ent mod(ent a, ent b) {
 funcion ent abs(ent n) {
     si (n < 0) {
         devuelve n * -1;
+    } sinosi (n = 0) {
+        devuelve 1;
+    } sino {
+        devuelve n;
     }
     devuelve n;
 }

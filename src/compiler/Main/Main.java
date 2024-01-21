@@ -11,6 +11,9 @@ import java_cup.runtime.SymbolFactory;
 import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class Main {
@@ -22,6 +25,11 @@ public class Main {
 
         String archivo = sc.nextLine();
         String rutaArchivo = conseguirPath(archivo);
+
+        String rutaActual = System.getProperty("user.dir");
+        String [] aux = rutaArchivo.split("/");
+        Files.createDirectories(Paths.get(rutaActual + "/resultados/" + aux[aux.length - 1].split("\\.")[0]));
+
         FileReader programa = null;
         try {
             programa = new FileReader(rutaArchivo);
@@ -57,8 +65,8 @@ public class Main {
             ErrorC.printErrores();
             System.exit(0);
         } else {
-            guardarFichero("tSimbolo.txt", parser.getTSimbolos().toString());
-            guardarTokens(scanner.tokens);
+            guardarFichero("tSimbolo.txt", parser.getTSimbolos().toString(), rutaArchivo);
+            guardarTokens(scanner.tokens, rutaArchivo);
         }
 
         Intermedio intermedio = new Intermedio(parser.getTSimbolos());
@@ -67,7 +75,7 @@ public class Main {
             parser.getXavaArbol().generarIntermedio(intermedio);
             endTime = System.nanoTime();
             System.out.println("Intermedio time: " + (endTime - startTime) / 1000000 + "ms");
-            guardarFichero("intermedio.txt", intermedio.toString());
+            guardarFichero("intermedio.txt", intermedio.toString(), rutaArchivo);
         } catch (Exception e) {
             System.out.println("Error al generar el intermedio");
             e.printStackTrace();
@@ -90,7 +98,7 @@ public class Main {
         // Se comprueba si el archivo está en la carpeta actual
         if (rutaArchivo.contains("\\")) {
 
-            // Comprobamos si la ruta esta en formato /home/usuario/... o home/usuario/...
+            // Comprobamos si la ruta esta en formato /c1/c2/... o c1/c2/...
             if (rutaArchivo.startsWith("\\")) {
                 rutaArchivo = rutaActual + rutaArchivo;
             } else {
@@ -98,7 +106,7 @@ public class Main {
             }
 
         } else {
-            rutaArchivo = rutaActual + "\\" + rutaArchivo;
+            rutaArchivo = rutaActual + "\\src\\programa\\" + rutaArchivo;
         }
         rutaArchivo = rutaArchivo.replace("\\", "/");
 
@@ -106,11 +114,12 @@ public class Main {
 
     }
 
-    public static void guardarTokens(ArrayList<ComplexSymbol> tokens) {
+    public static void guardarTokens(ArrayList<ComplexSymbol> tokens, String nombreXava) {
         try {
-            BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/tokens.txt"));
-            for (int i = 0; i < tokens.size(); i++) {
-                archivo.write(tokens.get(i).getName() + "\n");
+            String [] aux = nombreXava.split("/");
+            BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/" + aux[aux.length - 1].split("\\.")[0] + "/tokens.txt"));
+            for (ComplexSymbol token : tokens) {
+                archivo.write(token.getName() + "\n");
             }
             archivo.close();
         } catch (Exception e) {
@@ -120,13 +129,14 @@ public class Main {
         }
     }
 
-    public static void guardarFichero(String nombreArchivo, String tabla) {
+    public static void guardarFichero(String nombreArchivo, String tabla, String nombreXava) {
         try {
-            BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/" + nombreArchivo));
+            String [] aux = nombreXava.split("/");
+            BufferedWriter archivo = new BufferedWriter(new FileWriter("resultados/" + aux[aux.length - 1].split("\\.")[0] + "/" + nombreArchivo));
             archivo.write(tabla);
             archivo.close();
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println(e);
             System.out.println("Error al guardar el archivo de la tabla de simbolos");
             System.exit(1);
         }

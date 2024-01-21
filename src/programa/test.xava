@@ -1,0 +1,10 @@
+ent [3] g_tup;
+ent a := 4;
+
+principal{
+    [0] g_tup := 1;
+    [1] g_tup := 2;
+    [2] g_tup := 3;
+    imprimir([0] g_tup);
+    imprimir([0] g_tup + [1] g_tup);
+}

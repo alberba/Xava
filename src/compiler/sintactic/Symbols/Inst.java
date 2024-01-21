@@ -18,7 +18,9 @@ public class Inst extends SimboloBase {
     private Call_fn call_fn;
     //private AnSem anSem;
 
-    // Constructor para ifs, fors y whiles
+    /**
+     * Constructor para ifs, fors y whiles
+     */
     public Inst(String type, Exp exp, C_sents c_sents, Decl decl_cap, Inst inst, Cont_cond contCond, Call_fn call_fn, int linea, int columna) {
 
         super(linea,columna);
@@ -31,9 +33,10 @@ public class Inst extends SimboloBase {
         this.call_fn = call_fn;
     }
 
+    /**
+     * Constructor para asignación de variables y de posiciones de un array, además de para imprimir por pantalla.
+     */
     public Inst(String type, String id, Exp dimArray, Exp exp, int linea, int columna) {
-        //anSem.esExpressionBooleana(exp);
-        // añadir gestión error
 
         super(linea,columna);
         this.type = type;
@@ -42,30 +45,32 @@ public class Inst extends SimboloBase {
         this.exp = exp;
     }
 
+    /**
+     *  Método que se encarga de crear las etiquetas e instrucciones qué servirán para crear su versión en compilador
+     * @param intermedio objeto intermedio que se usará para recorrer todas las instrucciones luego.
+     */
     public void generarIntermedio(Intermedio intermedio) {
-
+        //Comprobar si se trata de un array
         if (dimArray != null) {
             dimArray.generarIntermedio(intermedio);
         }
+        //Comprobar si tenemos una estructura if, for, while o do-while
         if (c_sents != null) {
             switch (type) {
                 case "cond":
                     exp.generarIntermedio(intermedio);
-                    String labelTrue = intermedio.nuevaEtiqueta();
-                    String labelFalse = intermedio.nuevaEtiqueta();
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelTrue));
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFalse));
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelTrue));
+                    String eFalse = intermedio.nuevaEtiqueta();
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, eFalse));
                     if (contCond != null) {
                         String labelFinal = intermedio.nuevaEtiqueta();
                         c_sents.generarIntermedio(intermedio, labelFinal, null, null);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
-                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFalse));
+                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eFalse));
                         contCond.generarIntermedio(intermedio, labelFinal);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal));
                     } else {
-                        c_sents.generarIntermedio(intermedio, labelFalse, null, null);
-                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFalse));
+                        c_sents.generarIntermedio(intermedio, eFalse, null, null);
+                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eFalse));
                     }
 
                     break;
@@ -104,7 +109,7 @@ public class Inst extends SimboloBase {
             }
 
         }
-
+        // comprobamos si se trata de una asignación, impresión por pantalla o llamada a un subprograma
         switch (type) {
             case "asig":
                 exp.generarIntermedio(intermedio);
@@ -112,11 +117,11 @@ public class Inst extends SimboloBase {
                 break;
             case "impr":
                 exp.generarIntermedio(intermedio);
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.IMPRIMIR, intermedio.getUltimaVariable().getId(), null, null));
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.IMPRIMIR, null, null, intermedio.getUltimaVariable().getId()));
                 break;
             case "call_fn":
                 // Llamada a función que no devuelve nada
-                call_fn.generarIntermedio(intermedio, null);
+                call_fn.generarIntermedio(intermedio, false);
                 break;
         }
     }

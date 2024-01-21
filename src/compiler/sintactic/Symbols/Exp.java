@@ -59,6 +59,9 @@ public class Exp extends SimboloBase {
         this.exp = exp;
     }
 
+    /**
+     * Método que crea las etiquetas e instrucciones necesarias para la ejecución
+     */
     public void generarIntermedio(Intermedio intermedio) {
         if (op != null) {
             // Se trata de una operación, por lo que se debe generar el intermedio de la expresión
@@ -85,7 +88,7 @@ public class Exp extends SimboloBase {
                 listaObjetos.add(exp.getOp());
 
             }
-
+            // Se revisa el tipo de operación para generar el intermedio correspondiente
             switch ((Op) listaObjetos.get(1)) {
                 case SUMA:
                 case RESTA:
@@ -151,11 +154,11 @@ public class Exp extends SimboloBase {
 
                 // Se añade la primera instrucción encontrada (mult vs div)
                 if (listaObjeto.get(indexMin) == Op.MULT) {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, variables[1].getId(), variables[0].getId(), temp.getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, variables[0].getId(), variables[1].getId(), temp.getId()));
                 } else if (listaObjeto.get(indexMin) == Op.DIV) {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.DIVISION, variables[1].getId(), variables[0].getId(), temp.getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.DIVISION, variables[0].getId(), variables[1].getId(), temp.getId()));
                 } else {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MODULO, variables[1].getId(), variables[0].getId(), temp.getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.MODULO, variables[0].getId(), variables[1].getId(), temp.getId()));
                 }
 
             } else {
@@ -176,7 +179,7 @@ public class Exp extends SimboloBase {
                 if (listaObjeto.get(indexMin) == Op.SUMA) {
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SUMA, variables[0].getId(), variables[1].getId(), temp.getId()));
                 } else {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.RESTA, variables[1].getId(), variables[1].getId(), temp.getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.RESTA, variables[0].getId(), variables[1].getId(), temp.getId()));
                 }
 
             }
@@ -190,6 +193,12 @@ public class Exp extends SimboloBase {
         }
     }
 
+    /**
+     * Método que genera el intermedio de una operación lógica: se crea una comparación entre los dos valores y se
+     * asigna 0 o -1 según si el resultado es true o false
+     * @param listaObjeto
+     * @param intermedio
+     */
     private void generarIntermedioLogic(ArrayList<Object> listaObjeto, Intermedio intermedio) {
         Variable[] variables;
         OperacionInst op = null;
@@ -199,6 +208,7 @@ public class Exp extends SimboloBase {
             variables = obtenerVariablesOperacion(1, listaObjeto, intermedio);
 
             Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
+            // Comprobación de la operación
             switch ((Op) listaObjeto.get(1)) {
                 case IGUAL -> op = OperacionInst.IGUAL;
                 case IGUALNT -> op = OperacionInst.DIFERENTE;
@@ -211,7 +221,14 @@ public class Exp extends SimboloBase {
             }
 
             // Se añade la instrucción
-            intermedio.añadirInstruccion(new Instruccion(op, variables[0].getId(), variables[1].getId(), temp.getId()));
+            String etrue = intermedio.nuevaEtiqueta();
+            intermedio.añadirInstruccion(new Instruccion(op, variables[0].getId(), variables[1].getId(), etrue)); // if a op b goto etrue
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, temp.getId())); // tn = 0
+            String efalse = intermedio.nuevaEtiqueta();
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, efalse)); // goto efalse
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, etrue)); // etrue: skip
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, temp.getId())); // tn= -1
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, efalse)); // efalse: skip
 
             // Se sustituye la operación por la variable temporal
             listaObjeto.remove(2);

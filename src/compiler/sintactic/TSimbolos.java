@@ -23,7 +23,6 @@ public class TSimbolos {
     }
 
     public boolean ponerSymbol(Symbol symbol) {
-
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
         // Solo accederá en el ámbito global
         if (symbol.getTipoElemento() == TipoElemento.FUNCION){

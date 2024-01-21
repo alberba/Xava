@@ -23,6 +23,6 @@ public class RetProc extends SimboloBase {
 
     public void generarIntermedio(Intermedio intermedio) {
         e.generarIntermedio(intermedio);
-        intermedio.añadirInstruccion(new Instruccion(OperacionInst.RETORNO, null, null, null));
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.RETORNO, null, null, intermedio.getUltimaVariable().getId()));
     }
 }

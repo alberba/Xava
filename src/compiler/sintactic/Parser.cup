@@ -232,7 +232,9 @@ SENT            ::= DECL:decl                                                   
 
 DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                     {:
-                        ansem.gestAsig(type.getStype(), d_asignacion.getE());
+                        if (d_asignacion != null) {
+                            ansem.gestAsig(type.getStype(), d_asignacion.getE());
+                        }
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
                             if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
@@ -297,7 +299,7 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         ansem.gestAsig(symbol.getTipoReturn(), exp);
                         RESULT = new Inst("asig", id, null, exp, idleft, idright);
                     :}
-                |   ID:id CORCHETE_A E:expArr CORCHETE_C ASIG E:exp P_COMA
+                |   CORCHETE_A E:expArr CORCHETE_C ID:id ASIG E:exp P_COMA
                     {:
                         if (ansem.gestExp(expArr) != EnumType.ENTERO) {
                             // MANEJO DE ERRORES SEMANTICOS
@@ -426,6 +428,7 @@ VALUE           ::= DIGITO:num                                                  
                 |   ID:id                                                                           {: RESULT = new Value(id, "Id", idleft, idright);                               :}
                 |   ARRAY:array
                 {:
+                    ansem.gestArray(array.getId(), array.getDimension(), arrayleft);
                     RESULT = new Value(array, arrayleft, arrayright);
                 :}
                 |   COMILLAS CARACTER:car COMILLAS                                                  {: RESULT = new Value(car, "Car", carleft, carright);                      :}
@@ -437,7 +440,6 @@ VALUE           ::= DIGITO:num                                                  
 ARRAY           ::= L_ARR:list_arr ID:id
                 {:
                     int nDimensiones = getDimensionesArray(list_arr);
-                    ansem.gestArray(id, nDimensiones, list_arrleft);
                     RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
                 :}
                 ;
@@ -467,3 +469,4 @@ CALL_FN         ::= ID:id ARGS_CALL:args_call                                   
 
 M               ::=                                                                                 {: tSimbolos.añadirAmbito();                                                    :}
                 ;
+

@@ -40,6 +40,7 @@ public class ArrayG extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
+        // Solicitamos un espacio de array en la tabla de variables del intermedio
         intermedio.añadirArray(this);
     }
 }

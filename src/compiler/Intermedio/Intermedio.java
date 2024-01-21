@@ -40,6 +40,14 @@ public class Intermedio {
         return "e" + contadorEtiquetas;
     }
 
+    /**
+     * Añade una variable a la tabla de variables y la devuelve. Antes de añadir la variable, es necesario comprobar
+     * que no exista ya otra variable con el mismo nombre en el mismo ámbito o en el ámbito global.
+     * @param id
+     * @param tipo
+     * @param longitud
+     * @return
+     */
     public Variable añadirVariable(String id, EnumType tipo, ArrayList<Variable> longitud) {
         Variable v = null;
         // Se mira si es una variable temporal
@@ -50,7 +58,7 @@ public class Intermedio {
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
-                v = new Variable(id, tipo, false, longitud, pproc.peek());
+                v = new Variable(id, tipo, false, longitud, "global");
                 counterGlobales++;
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el procedimiento actual de la tabla
@@ -103,7 +111,6 @@ public class Intermedio {
 
     public void añadirArray(ArrayG arrayG) {
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
-
         ArrayList<Variable> variables = new ArrayList<>();
         for (L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()) {
             lArray.getExp().generarIntermedio(this);
@@ -180,6 +187,11 @@ public class Intermedio {
         return tv.get(tv.size() - 1);
     }
 
+    /**
+     * Dado un identificador, devuelve el procedimiento correspondiente
+     * @param id
+     * @return
+     */
     public Procedimiento getProcedimiento(String id) {
         for (Procedimiento proc : tp) {
             if (proc.getId().equals(id)) {
@@ -189,7 +201,11 @@ public class Intermedio {
         return null;
     }
 
-    public void setNprodActual(String id){
+    /**
+     * Actualiza el apuntador al proceso actual
+     * @param id
+     */
+    public void setNprodActual(String id) {
         for (Procedimiento p: tp) {
             if(p.getId().equals(id)){
                 nProdActual = tp.indexOf(p);
@@ -205,8 +221,8 @@ public class Intermedio {
         this.esParametro = esParametro;
     }
 
-    public void addPproc(String proc){
-        pproc.push(proc);
+    public void addPproc(String idproc) {
+        pproc.push(idproc);
     }
 
     public TSimbolos getTs() {
