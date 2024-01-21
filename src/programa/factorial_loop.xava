@@ -1,3 +1,4 @@
+ent a := 5;
 funcion ent factorial(ent number);
 
 principal {
@@ -13,7 +14,7 @@ principal {
     imprimir(factorial([2]nums));
 }
 
-funcion ent factorial(ent number){
+funcion ent factorial(ent number) {
     ent result := 1;
     ent iter := number;
 

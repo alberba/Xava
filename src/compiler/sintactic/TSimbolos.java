@@ -136,31 +136,36 @@ public class TSimbolos {
     public EnumType getTypeFuncionActual() {
         return tsimbolos.get(nActual).get(0).getTipoReturn();
     }
-    
+
+    /**
+     * Devuelve el ámbito de la función indicada
+     * @param idFunc
+     * @return
+     */
     private int getAmbitoFuncion(String idFunc) {
-        // Se empieza desde 1 porque no puede ser el ámbito global
+        if (idFunc == "main") {
+            return tsimbolos.size() - 1;
+        }
+        // Se empieza desde 1 porque ya no puede ser el ámbito global
         int ambito = 1;
         boolean encontrado = false;
         // Se recorren las declaraciones globales en busca de la función
         for (int i = 0; i <= tsimbolos.get(0).size(); i++) {
-            // Si no es una función, se ignora
+            // Si no es la declaración de una función, se ignora
             if (tsimbolos.get(0).get(i).getTipoElemento() == TipoElemento.FUNCION) {
                 // ES UNA FUNCIÓN
                 // Si no es la que se busca, se ignora también
                 if (!tsimbolos.get(0).get(i).getName().equals(idFunc)) {
-                    // Se incrementa el ámbito de la función, ya que el ambito de las funciones van con el mismo orden
-                    // que la que fueron declaradas
+                    // Se incrementa el ámbito por cada función recorrida hasta llegar a la que toca,
+                    // ya que el ámbito de una función coincide con el orden en el que se declara
                     ambito++;
-                    continue;
+                } else {
+                    // Se ha encontrado la función
+                    return ambito;
                 }
-                encontrado = true;
-                break;
             }
         }
-        if (!encontrado) {
-            ambito = -1;
-        }
-        return ambito;
+        return -1;
     }
 
     public void updatenActual(String idFuncion) {
@@ -180,4 +185,7 @@ public class TSimbolos {
         return sb.toString();
     }
 
+    public int getnActual() {
+        return nActual;
+    }
 }

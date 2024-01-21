@@ -54,7 +54,11 @@ public class Intermedio {
         if (id == null) {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
-            v = new Variable("t" + counterTemps, tipo, true, longitud, pproc.peek()); // esTemp a true
+            if (pproc.isEmpty()) {
+                v = new Variable("t" + counterTemps, tipo, true, longitud, "global"); // esTemp a true
+            } else {
+                v = new Variable("t" + counterTemps, tipo, true, longitud, pproc.peek());
+            }
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
@@ -110,6 +114,8 @@ public class Intermedio {
     }
 
     public void añadirArray(ArrayG arrayG) {
+        System.out.println(ts.toString());
+        System.out.println("n de ts: " + ts.getnActual());
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
         ArrayList<Variable> variables = new ArrayList<>();
         for (L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()) {

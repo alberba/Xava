@@ -12,12 +12,12 @@ public class DeclGlob extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        if(declsF != null){
-            declsF.generarIntermedio(intermedio);
+        if (decls != null) {
+            decls.generarIntermedio(intermedio);
         }
 
-        if(decls != null){
-            decls.generarIntermedio(intermedio);
+        if (declsF != null) {
+            declsF.generarIntermedio(intermedio);
         }
     }
 

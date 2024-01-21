@@ -571,7 +571,10 @@ class CUP$Parser$actions {
 		int funcionesleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int funcionesright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Funciones funciones = (Funciones)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 xava = new Xava(gdecls, main, funciones, 0, 0);                            
+		
+                        xava = new Xava(gdecls, main, funciones, 0, 0);
+                        tSimbolos.updatenActual("main");
+                    
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("XAVA",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -583,7 +586,7 @@ class CUP$Parser$actions {
 		int sentsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int sentsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Sents sents = (Sents)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new Main_fn(sents, sentsleft, sentsright);                       
+		 RESULT = new Main_fn(sents, sentsleft, sentsright);                    
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("MAIN_FN",3, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

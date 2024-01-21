@@ -112,10 +112,14 @@ non terminal    Call_fn         CALL_FN;
 
 start with      XAVA;
 
-XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones                                {: xava = new Xava(gdecls, main, funciones, 0, 0);                            :}
+XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones
+                    {:
+                        xava = new Xava(gdecls, main, funciones, 0, 0);
+                        tSimbolos.updatenActual("main");
+                    :}
                 ;
 
-MAIN_FN         ::= M PRINCIPAL LLAVE_A SENTS:sents LLAVE_C                                         {: RESULT = new Main_fn(sents, sentsleft, sentsright);                       :}
+MAIN_FN         ::= M PRINCIPAL LLAVE_A SENTS:sents LLAVE_C                                         {: RESULT = new Main_fn(sents, sentsleft, sentsright);                    :}
                 ;
 
 DECLGLOB        ::= DECLS:decls DECLSF:declsf
