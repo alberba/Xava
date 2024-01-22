@@ -114,8 +114,6 @@ public class Intermedio {
     }
 
     public void añadirArray(ArrayG arrayG) {
-        System.out.println(ts.toString());
-        System.out.println("n de ts: " + ts.getnActual());
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
         ArrayList<Variable> variables = new ArrayList<>();
         for (L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()) {
@@ -144,23 +142,23 @@ public class Intermedio {
         }
 
         // Obtener la posición del array
-        boolean encontrado = false;
-        int i = 0;
-        for(; i < tv.size() && !encontrado; i++){
-            if(tv.get(i).getId().equals(arrayG.getId())){
-                encontrado = true;
+        Variable array = null;
+        for (Variable variable : tv) {
+            if (variable.getId().equals(arrayG.getId())) {
+                array = variable;
+                break;
             }
         }
 
-        // Obtener el array
-        Variable array = tv.get(i);
         // Obtener las dimensiones del array
+        assert array != null;
         ArrayList<Variable> varArrayDecl = array.getLongitud();
 
         // Bucle que añade todas las instrucciones que calculan la dirección de memoria a la que se quiere acceder
         Variable tempAnt = varArray.get(0);
+        Variable temp = null;
         for (int j = 0; j < varArray.size() - 1; j++) {
-            Variable temp = this.añadirVariable(null, EnumType.ENTERO, null);
+            temp = this.añadirVariable(null, EnumType.ENTERO, null);
             // En el ejemplo a [2] [1], se obtiene el valor de a [2] y se multiplica por 3, ya que la declaración de "a" es a[3] [3]
             this.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, tempAnt.getId(), varArrayDecl.get(j+1).getId(), temp.getId()));
             if (j != 0) {
@@ -170,9 +168,8 @@ public class Intermedio {
             tempAnt = temp;
         }
 
-        Variable temp = null;
-        // tempAnt sera null si el array es de una dimensión
-        if (tempAnt != null) {
+        // temp sera null si el array es de una dimensión
+        if (temp != null) {
             // Se obtiene el índice
             temp = this.añadirVariable(null, EnumType.ENTERO, null);
             this.añadirInstruccion(new Instruccion(OperacionInst.SUMA, tempAnt.getId(), varArray.get(varArray.size() - 1).getId(), temp.getId()));
@@ -246,5 +243,9 @@ public class Intermedio {
             sb.append(instruccion.toString()).append("\n");
         }
         return sb.toString();
+    }
+
+    public void actualizarAmbito(String idFuncion) {
+        ts.updatenActual("main");
     }
 }

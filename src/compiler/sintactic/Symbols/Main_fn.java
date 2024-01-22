@@ -3,7 +3,7 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Intermedio;
 public class Main_fn extends SimboloBase {
 
-    private Sents sents;
+    private final Sents sents;
 
     public Main_fn(Sents sents, int linea, int columna) {
         super(linea,columna);
@@ -11,6 +11,7 @@ public class Main_fn extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
+        intermedio.actualizarAmbito("main");
         intermedio.addPproc("main");
         sents.generarIntermedio(intermedio);
     }

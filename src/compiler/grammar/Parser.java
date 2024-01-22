@@ -573,7 +573,6 @@ class CUP$Parser$actions {
 		Funciones funciones = (Funciones)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                         xava = new Xava(gdecls, main, funciones, 0, 0);
-                        tSimbolos.updatenActual("main");
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("XAVA",1, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }

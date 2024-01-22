@@ -115,7 +115,6 @@ start with      XAVA;
 XAVA            ::= DECLGLOB:gdecls MAIN_FN:main FUNCIONES:funciones
                     {:
                         xava = new Xava(gdecls, main, funciones, 0, 0);
-                        tSimbolos.updatenActual("main");
                     :}
                 ;
 

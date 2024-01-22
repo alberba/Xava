@@ -118,7 +118,12 @@ public class Value extends SimboloBase {
                 case "Bol":
                     // Guardamos el valor booleano en una variable temporal
                     v = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, value, null, v.getId()));
+                    if (value.equals("verdadero")) {
+                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, v.getId()));
+                    } else {
+                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, v.getId()));
+                    }
+
                     break;
             }
         }

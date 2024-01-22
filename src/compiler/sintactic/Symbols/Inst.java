@@ -5,6 +5,7 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
 import compiler.Intermedio.OperacionInst;
+import compiler.Intermedio.Variable;
 
 public class Inst extends SimboloBase {
     private String type;
@@ -50,10 +51,6 @@ public class Inst extends SimboloBase {
      * @param intermedio objeto intermedio que se usará para recorrer todas las instrucciones luego.
      */
     public void generarIntermedio(Intermedio intermedio) {
-        //Comprobar si se trata de un array
-        if (dimArray != null) {
-            dimArray.generarIntermedio(intermedio);
-        }
         //Comprobar si tenemos una estructura if, for, while o do-while
         if (c_sents != null) {
             switch (type) {
@@ -113,7 +110,14 @@ public class Inst extends SimboloBase {
         switch (type) {
             case "asig":
                 exp.generarIntermedio(intermedio);
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, intermedio.getUltimaVariable().getId(), null, id));
+                Variable varExp = intermedio.getUltimaVariable();
+                if(dimArray != null){
+                    dimArray.generarIntermedio(intermedio);
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIGNADO, varExp.getId(), intermedio.getUltimaVariable().getId(), id));
+                    break;
+                } else {
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, varExp.getId(), null, id));
+                }
                 break;
             case "impr":
                 exp.generarIntermedio(intermedio);
