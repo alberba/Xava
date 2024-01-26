@@ -3,6 +3,7 @@ package compiler.sintactic;
 import compiler.sintactic.Symbols.EnumType;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class TSimbolos {
     private ArrayList<ArrayList<Symbol>> tsimbolos;
@@ -143,7 +144,7 @@ public class TSimbolos {
      * @return
      */
     private int getAmbitoFuncion(String idFunc) {
-        if (idFunc == "main") {
+        if (Objects.equals(idFunc, "main")) {
             return tsimbolos.size() - 1;
         }
         // Se empieza desde 1 porque ya no puede ser el ámbito global

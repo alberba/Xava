@@ -18,7 +18,7 @@ public class Variable {
         this.tipo = tipo;
         this.esTemp = esTemp;
         this.longitud = longitud;
-        this.ambito = Objects.requireNonNullElse(ambito, "global");
+        this.ambito = ambito;
     }
 
     public String getId() {

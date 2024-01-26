@@ -237,6 +237,8 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                     {:
                         if (d_asignacion != null) {
                             ansem.gestAsig(type.getStype(), d_asignacion.getE());
+                        } else {
+                            if (type.getConstante()) { ErrorC.añadirError(new ErrorC("Las constantes deben tener un valor asignado", aux.getLinea(), Fase.SEMÁNTICO)); }
                         }
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
                             if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
