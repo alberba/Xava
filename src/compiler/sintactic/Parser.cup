@@ -40,9 +40,9 @@ parser code {:
 
     @Override
     public void syntax_error(java_cup.runtime.Symbol cur_token) {
-        String message = "Obtuvimos " + cur_token.toString().split(" ")[1] + " y esperabamos " + this.showExpectedTokenIds();
+        String message = "Esperabamos " + this.showExpectedTokenIds();
         ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
-        ErrorC.añadirError(new ErrorC(message, cs.getLeft().getLine(), Fase.SINTÁCTICO));
+        ErrorC.añadirError(new ErrorC(message, cs.getLeft().getLine(), cs.getLeft().getColumn(), Fase.SINTÁCTICO));
     }
 
     private String showExpectedTokenIds() {

@@ -15,6 +15,7 @@ public class ErrorC {
     private String mensaje;
     // Linea
     private int linea;
+    private int columna;
     // Fase del compilador
     private Fase fase;
 
@@ -22,6 +23,13 @@ public class ErrorC {
         this.mensaje = msj;
         this.linea = linea;
         this.fase = fase;
+    }
+
+    public ErrorC(String msj, int linea, int columna, Fase fase) {
+        this.mensaje = msj;
+        this.linea = linea;
+        this.fase = fase;
+        this.columna = columna;
     }
 
     public static void añadirError(ErrorC err) {
@@ -47,6 +55,10 @@ public class ErrorC {
 
     @Override
     public String toString() {
-        return "Error de " + fase.name() + ": " + mensaje + ". Línea: " + linea + ".";
+        if (columna != 0)
+            return "Error de " + fase.name() + ": " + mensaje + ". Línea: " + linea + ". Columna: " + columna + ".";
+        else {
+            return "Error de " + fase.name() + ": " + mensaje + ". Línea: " + linea + ".";
+        }
     }
 }

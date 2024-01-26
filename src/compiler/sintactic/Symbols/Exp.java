@@ -212,8 +212,6 @@ public class Exp extends SimboloBase {
             switch ((Op) listaObjeto.get(1)) {
                 case IGUAL -> op = OperacionInst.IGUAL;
                 case IGUALNT -> op = OperacionInst.DIFERENTE;
-                case Y -> op = OperacionInst.Y;
-                case O -> op = OperacionInst.O;
                 case MAI -> op = OperacionInst.MAYOR_IGUAL;
                 case MEI -> op = OperacionInst.MENOR_IGUAL;
                 case MAQ -> op = OperacionInst.MAYOR;

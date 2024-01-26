@@ -40,6 +40,15 @@ public class Intermedio {
         return "e" + contadorEtiquetas;
     }
 
+    public Variable buscarVariable(String id) {
+        for (Variable variable : tv) {
+            if (variable.getId().equals(id)) {
+                return variable;
+            }
+        }
+        return null;
+    }
+
     /**
      * Añade una variable a la tabla de variables y la devuelve. Antes de añadir la variable, es necesario comprobar
      * que no exista ya otra variable con el mismo nombre en el mismo ámbito o en el ámbito global.
@@ -247,5 +256,13 @@ public class Intermedio {
 
     public void actualizarAmbito(String idFuncion) {
         ts.updatenActual("main");
+    }
+
+    public ArrayList<Variable> getTv() {
+        return tv;
+    }
+
+    public ArrayList<Instruccion> getCodigo() {
+        return codigo;
     }
 }

@@ -3,20 +3,20 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Intermedio;
 public class Type extends SimboloBase {
 
-    private Boolean constante;
+    private boolean constante;
     private EnumType stype;
 
-    public Type(Boolean constante, EnumType stype, int linea, int columna) {
+    public Type(boolean constante, EnumType stype, int linea, int columna) {
         super(linea,columna);
         this.constante = constante;
         this.stype = stype;
     }
 
-    public Boolean getConstante() {
+    public boolean getConstante() {
         return constante;
     }
 
-    public void setConstante(Boolean constante) {
+    public void setConstante(boolean constante) {
         this.constante = constante;
     }
 

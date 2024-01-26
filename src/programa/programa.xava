@@ -1,4 +1,5 @@
 ## Hola Mundo
+funcion coño
 funcion ent mod(ent a, ent b);
 funcion ent abs(ent n);
 funcion ent pow(ent b, ent e);

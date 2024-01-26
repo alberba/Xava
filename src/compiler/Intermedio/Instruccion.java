@@ -39,10 +39,6 @@ public class Instruccion {
                 return "if " + operador1 + " > " + operador2 + " goto " + destino;
             case MAYOR_IGUAL:
                 return "if " + operador1 + " >= " + operador2 + " goto " + destino;
-            case Y:
-                return "if " + operador1 + " and " + operador2 + " goto " + destino;
-            case O:
-                return "if " + operador1 + " or " + operador2 + " goto " + destino;
             case NO:
                 return "if not " + operador1 + " goto " + destino;
             case ASIG:
@@ -89,4 +85,19 @@ public class Instruccion {
         }
     }
 
+    public OperacionInst getOperacion() {
+        return operacion;
+    }
+
+    public String getOperador1() {
+        return operador1;
+    }
+
+    public String getOperador2() {
+        return operador2;
+    }
+
+    public String getDestino() {
+        return destino;
+    }
 }
