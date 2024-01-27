@@ -238,7 +238,9 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                         if (d_asignacion != null) {
                             ansem.gestAsig(type.getStype(), d_asignacion.getE());
                         } else {
-                            if (type.getConstante()) { ErrorC.añadirError(new ErrorC("Las constantes deben tener un valor asignado", aux.getLinea(), Fase.SEMÁNTICO)); }
+                            if (type.getConstante()) {
+                            ErrorC.añadirError(new ErrorC("Las constantes deben tener un valor asignado", type.getLinea(), Fase.SEMÁNTICO));
+                            }
                         }
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
                             if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
@@ -304,16 +306,11 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         ansem.gestAsig(symbol.getTipoReturn(), exp);
                         RESULT = new Inst("asig", id, null, exp, idleft, idright);
                     :}
-                |   CORCHETE_A E:expArr CORCHETE_C ID:id ASIG E:exp P_COMA
+                |   ARRAY:array ASIG E:exp P_COMA
                     {:
-                        if (ansem.gestExp(expArr) != EnumType.ENTERO) {
-                            // MANEJO DE ERRORES SEMANTICOS
-                            // El índice del array debe ser de tipo entero
-                            ErrorC.añadirError(new ErrorC("El indice del array debe ser de tipo entero", expArr.getLinea(), Fase.SEMÁNTICO));
-                        }
-                        Symbol symbol = tSimbolos.getSymbol(id);
+                        Symbol symbol = tSimbolos.getSymbol(array.getId());
                         ansem.gestAsig(symbol.getTipoReturn(), exp);
-                        RESULT = new Inst("asig", id, expArr, exp, idleft, idright);
+                        RESULT = new Inst("asig", array.getId(), array, exp, arrayleft, arrayright);
                     :}
                 |   IMPRIMIR PAR_A E:exp PAR_C P_COMA                                               {: RESULT = new Inst("impr", null, null, exp, expleft, expright);                     :}
                 |   CALL_FN:call_fn

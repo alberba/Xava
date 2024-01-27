@@ -130,7 +130,7 @@ public class Value extends SimboloBase {
         if(arrayG != null) {
             // Consultar el valor de array, b = a[3][2]
             // 1. Obtener la dirección de a[3][2]
-            intermedio.consultarArray(arrayG);
+            intermedio.consultarArray(arrayG, true);
         }
         if(call_fn != null) {
             // Llamada a un subprograma

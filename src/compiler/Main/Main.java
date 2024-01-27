@@ -1,5 +1,6 @@
 package compiler.Main;
 
+import compiler.Ensamblador.Ensamblador;
 import compiler.ErrorC;
 import compiler.Intermedio.Intermedio;
 import compiler.grammar.Parser;
@@ -82,6 +83,8 @@ public class Main {
             System.exit(0);
         }
 
+        Ensamblador ensamblador = new Ensamblador(intermedio, parser.getTSimbolos());
+        ensamblador.generarEnsamblador();
 
         sc.close();
 

@@ -2,7 +2,9 @@ package compiler.Ensamblador;
 
 import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.Procedimiento;
 import compiler.Intermedio.Variable;
+import compiler.sintactic.Symbols.EnumType;
 import compiler.sintactic.Symbols.Inst;
 import compiler.sintactic.TSimbolos;
 
@@ -27,6 +29,7 @@ public class Ensamblador {
 
         codigo.add("\t\tORG\t$1000");
         declararVariables();
+        generarSubrutinas();
         for(Instruccion instruccion: intermedio.getCodigo()){
             instruccionAEnsamblador(instruccion);
         }
@@ -82,36 +85,34 @@ public class Ensamblador {
                 ensambladorNo(instruccion);
                 break;
             case INDEXADO:
+                ensambladorIndexado(instruccion);
                 break;
             case ASIGNADO:
+                ensambladorAsignado(instruccion);
                 break;
             case ETIQUETA:
+                codigo.add(instruccion.getDestino() + ":");
                 break;
             case SALTO_INCON:
+                codigo.add("\tJMP\t" + instruccion.getDestino());
                 break;
             case SALTO_COND:
+                ensambladorSCond(instruccion);
                 break;
             case INICIALIZACION:
+                ensambladorPmb(instruccion);
                 break;
             case LLAMADA:
-                if (instruccion.getOperador1() != null) {
-                    System.out.println("a");
-                } else {
-                    System.out.println("b");
-                }
+                ensambladorLlamada(instruccion);
                 break;
             case RETORNO:
-                if (instruccion.getDestino() != null){
-                    System.out.println("a");
-                } else {
-                    System.out.println("b");
-                }
+
                 break;
             case PARAMETRO_SIMPLE:
-                break;
-            case PARAMETRO_ARRAY:
+                codigo.add("\tMOVE.W\t" + instruccion.getOperador1() + ", -(A7)");
                 break;
             case IMPRIMIR:
+                ensambladorImprimir(Instruccion instruccion);
                 break;
             case ENTRADA_ENT:
                 break;
@@ -133,6 +134,23 @@ public class Ensamblador {
         }
     }
 
+    /**
+     * Función encargada de traducir la instrucción de asignación a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     */
+    private void ensambladorAsig(Instruccion instruccion) {
+        String var1 = convertirOperador(instruccion.getOperador1());
+
+        codigo.add("\tMOVE.W\t" + var1 + ", " + instruccion.getDestino());
+    }
+
+    /**
+     * Función encargada de traducir la instrucción de suma y resta a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     * @param Op Operación a realizar (ADD o SUB)
+     */
     private void ensambladorSumaResta(Instruccion instruccion, String Op) {
 
         String var1 = convertirOperador(instruccion.getOperador1());
@@ -143,11 +161,22 @@ public class Ensamblador {
 
     }
 
+    /**
+     * Función encargada de traducir la instrucción de multiplicación, división y módulo a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     * @param op Operación a realizar (MULTS o DIVS). En caso de ser módulo, se usa DIVS
+     * @param esMod Booleano que indica si es una operación de módulo
+     */
     private void ensambladorMultDivMod(Instruccion instruccion, String op, boolean esMod) {
-
+        // Se mira si se puede optimizar la operación
+        if (optMultDiv(instruccion, op)) {
+            return;
+        }
+        // En caso contrario, se opera normalmente
         String var1 = convertirOperador(instruccion.getOperador1());
-        codigo.add("\tMOVE.W\t" + var1 + ", D0");
         String var2 = convertirOperador(instruccion.getOperador2());
+        codigo.add("\tMOVE.W\t" + var1 + ", D0");
         codigo.add("\tMOVE.W\t" + var2 + ", D1");
         codigo.add("\tEXT.L\tD1");
         codigo.add("\t" + op + ".W\tD1, D0");
@@ -158,12 +187,44 @@ public class Ensamblador {
 
     }
 
-    private void ensambladorAsig(Instruccion instruccion) {
+    private boolean optMultDiv(Instruccion instruccion, String op) {
         String var1 = convertirOperador(instruccion.getOperador1());
-
-        codigo.add("\tMOVE.W\t" + var1 + ", " + instruccion.getDestino());
+        String var2 = convertirOperador(instruccion.getOperador2());
+        // Si var2 es múltiplo de 2
+        if (esMultiploDeDos(instruccion.getOperador2())) {
+            // Se puede optimizar la multiplicación
+            if (op.equals("MULTS")) {
+                codigo.add("\tMOVE.W\t" + var1 + ", D0");
+                codigo.add("\tLSL\t" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+            } else { // Y la división
+                codigo.add("\tMOVE.W\t" + var1 + ", D0");
+                codigo.add("\tLSR\t" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+            }
+            return true;
+        } else if (esMultiploDeDos(instruccion.getOperador1())) { // Si no lo es, pero var1 sí
+            // Tan solo se puede optimizar la multiplicación
+            if (op.equals("MULTS")) {
+                codigo.add("\tMOVE.W\t" + var2 + ", D0");
+                codigo.add("\tLSL\t" + getValor(var1) / 2 + ", D0");
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                return true;
+            } else { // No es el caso de la división (no tiene propiedad conmutativa)
+                return false;
+            }
+        } else { // Sin múltiplo de 2, no hay nada que optimizar
+            return false;
+        }
     }
 
+
+    /**
+     * Función encargada de traducir las intstrucciones de operaciones lógicas a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     * @param op Operación a realizar (IGUAL, DIFERENTE, MENOR, MENOR_IGUAL, MAYOR, MAYOR_IGUAL)
+     */
     private void ensambladorComp(Instruccion instruccion, String op) {
         String var1 = convertirOperador(instruccion.getOperador1());
         codigo.add("\tMOVE.W\t" + var1 + ", D0");
@@ -211,12 +272,171 @@ public class Ensamblador {
         }
     }
 
+    /**
+     * Función encargada de traduci la instrucción del NOT a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     */
     private void ensambladorNo(Instruccion instruccion) {
         codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", D0");
         codigo.add("\tNOT.W\tD0");
         codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
     }
 
+    /**
+     * Función encargada de traducir la instrucción de indexado a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     */
+    private void ensambladorIndexado(Instruccion instruccion) {
+
+        String var2 = convertirOperador(instruccion.getOperador2());
+        codigo.add("\tMOVE.W\t" + var2 + ", D0");
+        codigo.add("\tLEA\t" + instruccion.getOperador1() + "A0");
+        // Se le suma
+        codigo.add("\tMOVE.W\t(A0, D0.W), " + instruccion.getDestino());
+
+    }
+
+    /**
+     * Función encargada de traducir la instrucción de asignación a array a ensamblador (Ej. a[3] = b)
+     * Se asume que el operador1 es el valor a asignar y el operador2 es el índice
+     *
+     * @param instruccion Instrucción a traducir
+     */
+    private void ensambladorAsignado(Instruccion instruccion) {
+
+        // Se obtiene el valor a asignar (No hace comprobar si es un literal o una variable, ya que se asume que es una variable)
+        codigo.add("\tMOVE.W\t" + instruccion.getOperador2() + ", D0");
+        codigo.add("\tLEA\t" + instruccion.getDestino() + ", A0");
+        codigo.add("\tMOVE.W\t" + instruccion.getOperador1() + ", (A0, D0.W)");
+
+    }
+
+    /**
+     * Función encargada de traducir el salto condicional a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     */
+    private void ensambladorSCond(Instruccion instruccion) {
+
+        String var1 = convertirOperador(instruccion.getOperador1());
+        codigo.add("\tMOVE.W\t" + var1 + ", D0");
+        codigo.add("\tCMP.W\t#0, D0");
+        codigo.add("\tBEQ\t" + instruccion.getDestino());
+
+    }
+
+    /**
+     * Función encargada de traducir la inicialización de un procedimiento a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     */
+    private void ensambladorPmb(Instruccion instruccion) {
+
+        Procedimiento proc = intermedio.getProcedimiento(instruccion.getDestino());
+
+        ArrayList<Variable> parametros = proc.getParametros();
+        if (proc.getTipo() != EnumType.VACIO) {
+
+        }
+
+    }
+
+    /**
+     * Función encargada de traducir la llamada a un procedimiento a ensamblador
+     *
+     * @param instruccion Instrucción a traducir
+     */
+    private void ensambladorLlamada(Instruccion instruccion) {
+        Procedimiento proc = intermedio.getProcedimiento(instruccion.getDestino());
+
+        if (proc.getTipo() != EnumType.VACIO) {
+            codigo.add("\tSUBA.L\t#2, A7");
+        }
+        codigo.add("\tJSR\t" + instruccion.getDestino());
+
+        // Recuperar los valores de retorno, si es que hay
+        if (proc.getTipo() != EnumType.VACIO) {
+            codigo.add("\tMOVE.W\t(A7)+, " + instruccion.getOperador1());
+        }
+    }
+
+    /**
+     * Función encargada de generar el código que llama a la subrutina de imprimir, solo se imprimen variables,
+     * no se pueden imprimir literales
+     *
+     * @param instruccion
+     */
+    private void ensambladorImprimir(Instruccion instruccion) {
+        EnumType tipo = intermedio.buscarVariable(instruccion.getDestino()).getTipo();
+        codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", D1");
+        // Se llama a la subrutina correspondiente según el tipo de variable
+        switch (tipo) {
+            case BOOLEANO -> codigo.add("JSR IMPRIMIRBOOL");
+            case ENTERO -> codigo.add("JSR IMPRIMIRENT");
+            case CARACTER -> codigo.add("JSR IMPRIMIRCAR");
+        }
+    }
+
+    private void generarSubrutinas() {
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("* SUBRUTINAS");
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("");
+        codigo.add("IMPRIMIRENT:");
+        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+        codigo.add("\tCLR.L \tD0"); // Limpiar D0
+        codigo.add("\tEXT.L\tD1"); // Limpiar D1
+        codigo.add("\tMOVE.W\t#3, D0"); // Indicar la tarea a realizar
+        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+        codigo.add("\tLEA\tAUX, A1"); // Recuperar el valor de D0
+        codigo.add("\tMOVE.W\t#13, D0");
+        codigo.add("\tTRAP\t#15");
+        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+        codigo.add("\tRTS");
+        codigo.add(".AUX\tDS.B\t' ', 0");
+        codigo.add("");
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("IMPRIMIRBOOL:");
+        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+        codigo.add("\tCLR.L\tD0"); // Limpiar D0
+        codigo.add("\tMOVE.W\tD0, A1");
+        codigo.add("\tCMP\t#0, D1"); // Mirar si es verdadero o falso
+        codigo.add("\tBEQ\t.ESFALSO");
+        codigo.add("\tLEA\t.VERDADERO, A1"); // Guardar contenido a imprimir
+        codigo.add("\tBRA\t.IMPRIMIR");
+        codigo.add(".ESFALSO\tLEA\t.FALSO, A1");
+        codigo.add(".IMPRIMIR");
+        codigo.add("\tMOVE.W\t#13, D0");
+        codigo.add("\tTRAP\t#15");
+        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+        codigo.add("\tRTS");
+        codigo.add(".FALSO\tDS.B\t'falso', 0");
+        codigo.add(".VERDADERO\tDS.B\t'verdadero', 0");
+        codigo.add("");
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("IMPRIMIRCAR:");
+        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+        codigo.add("\tCLR.L \tD0"); // Limpiar D0
+        codigo.add("\tMOVE.W\t#6, D0"); // Indicar la tarea a realizar
+        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+        codigo.add("\tLEA\t.AUX, A1"); // Recuperar el valor de D0
+        codigo.add("\tMOVE.W\t#13, D0");
+        codigo.add("\tTRAP\t#15");
+        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+        codigo.add("\tRTS");
+        codigo.add(".AUX\tDS.B\t' ', 0");
+
+
+    }
+
+    /**
+     * Función encargada de buscar si el operador es un literal o una variable y de adecuar la sintaxis a ensamblador
+     *
+     * @param valor Id del valor o valor del literal
+     * @return String con el valor convertido a ensamblador
+     */
     private String convertirOperador(String valor) {
         
         if (intermedio.buscarVariable(valor) == null) {
@@ -228,6 +448,21 @@ public class Ensamblador {
         }
 
         return valor;
+    }
+
+    // Solo funciona para literales
+    private boolean esMultiploDeDos(String operador) {
+        if (esNum(operador)) {
+            int num = Integer.parseInt(operador);
+            return num % 2 == 0;
+        }
+        return false;
+    }
+
+    // Solo funciona con números
+    private int getValor(String operador) {
+        operador = operador.replace("#", "0"); // No sé si funciona replace con "" pero con 0 va bien
+        return Integer.parseInt(operador);
     }
 
 }

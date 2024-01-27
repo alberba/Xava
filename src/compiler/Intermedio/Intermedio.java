@@ -132,7 +132,7 @@ public class Intermedio {
         this.añadirVariable(arrayG.getId(), typeArr, variables);
     }
 
-    public void consultarArray(ArrayG arrayG){
+    public void consultarArray(ArrayG arrayG, boolean esIndexado) {
         // Obtenemos el tipo del array
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
         int nbytes = 0;
@@ -191,8 +191,10 @@ public class Intermedio {
         Variable temp2 = this.añadirVariable(null, EnumType.ENTERO, null);
         this.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, temp.getId(), String.valueOf(nbytes), temp2.getId()));
 
-        Variable tempFinal = this.añadirVariable(null, EnumType.ENTERO, null);
-        this.añadirInstruccion(new Instruccion(OperacionInst.INDEXADO, array.getId(), temp2.getId(), tempFinal.getId()));
+        if (esIndexado) {
+            Variable tempFinal = this.añadirVariable(null, EnumType.ENTERO, null);
+            this.añadirInstruccion(new Instruccion(OperacionInst.INDEXADO, array.getId(), temp2.getId(), tempFinal.getId()));
+        }
     }
 
     public Variable getUltimaVariable() {

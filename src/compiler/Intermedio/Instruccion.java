@@ -69,8 +69,6 @@ public class Instruccion {
                 }
             case PARAMETRO_SIMPLE:
                 return "param_s " + destino;
-            case PARAMETRO_ARRAY:
-                return "param " + destino + "[" + operador1 + "]";
             case IMPRIMIR:
                 return "imprimir " + destino;
             case ENTRADA_ENT:

@@ -10,7 +10,7 @@ import compiler.Intermedio.Variable;
 public class Inst extends SimboloBase {
     private String type;
     private Exp exp;
-    private Exp dimArray;
+    private ArrayG arrayG;
     private C_sents c_sents;
     private Decl decl_cap;
     private Inst inst;
@@ -37,11 +37,11 @@ public class Inst extends SimboloBase {
     /**
      * Constructor para asignación de variables y de posiciones de un array, además de para imprimir por pantalla.
      */
-    public Inst(String type, String id, Exp dimArray, Exp exp, int linea, int columna) {
+    public Inst(String type, String id, ArrayG arrayG, Exp exp, int linea, int columna) {
 
         super(linea,columna);
         this.type = type;
-        this.dimArray = dimArray;
+        this.arrayG = arrayG;
         this.id = id;
         this.exp = exp;
     }
@@ -111,8 +111,8 @@ public class Inst extends SimboloBase {
             case "asig":
                 exp.generarIntermedio(intermedio);
                 Variable varExp = intermedio.getUltimaVariable();
-                if(dimArray != null){
-                    dimArray.generarIntermedio(intermedio);
+                if (arrayG != null) {
+                    intermedio.consultarArray(arrayG, false);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIGNADO, varExp.getId(), intermedio.getUltimaVariable().getId(), id));
                     break;
                 } else {
@@ -146,13 +146,6 @@ public class Inst extends SimboloBase {
         this.exp = exp;
     }
 
-    public Exp getDimArray() {
-        return dimArray;
-    }
-
-    public void setDimArray(Exp dimArray) {
-        this.dimArray = dimArray;
-    }
 
     public C_sents getC_sents() {
         return c_sents;
