@@ -4,6 +4,7 @@ import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
 import compiler.Intermedio.Procedimiento;
 import compiler.Intermedio.Variable;
+import compiler.sintactic.Symbol;
 import compiler.sintactic.Symbols.EnumType;
 import compiler.sintactic.TSimbolos;
 
@@ -45,7 +46,8 @@ public class Ensamblador {
         codigo.add("*-----------------------------------------------------------");
 
         for (Variable var: intermedio.getTv()) {
-            if (ts.getSymbol(var.getId()) != null && ts.getSymbol(var.getId()).isConstant()) { // Constantes
+            Symbol symbol = ts.getSymbol(var.getId());
+            if (symbol != null && symbol.isConstant()) { // Constantes
                 codigo.add(var.getId() + "\t\tEQU\t" + var);
             } else { // Variables
                 codigo.add(var.getId() + "\t\tDS.W\t1");
@@ -121,12 +123,15 @@ public class Ensamblador {
                 break;
             case ENTRADA_ENT:
                 codigo.add("\tJSR LEERENT\t");
+                codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
             case ENTRADA_BOOL:
                 codigo.add("\tJSR LEERBOOL\t");
+                codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
             case ENTRADA_CAR:
                 codigo.add("\tJSR LEERCAR\t");
+                codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
             default:
                 break;
@@ -419,7 +424,7 @@ public class Ensamblador {
         codigo.add("\tEXT.L\tD1"); // Limpiar D1
         codigo.add("\tMOVE.W\t#3, D0"); // Indicar la tarea a realizar
         codigo.add("\tTRAP\t#15"); // Llama subrutina trap
-        codigo.add("\tLEA\tAUX, A1"); // Recuperar el valor de D0
+        codigo.add("\tLEA\t.AUX, A1");
         codigo.add("\tMOVE.W\t#13, D0");
         codigo.add("\tTRAP\t#15");
         codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
