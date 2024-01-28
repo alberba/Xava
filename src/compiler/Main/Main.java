@@ -83,8 +83,12 @@ public class Main {
             System.exit(0);
         }
 
+        startTime = System.nanoTime();
         Ensamblador ensamblador = new Ensamblador(intermedio, parser.getTSimbolos());
         ensamblador.generarEnsamblador();
+        endTime = System.nanoTime();
+        System.out.println("Ensamblador time: " + (endTime - startTime) / 1000000 + "ms");
+        guardarFichero("ensamblador.x68", ensamblador.toString(), rutaArchivo);
 
         sc.close();
 

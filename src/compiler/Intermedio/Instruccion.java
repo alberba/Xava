@@ -62,7 +62,7 @@ public class Instruccion {
                     return "call " + destino;
                 }
             case RETORNO:
-                if (destino != null){
+                if (destino != null) {
                     return "retorno " + destino;
                 } else {
                     return "retorno";

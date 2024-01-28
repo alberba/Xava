@@ -5,7 +5,6 @@ import compiler.Intermedio.Intermedio;
 import compiler.Intermedio.Procedimiento;
 import compiler.Intermedio.Variable;
 import compiler.sintactic.Symbols.EnumType;
-import compiler.sintactic.Symbols.Inst;
 import compiler.sintactic.TSimbolos;
 
 import java.util.ArrayList;
@@ -28,11 +27,14 @@ public class Ensamblador {
     public void generarEnsamblador() {
 
         codigo.add("\t\tORG\t$1000");
+        codigo.add("START:");
         declararVariables();
         generarSubrutinas();
         for(Instruccion instruccion: intermedio.getCodigo()){
             instruccionAEnsamblador(instruccion);
         }
+        codigo.add("\t\tSIMHALT");
+        codigo.add("\t\tEND\tSTART");
 
     }
 
@@ -43,10 +45,10 @@ public class Ensamblador {
         codigo.add("*-----------------------------------------------------------");
 
         for (Variable var: intermedio.getTv()) {
-            if (ts.getSymbol(var.getId()).isConstant()) {
-                codigo.add(var.getId() + "\tEQU\t" + var);
-            } else {
-                codigo.add(var.getId() + "\tDS.W\t1");
+            if (ts.getSymbol(var.getId()) != null && ts.getSymbol(var.getId()).isConstant()) { // Constantes
+                codigo.add(var.getId() + "\t\tEQU\t" + var);
+            } else { // Variables
+                codigo.add(var.getId() + "\t\tDS.W\t1");
             }
 
         }
@@ -106,19 +108,25 @@ public class Ensamblador {
                 ensambladorLlamada(instruccion);
                 break;
             case RETORNO:
-
+                if (instruccion.getDestino() != null) {
+                    codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", -(A7)");
+                }
+                codigo.add("\tRTS");
                 break;
             case PARAMETRO_SIMPLE:
                 codigo.add("\tMOVE.W\t" + instruccion.getOperador1() + ", -(A7)");
                 break;
             case IMPRIMIR:
-                ensambladorImprimir(Instruccion instruccion);
+                ensambladorImprimir(instruccion);
                 break;
             case ENTRADA_ENT:
+                codigo.add("\tJSR LEERENT\t");
                 break;
             case ENTRADA_BOOL:
+                codigo.add("\tJSR LEERBOOL\t");
                 break;
             case ENTRADA_CAR:
+                codigo.add("\tJSR LEERCAR\t");
                 break;
             default:
                 break;
@@ -337,9 +345,19 @@ public class Ensamblador {
         Procedimiento proc = intermedio.getProcedimiento(instruccion.getDestino());
 
         ArrayList<Variable> parametros = proc.getParametros();
+        codigo.add("\tMOVE.L\t(A7)+, D3"); // Guarda temporalmente la dirección de la llamada a la función
         if (proc.getTipo() != EnumType.VACIO) {
-
+            codigo.add("\tMOVE.W\t(A7)+, D4"); // Guarda temporalmente el valor de retorno
         }
+        for (int i = parametros.size() - 1; i >= 0; i--) {
+            codigo.add("\tMOVE.W\t(A7)+, " + parametros.get(i).getId()); // Reserva espacio para los parámetros
+        }
+
+        if (proc.getTipo() != EnumType.VACIO) {
+            codigo.add("\tMOVE.W\tD4, -(A7)"); // Vuelve a poner el valor de retorno en la pila
+        }
+
+        codigo.add("\tMOVE.L\tD3, -(A7)"); // Vuelve a poner la dirección de la llamada a la función en la pila
 
     }
 
@@ -349,8 +367,11 @@ public class Ensamblador {
      * @param instruccion Instrucción a traducir
      */
     private void ensambladorLlamada(Instruccion instruccion) {
-        Procedimiento proc = intermedio.getProcedimiento(instruccion.getDestino());
+        String nombreFuncion = instruccion.getDestino();
+        nombreFuncion = nombreFuncion.split("_")[1]; // Se obtiene el nombre a partir de la etiqueta ("e_nombre")
+        Procedimiento proc = intermedio.getProcedimiento(nombreFuncion);
 
+        // Si hay retorno, se reserva un hueco en la pila para él
         if (proc.getTipo() != EnumType.VACIO) {
             codigo.add("\tSUBA.L\t#2, A7");
         }
@@ -360,13 +381,18 @@ public class Ensamblador {
         if (proc.getTipo() != EnumType.VACIO) {
             codigo.add("\tMOVE.W\t(A7)+, " + instruccion.getOperador1());
         }
+
+        // Recuperamos espacio de la pila descartando los valores ocupados por los parámetros
+        for(int i = 0; i < proc.getNumParametros(); i++) {
+            codigo.add("\tADDA.L\t#2, A7");
+        }
     }
 
     /**
      * Función encargada de generar el código que llama a la subrutina de imprimir, solo se imprimen variables,
      * no se pueden imprimir literales
      *
-     * @param instruccion
+     * @param instruccion Instrucción a traducir
      */
     private void ensambladorImprimir(Instruccion instruccion) {
         EnumType tipo = intermedio.buscarVariable(instruccion.getDestino()).getTipo();
@@ -379,6 +405,9 @@ public class Ensamblador {
         }
     }
 
+    /**
+     * Función encargada de generar las subrutinas necesarias del ensamblador
+     */
     private void generarSubrutinas() {
         codigo.add("*-----------------------------------------------------------");
         codigo.add("* SUBRUTINAS");
@@ -386,7 +415,7 @@ public class Ensamblador {
         codigo.add("");
         codigo.add("IMPRIMIRENT:");
         codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L \tD0"); // Limpiar D0
+        codigo.add("\tCLR.L\tD0"); // Limpiar D0
         codigo.add("\tEXT.L\tD1"); // Limpiar D1
         codigo.add("\tMOVE.W\t#3, D0"); // Indicar la tarea a realizar
         codigo.add("\tTRAP\t#15"); // Llama subrutina trap
@@ -418,7 +447,7 @@ public class Ensamblador {
         codigo.add("*-----------------------------------------------------------");
         codigo.add("IMPRIMIRCAR:");
         codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L \tD0"); // Limpiar D0
+        codigo.add("\tCLR.L\tD0"); // Limpiar D0
         codigo.add("\tMOVE.W\t#6, D0"); // Indicar la tarea a realizar
         codigo.add("\tTRAP\t#15"); // Llama subrutina trap
         codigo.add("\tLEA\t.AUX, A1"); // Recuperar el valor de D0
@@ -427,8 +456,42 @@ public class Ensamblador {
         codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
         codigo.add("\tRTS");
         codigo.add(".AUX\tDS.B\t' ', 0");
-
-
+        codigo.add("");
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("LEERENT:");
+        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+        codigo.add("\tCLR.L\tD0"); // Limpiar D0
+        codigo.add("\tMOVE.W\t#4, D0"); // Indicar la tarea a realizar
+        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+        codigo.add("\tRTS");
+        codigo.add("");
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("LEERCAR:");
+        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+        codigo.add("\tCLR.L\tD0"); // Limpiar D0
+        codigo.add("\tMOVE.W\t#5, D0"); // Indicar la tarea a realizar
+        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+        codigo.add("\tRTS");
+        codigo.add("");
+        codigo.add("*-----------------------------------------------------------");
+        codigo.add("LEERBOOL:");
+        codigo.add("\tJSR\tLEERCAR");
+        codigo.add("\tCMP.B\t#'v', D1");
+        codigo.add("\tBEQ\t.VERDADERO");
+        codigo.add("\tCMP.B\t#'V', D1");
+        codigo.add("\tBEQ\t.VERDADERO");
+        codigo.add("\tCMP.B\t#'f', D1");
+        codigo.add("\tBEQ\t.FALSO");
+        codigo.add("\tCMP.B\t#'F', D1");
+        codigo.add("\tBEQ\t.FALSO");
+        codigo.add("\tBRA\tLEERBOOL"); // Si no se encuentra un carácter válido, se vuelve a pedir una entrada
+        codigo.add(".VERDADERO\tMOVE.W\t#-1, D1");
+        codigo.add("\tBRA\t.FINBOOL");
+        codigo.add(".FALSO\tMOVE.W\t#0, D1");
+        codigo.add(".FINBOOl");
+        codigo.add("\tRTS");
     }
 
     /**
@@ -463,6 +526,15 @@ public class Ensamblador {
     private int getValor(String operador) {
         operador = operador.replace("#", "0"); // No sé si funciona replace con "" pero con 0 va bien
         return Integer.parseInt(operador);
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        for (String linea : codigo) {
+            sb.append(linea).append("\n");
+        }
+        return sb.toString();
     }
 
 }
