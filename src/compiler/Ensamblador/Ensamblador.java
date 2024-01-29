@@ -69,7 +69,7 @@ public class Ensamblador {
                 ensambladorSumaResta(instruccion, "SUB");
                 break;
             case MULTIPLICACION:
-                ensambladorMultDivMod(instruccion, "MULTS", false);
+                ensambladorMultDivMod(instruccion, "MULS", false);
                 break;
             case DIVISION:
                 ensambladorMultDivMod(instruccion, "DIVS", false);
@@ -116,7 +116,7 @@ public class Ensamblador {
                 codigo.add("\tRTS");
                 break;
             case PARAMETRO_SIMPLE:
-                codigo.add("\tMOVE.W\t" + instruccion.getOperador1() + ", -(A7)");
+                codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", -(A7)");
                 break;
             case IMPRIMIR:
                 ensambladorImprimir(instruccion);
@@ -178,7 +178,7 @@ public class Ensamblador {
      * Función encargada de traducir la instrucción de multiplicación, división y módulo a ensamblador
      *
      * @param instruccion Instrucción a traducir
-     * @param op Operación a realizar (MULTS o DIVS). En caso de ser módulo, se usa DIVS
+     * @param op Operación a realizar (MULS o DIVS). En caso de ser módulo, se usa DIVS
      * @param esMod Booleano que indica si es una operación de módulo
      */
     private void ensambladorMultDivMod(Instruccion instruccion, String op, boolean esMod) {
@@ -206,7 +206,7 @@ public class Ensamblador {
         // Si var2 es múltiplo de 2
         if (esMultiploDeDos(instruccion.getOperador2())) {
             // Se puede optimizar la multiplicación
-            if (op.equals("MULTS")) {
+            if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
                 codigo.add("\tLSL\t" + getValor(var2) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
@@ -218,7 +218,7 @@ public class Ensamblador {
             return true;
         } else if (esMultiploDeDos(instruccion.getOperador1())) { // Si no lo es, pero var1 sí
             // Tan solo se puede optimizar la multiplicación
-            if (op.equals("MULTS")) {
+            if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var2 + ", D0");
                 codigo.add("\tLSL\t" + getValor(var1) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
@@ -404,9 +404,9 @@ public class Ensamblador {
         codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", D1");
         // Se llama a la subrutina correspondiente según el tipo de variable
         switch (tipo) {
-            case BOOLEANO -> codigo.add("JSR IMPRIMIRBOOL");
-            case ENTERO -> codigo.add("JSR IMPRIMIRENT");
-            case CARACTER -> codigo.add("JSR IMPRIMIRCAR");
+            case BOOLEANO -> codigo.add("\tJSR IMPRIMIRBOOL");
+            case ENTERO -> codigo.add("\tJSR IMPRIMIRENT");
+            case CARACTER -> codigo.add("\tJSR IMPRIMIRCAR");
         }
     }
 
@@ -429,7 +429,7 @@ public class Ensamblador {
         codigo.add("\tTRAP\t#15");
         codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
         codigo.add("\tRTS");
-        codigo.add(".AUX\tDS.B\t' ', 0");
+        codigo.add(".AUX\tDC.B\t' ', 0");
         codigo.add("");
         codigo.add("*-----------------------------------------------------------");
         codigo.add("IMPRIMIRBOOL:");
@@ -446,8 +446,8 @@ public class Ensamblador {
         codigo.add("\tTRAP\t#15");
         codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
         codigo.add("\tRTS");
-        codigo.add(".FALSO\tDS.B\t'falso', 0");
-        codigo.add(".VERDADERO\tDS.B\t'verdadero', 0");
+        codigo.add(".FALSO\tDC.B\t'falso', 0");
+        codigo.add(".VERDADERO\tDC.B\t'verdadero', 0");
         codigo.add("");
         codigo.add("*-----------------------------------------------------------");
         codigo.add("IMPRIMIRCAR:");
@@ -460,7 +460,7 @@ public class Ensamblador {
         codigo.add("\tTRAP\t#15");
         codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
         codigo.add("\tRTS");
-        codigo.add(".AUX\tDS.B\t' ', 0");
+        codigo.add(".AUX\tDC.B\t' ', 0");
         codigo.add("");
         codigo.add("*-----------------------------------------------------------");
         codigo.add("LEERENT:");
@@ -506,7 +506,7 @@ public class Ensamblador {
      * @return String con el valor convertido a ensamblador
      */
     private String convertirOperador(String valor) {
-        
+
         if (intermedio.buscarVariable(valor) == null) {
             if(esNum(valor)) {
                 valor = "#" + valor;
