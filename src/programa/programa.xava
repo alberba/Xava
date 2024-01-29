@@ -9,10 +9,6 @@ principal {
     imprimir(pow(base, exponent));
 }
 
-funcion ent mod(ent a, ent b) {
-    devuelve a - (b * (a / b));
-}
-
 ##
 funcion ent abs(ent n) {
     si (n < 0) {
@@ -28,19 +24,15 @@ funcion ent abs(ent n) {
 funcion ent pow(ent b, ent e) {
     ent result := 1;
     ent absE := abs(e);
+    absE := absE - 1;
 
     mientras(absE > 0){
-        si(mod(absE, 2) = 1){
-            result := result * b;
-        }
 
         b := b * b;
-        absE := absE / 2;
+        absE := absE - 1;
+
     }
 
-    si(e < 0){
-        devuelve 1 / result;
-    }
     devuelve result;
 }
 

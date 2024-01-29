@@ -111,12 +111,13 @@ public class Inst extends SimboloBase {
             case "asig":
                 exp.generarIntermedio(intermedio);
                 Variable varExp = intermedio.getUltimaVariable();
+                Variable var = intermedio.buscarVariable(id);
                 if (arrayG != null) {
                     intermedio.consultarArray(arrayG, false);
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIGNADO, varExp.getId(), intermedio.getUltimaVariable().getId(), id));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIGNADO, varExp.getId(), intermedio.getUltimaVariable().getId(), var.getId()));
                     break;
                 } else {
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, varExp.getId(), null, id));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, varExp.getId(), null, var.getId()));
                 }
                 break;
             case "impr":

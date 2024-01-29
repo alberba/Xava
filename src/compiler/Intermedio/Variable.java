@@ -10,6 +10,7 @@ public class Variable {
     private String id;
     private EnumType tipo;
     private boolean esTemp;
+    private boolean esParam;
     private ArrayList<Variable> longitud;
     private String ambito;
 
@@ -17,6 +18,7 @@ public class Variable {
         this.id = id;
         this.tipo = tipo;
         this.esTemp = esTemp;
+        this.esParam = false;
         this.longitud = longitud;
         this.ambito = ambito;
     }
@@ -51,5 +53,11 @@ public class Variable {
 
     public void setLongitud(ArrayList<Variable> longitud) {
         this.longitud = longitud;
+    }
+
+    public void setEsParam(boolean bool) { this.esParam = bool; }
+
+    public boolean isEsParam() {
+        return esParam;
     }
 }

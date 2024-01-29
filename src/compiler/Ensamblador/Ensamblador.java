@@ -28,9 +28,10 @@ public class Ensamblador {
     public void generarEnsamblador() {
 
         codigo.add("\t\tORG\t$1000");
-        codigo.add("START:");
         declararVariables();
         generarSubrutinas();
+        codigo.add("");
+        codigo.add("START:");
         for(Instruccion instruccion: intermedio.getCodigo()){
             instruccionAEnsamblador(instruccion);
         }
@@ -111,7 +112,9 @@ public class Ensamblador {
                 break;
             case RETORNO:
                 if (instruccion.getDestino() != null) {
+                    codigo.add("\tMOVE.L\t(A7)+, D5");
                     codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", -(A7)");
+                    codigo.add("\tMOVE.L\tD5, -(A7)");
                 }
                 codigo.add("\tRTS");
                 break;
@@ -243,44 +246,43 @@ public class Ensamblador {
         codigo.add("\tMOVE.W\t" + var1 + ", D0");
         String var2 = convertirOperador(instruccion.getOperador2());
         codigo.add("\tCMP.W\t" + var2 + ", D0");
-        codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
         switch (op) {
             case "IGUAL":
                 // Scc hace set si se cumple, clear si no, nos viene perfecto
                 codigo.add("\tSEQ\tD0");   // Set if equal
                 codigo.add("\tEXT.W\tD0"); // No se puede extender de byte a long directamente, se extiende de byte a word
                 codigo.add("\tEXT.L\tD0"); // Y después de word a long
-                codigo.add("\tMOVE.W D0, " + instruccion.getDestino());
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 break;
             case "DIFERENTE":
                 codigo.add("\tSNE\tD0");   // Set if NOT equal
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W D0, " + instruccion.getDestino());
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 break;
             case "MENOR":
                 codigo.add("\tSLT\tD0");   // Set if less
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W D0, " + instruccion.getDestino());
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 break;
             case "MENOR_IGUAL":
                 codigo.add("\tSLE\tD0");   // Set if less or equal
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W D0, " + instruccion.getDestino());
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 break;
             case "MAYOR":
                 codigo.add("\tSGT\tD0");   // Set if greater
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W D0, " + instruccion.getDestino());
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 break;
             case "MAYOR_IGUAL":
                 codigo.add("\tSGE\tD0");   // Set if greater or equal
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W D0, " + instruccion.getDestino());
+                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 break;
         }
     }
@@ -497,6 +499,7 @@ public class Ensamblador {
         codigo.add(".FALSO\tMOVE.W\t#0, D1");
         codigo.add(".FINBOOl");
         codigo.add("\tRTS");
+        codigo.add("*-----------------------------------------------------------");
     }
 
     /**

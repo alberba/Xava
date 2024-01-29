@@ -48,7 +48,7 @@ public class Cap extends SimboloBase {
 
     public void generarIntermedio(Intermedio intermedio) {
         if(args_cap != null){
-            args_cap.generarIntermedio(intermedio);
+            args_cap.generarIntermedio(intermedio, id);
         }
     }
 }

@@ -41,8 +41,10 @@ public class Intermedio {
     }
 
     public Variable buscarVariable(String id) {
+        Procedimiento proc = tp.get(nProdActual);
         for (Variable variable : tv) {
-            if (variable.getId().equals(id)) {
+            // Se busca tanto entre las variables pasadas por parámetro como en las variables locales
+            if ((variable.isEsParam() && variable.getId().equals(id + "$" + proc.getId())) || variable.getId().equals(id)) {
                 return variable;
             }
         }
@@ -63,7 +65,7 @@ public class Intermedio {
         if (id == null) {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
-            if (pproc.isEmpty()) {
+            if (tp.isEmpty()) {
                 v = new Variable("t" + counterTemps, tipo, true, longitud, "global"); // esTemp a true
             } else {
                 v = new Variable("t" + counterTemps, tipo, true, longitud, pproc.peek());
@@ -76,22 +78,27 @@ public class Intermedio {
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el procedimiento actual de la tabla
                 Procedimiento proc = tp.get(nProdActual);
+                System.out.println("id:" + id);
+                System.out.println("nProdActual:" + nProdActual);
                 // Se guardan las cantidades para recorrer los arrays posteriormente
-                int nProcs = proc.getNumParametros();
-                int nVars = nProcs + proc.getNumDeclaraciones();
+                int nParams = proc.getNumParametros();
+                System.out.println("nParams:" + nParams);
+                int nVars = nParams + proc.getNumDeclaraciones();
 
                 // Se recorren las variables del proceso en busca de coincidencias con el identificador
                 for (int i = 0; i < nVars; i++) {
-                    if (i < nProcs) {
+                    if (i < nParams) {
                         // Coincidencia en los parámetros
-                        if (id.equals(proc.getParametros().get(i).getId())) {
+                        if ((id + "$" + proc.getId()).equals(proc.getParametros().get(i).getId())) {
+                            System.out.println(id);
+                            System.out.println(proc.getId());
                             return proc.getParametros().get(i);
                         }
                     } else {
                         // Coincidencia en las declaraciones
                         // (a "i" se le resta el "n" de parámetros para recorrer las declaraciones desde 0)
-                        if (id.equals(proc.getDeclaraciones().get(i - nProcs).getId())) {
-                            return proc.getDeclaraciones().get(i - nProcs);
+                        if (id.equals(proc.getDeclaraciones().get(i - nParams).getId())) {
+                            return proc.getDeclaraciones().get(i - nParams);
                         }
                     }
                 }
@@ -100,6 +107,7 @@ public class Intermedio {
                 v = new Variable(id, tipo, false, longitud, pproc.peek());
                 // Se añade la variable a la lista correspondiente
                 if (esParametro) {
+                    v.setEsParam(true);
                     proc.addParametro(v);
                 } else {
                     proc.addDeclaracion(v);
@@ -257,7 +265,7 @@ public class Intermedio {
     }
 
     public void actualizarAmbito(String idFuncion) {
-        ts.updatenActual("main");
+        ts.updatenActual(idFuncion);
     }
 
     public ArrayList<Variable> getTv() {

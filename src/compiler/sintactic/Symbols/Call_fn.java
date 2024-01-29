@@ -23,9 +23,8 @@ public class Call_fn extends SimboloBase {
         ArrayList<Variable> parametros = new ArrayList<>();
         if (args_call != null) {
             // comprobamos si hay algún parametro a enviar a la función
-            intermedio.setEsParametro(true);
+
             parametros = args_call.generarIntermedio(intermedio, parametros);
-            intermedio.setEsParametro(false);
         }
 
         // añadimos las instrucciones correpondientes para poder enviar los parametros a la función

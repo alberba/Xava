@@ -16,7 +16,7 @@ public class L_args_Declf extends SimboloBase {
 
     public L_args_Declf(EnumType stype, String id, int linea, int columna) {
         super(linea,columna);
-        this.enumType = enumType;
+        this.enumType = stype;
         this.id = id;
     }
 

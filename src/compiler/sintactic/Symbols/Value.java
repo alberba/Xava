@@ -102,8 +102,9 @@ public class Value extends SimboloBase {
             switch (tipo) {
                 case "Id":
                     // Guardamos el valor de la variable en una variable temporal
-                    v = intermedio.añadirVariable(value, EnumType.ENTERO, null);
-                    String temp = intermedio.añadirVariable(null, EnumType.ENTERO, null).getId();
+                    EnumType tipo = intermedio.getTs().getSymbol(value).getTipoReturn();
+                    v = intermedio.añadirVariable(value, tipo, null);
+                    String temp = intermedio.añadirVariable(null, tipo, null).getId();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, v.getId(), null, temp));
                     break;
                 case "Ent":

@@ -1,6 +1,8 @@
 package compiler.sintactic.Symbols;
 
+import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.OperacionInst;
 
 public class Xava extends SimboloBase {
 
@@ -26,6 +28,8 @@ public class Xava extends SimboloBase {
 
             funciones.generarIntermedio(intermedio);
         }
+
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, "e_fin"));
     }
 
 }

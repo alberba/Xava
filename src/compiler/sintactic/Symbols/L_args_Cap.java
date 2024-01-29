@@ -44,9 +44,11 @@ public class L_args_Cap extends SimboloBase {
         this.l_args_cap = l_args_cap;
     }
 
-    public void generarIntermedio(Intermedio intermedio) {
+    public void generarIntermedio(Intermedio intermedio, String idFuncion) {
+        // Se añade los parametros en la tabla de variables con (id + "_" + idFuncion) para que no se repitan
+        intermedio.añadirVariable(id + "$" + idFuncion, enumType, null);
         if(l_args_cap != null){
-            l_args_cap.generarIntermedio(intermedio);
+            l_args_cap.generarIntermedio(intermedio, idFuncion);
         }
     }
 }
