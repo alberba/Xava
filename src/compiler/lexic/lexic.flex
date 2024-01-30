@@ -85,6 +85,7 @@ COMENTARIO = ## .* [\r|\n|\r\n]?
 MULT_COMT = \/\* [.|\r|\n]* \*\/
 ESPACIO = [' '| \t|\r|\f]+
 SALTO_LINEA = \n
+VAL_LETRA = {COMILLAS}{LETRA}{COMILLAS}
 
 ERROR = [^]
 
@@ -104,7 +105,7 @@ ERROR = [^]
         Location r = new Location(yyline+1, yycolumn+1+yylength()); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r);
         tokens.add(c);
-        return  c;
+        return c;
     }
 
     /**
@@ -115,7 +116,7 @@ ERROR = [^]
         Location r = new Location(yyline+1, yycolumn+1+yylength()); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r, value);
         tokens.add(c);
-        return  c;
+        return c;
     }
 %}
 
@@ -126,7 +127,7 @@ ERROR = [^]
 {FALSO}         { return symbol(ParserSym.VAL_BOL, "falso");        }
 {VACIO}         { return symbol(ParserSym.VACIO);                   }
 {DIGITO}        { return symbol(ParserSym.DIGITO, this.yytext());   }
-{LETRA}         { return symbol(ParserSym.LETRA, this.yytext());    }
+{VAL_LETRA}     { return symbol(ParserSym.VAL_LETRA, this.yytext());}
 
 // TIPOS
 {ENTERO}        { return symbol(ParserSym.ENTERO); }

@@ -40,7 +40,7 @@ parser code {:
 
     @Override
     public void syntax_error(java_cup.runtime.Symbol cur_token) {
-        String message = "Esperabamos " + this.showExpectedTokenIds();
+        String message = "Esperábamos " + this.showExpectedTokenIds();
         ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
         ErrorC.añadirError(new ErrorC(message, cs.getLeft().getLine(), cs.getLeft().getColumn(), Fase.SINTÁCTICO));
     }
@@ -67,7 +67,7 @@ terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEAN
 terminal        String          DIGITO;
 terminal        String          ID;
 terminal        String          VAL_BOL;
-terminal        String          LETRA;
+terminal        String          VAL_LETRA;
 
 non terminal                    M;
 non terminal    Xava            XAVA;
@@ -433,8 +433,8 @@ VALUE           ::= DIGITO:num                                                  
                     ansem.gestArray(array.getId(), array.getDimension(), arrayleft);
                     RESULT = new Value(array, arrayleft, arrayright);
                 :}
-                |   COMILLAS LETRA:letra COMILLAS                                                  {: RESULT = new Value(letra, "Car", letraleft, letraright);                      :}
-                |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);          :}
+            |   VAL_LETRA:val_letra                                                                 {: RESULT = new Value(val_letra, "Car", val_letraleft, val_letraright);         :}
+                |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);               :}
                 |   PAR_A E:exp PAR_C                                                               {: RESULT = new Value(exp, expleft, expright);                                  :}
                 |   ENTRADA:entrada                                                                 {: RESULT = new Value(entrada, entradaleft, entradaright);                      :}
                 ;

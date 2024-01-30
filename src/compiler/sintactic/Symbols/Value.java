@@ -17,7 +17,12 @@ public class Value extends SimboloBase {
     public Value(String value, String tipo, int linea, int columna) {
         super(linea,columna);
         this.tipo = tipo;
-        this.value = value;
+        // Los caracteres se guardan entre comillas, por lo que hay que ignorarlas al guardar el valor
+        if (tipo.equals("Car")) {
+            this.value = value.substring(1, value.length() - 1);
+        } else {
+            this.value = value;
+        }
     }
 
     public Value(Call_fn call_fn, int linea, int columna) {

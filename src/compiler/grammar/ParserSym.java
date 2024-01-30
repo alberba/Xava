@@ -26,11 +26,11 @@ public class ParserSym {
   public static final int LLAVE_A = 37;
   public static final int LEERENT = 17;
   public static final int PRINCIPAL = 20;
+  public static final int VAL_LETRA = 49;
   public static final int IGUAL = 28;
   public static final int SINO = 3;
   public static final int CARACTER = 11;
   public static final int DEVUELVE = 14;
-  public static final int LETRA = 49;
   public static final int MIENTRAS = 6;
   public static final int DIV = 24;
   public static final int CONTINUAR = 15;
@@ -108,7 +108,7 @@ public class ParserSym {
   "DIGITO",
   "ID",
   "VAL_BOL",
-  "LETRA"
+  "VAL_LETRA"
   };
 }
 
