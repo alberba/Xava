@@ -26,7 +26,7 @@ public class TSimbolos {
     public boolean ponerSymbol(Symbol symbol) {
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
         // Solo accederá en el ámbito global
-        if (symbol.getTipoElemento() == TipoElemento.FUNCION){
+        if (symbol.getTipoElemento() == TipoElemento.FUNCION) {
             for (Symbol s : tsimbolos.get(0)) {
                 if (s.equals(symbol)) {
                     return false;
@@ -166,7 +166,7 @@ public class TSimbolos {
                 }
             }
         }
-        return -1;
+        return NOT_FOUND;
     }
 
     public void updatenActual(String idFuncion) {

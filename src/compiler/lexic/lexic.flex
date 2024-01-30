@@ -126,6 +126,7 @@ ERROR = [^]
 {FALSO}         { return symbol(ParserSym.VAL_BOL, "falso");        }
 {VACIO}         { return symbol(ParserSym.VACIO);                   }
 {DIGITO}        { return symbol(ParserSym.DIGITO, this.yytext());   }
+{LETRA}         { return symbol(ParserSym.LETRA, this.yytext());    }
 
 // TIPOS
 {ENTERO}        { return symbol(ParserSym.ENTERO); }

@@ -48,17 +48,17 @@ public class Inst extends SimboloBase {
 
     /**
      *  Método que se encarga de crear las etiquetas e instrucciones qué servirán para crear su versión en compilador
-     * @param intermedio objeto intermedio que se usará para recorrer todas las instrucciones luego.
+     * @param intermedio
      */
     public void generarIntermedio(Intermedio intermedio) {
-        //Comprobar si tenemos una estructura if, for, while o do-while
+        // Comprobar si tenemos una estructura if, for, while o do-while
         if (c_sents != null) {
             switch (type) {
                 case "cond":
                     exp.generarIntermedio(intermedio);
                     String eFalse = intermedio.nuevaEtiqueta();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, eFalse));
-                    if (contCond != null) {
+                    if (contCond != null) { // Si hay un else
                         String labelFinal = intermedio.nuevaEtiqueta();
                         c_sents.generarIntermedio(intermedio, labelFinal, null, null);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
@@ -69,7 +69,6 @@ public class Inst extends SimboloBase {
                         c_sents.generarIntermedio(intermedio, eFalse, null, null);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eFalse));
                     }
-
                     break;
                 case "mientras":
                     String labelInit = intermedio.nuevaEtiqueta();

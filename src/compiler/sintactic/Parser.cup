@@ -59,7 +59,7 @@ parser code {:
     }
 :}
 
-terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CONST,
+terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CARACTER, CONST,
                 FUNCION, DEVUELVE, CONTINUAR, IMPRIMIR, LEERENT, LEERCAR, LEERBOOL, PRINCIPAL, SUMA, RESTA,
                 MULT, DIV, MOD, Y, O, IGUAL, IGUALNT, MAQ, MEQ, MAI, MEI, ASIG, PAR_A, PAR_C, LLAVE_A,
                 LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, COMILLAS, P_COMA, VACIO, NO;
@@ -67,7 +67,7 @@ terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEAN
 terminal        String          DIGITO;
 terminal        String          ID;
 terminal        String          VAL_BOL;
-terminal        String          CARACTER;
+terminal        String          LETRA;
 
 non terminal                    M;
 non terminal    Xava            XAVA;
@@ -433,7 +433,7 @@ VALUE           ::= DIGITO:num                                                  
                     ansem.gestArray(array.getId(), array.getDimension(), arrayleft);
                     RESULT = new Value(array, arrayleft, arrayright);
                 :}
-                |   COMILLAS CARACTER:car COMILLAS                                                  {: RESULT = new Value(car, "Car", carleft, carright);                      :}
+                |   COMILLAS LETRA:letra COMILLAS                                                  {: RESULT = new Value(letra, "Car", letraleft, letraright);                      :}
                 |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);          :}
                 |   PAR_A E:exp PAR_C                                                               {: RESULT = new Value(exp, expleft, expright);                                  :}
                 |   ENTRADA:entrada                                                                 {: RESULT = new Value(entrada, entradaleft, entradaright);                      :}
