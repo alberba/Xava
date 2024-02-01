@@ -1,4 +1,5 @@
 ## Hola Mundo
+ent global := 2;
 funcion ent mod(ent a, ent b);
 funcion ent abs(ent n);
 funcion ent pow(ent b, ent e);
@@ -22,17 +23,18 @@ funcion ent abs(ent n) {
 }
 
 funcion ent pow(ent b, ent e) {
-    ent result := 1;
+    ent resultado := 1;
     ent absE := abs(e);
-    absE := absE - 1;
 
-    mientras(absE > 0){
-
-        b := b * b;
+    mientras(absE > 0) {
+        ## Jorge jijijaja
+        /* test
+        Jorge multilinea jijijaja
+        test 2 */
+        resultado := resultado * b;
         absE := absE - 1;
-
     }
 
-    devuelve result;
+    devuelve resultado;
 }
 

@@ -44,23 +44,27 @@ public class Ensamblador {
     }
 
     public void declararVariables() {
-
         codigo.add("*-----------------------------------------------------------");
         codigo.add("* VARIABLES Y CONSTANTES");
         codigo.add("*-----------------------------------------------------------");
 
         for (Variable var: intermedio.getTv()) {
-            Symbol symbol = ts.getSymbolAssembly(var.getId());
-            if (symbol != null && symbol.isConstant()) { // Constantes
-                codigo.add(var.getId() + "\t\tEQU\t" + var);
-            } else if (symbol != null && symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
-                // Los arrays se declararán en tiempo de ejecución
-                arrays.add(var);
-            }
-            else { // Variables
+            // Si es una variable temporal se declara al empezar
+            Symbol symbol = ts.getSymbol(var.getId());
+            if (symbol != null) {
+                if (symbol.isConstant()) { // Constantes
+                    codigo.add(var.getId() + "\t\tEQU\t" + var);
+                } else {
+                    if (symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
+                        codigo.add(var.getId() + "\t\tDS.W\t" + var.getNumElementos());
+                    } else { // Variables
+                        codigo.add(var.getId() + "\t\tDS.W\t1");
+                    }
+                }
+            } else {
+                // Es temporal
                 codigo.add(var.getId() + "\t\tDS.W\t1");
             }
-
         }
 
     }
@@ -143,16 +147,6 @@ public class Ensamblador {
                 codigo.add("\tJSR LEERCAR\t");
                 codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
-            case DECARRAY:
-                ArrayList<Variable> variables = new ArrayList<>();
-                for (Variable array : arrays) {
-                    if (array.getId().equals(instruccion.getDestino())) {
-                        variables = array.getLongitud(); // Se obtienen las variables que componen la dimensión del array
-                    }
-                }
-                for (int i = 0; i < variables.size(); i++) {
-                    // Se multiplican los valores de las variables
-                }
             default:
                 break;
         }
@@ -220,6 +214,12 @@ public class Ensamblador {
 
     }
 
+    /**
+     * Optimiza (si es posible) las instrucciones de multiplicación y división desplazando bits
+     * @param instruccion Instrucción a optimizar
+     * @param op Operación a realizar (MULS o DIVS)
+     * @return Verdadero en caso de que se pueda optimizar, falso en caso contrario
+     */
     private boolean optMultDiv(Instruccion instruccion, String op) {
         String var1 = convertirOperador(instruccion.getOperador1());
         String var2 = convertirOperador(instruccion.getOperador2());
@@ -228,11 +228,11 @@ public class Ensamblador {
             // Se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
-                codigo.add("\tLSL\t #" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tLSL\t#" + getValor(var2) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             } else { // Y la división
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
-                codigo.add("\tLSR\t #" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tLSR\t#" + getValor(var2) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             }
             return true;
@@ -240,7 +240,7 @@ public class Ensamblador {
             // Tan solo se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var2 + ", D0");
-                codigo.add("\tLSL\t #" + getValor(var1) / 2 + ", D0");
+                codigo.add("\tLSL\t#" + getValor(var1) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 return true;
             } else { // No es el caso de la división (no tiene propiedad conmutativa)
@@ -371,10 +371,10 @@ public class Ensamblador {
      * @param instruccion Instrucción a traducir
      */
     private void ensambladorPmb(Instruccion instruccion) {
-
         Procedimiento proc = intermedio.getProcedimiento(instruccion.getDestino());
-
+        // Se declaran las variables locales y los parámetros de la función
         ArrayList<Variable> parametros = proc.getParametros();
+
         codigo.add("\tMOVE.L\t(A7)+, D3"); // Guarda temporalmente la dirección de la llamada a la función
         if (proc.getTipo() != EnumType.VACIO) {
             codigo.add("\tMOVE.W\t(A7)+, D4"); // Guarda temporalmente el valor de retorno

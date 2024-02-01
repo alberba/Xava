@@ -3,7 +3,7 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Intermedio;
 public class L_args_Cap extends SimboloBase {
 
-    private EnumType enumType;
+    private final EnumType enumType;
     private String id;
     private L_args_Cap l_args_cap;
 
@@ -20,14 +20,6 @@ public class L_args_Cap extends SimboloBase {
         this.id = id;
     }
 
-    public EnumType getEnumType() {
-        return enumType;
-    }
-
-    public void setEnumType(EnumType enumType) {
-        this.enumType = enumType;
-    }
-
     public String getId() {
         return id;
     }
@@ -40,15 +32,12 @@ public class L_args_Cap extends SimboloBase {
         return l_args_cap;
     }
 
-    public void setL_args_cap(L_args_Cap l_args_cap) {
-        this.l_args_cap = l_args_cap;
-    }
 
-    public void generarIntermedio(Intermedio intermedio, String idFuncion) {
+    public void generarIntermedio(Intermedio intermedio) {
         // Se añade los parametros en la tabla de variables con (id + "_" + idFuncion) para que no se repitan
-        intermedio.añadirVariable(id + "$" + idFuncion, enumType, null);
+        intermedio.añadirVariable(id, enumType, null);
         if(l_args_cap != null){
-            l_args_cap.generarIntermedio(intermedio, idFuncion);
+            l_args_cap.generarIntermedio(intermedio);
         }
     }
 }

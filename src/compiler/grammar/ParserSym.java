@@ -26,7 +26,7 @@ public class ParserSym {
   public static final int LLAVE_A = 37;
   public static final int LEERENT = 17;
   public static final int PRINCIPAL = 20;
-  public static final int VAL_LETRA = 49;
+  public static final int VAL_LETRA = 48;
   public static final int IGUAL = 28;
   public static final int SINO = 3;
   public static final int CARACTER = 11;
@@ -35,25 +35,24 @@ public class ParserSym {
   public static final int DIV = 24;
   public static final int CONTINUAR = 15;
   public static final int SUMA = 21;
-  public static final int ID = 47;
+  public static final int ID = 46;
   public static final int EOF = 0;
   public static final int ASIG = 34;
-  public static final int COMILLAS = 42;
   public static final int error = 1;
-  public static final int DIGITO = 46;
+  public static final int DIGITO = 45;
   public static final int COMA = 41;
   public static final int PAR_C = 36;
   public static final int MOD = 25;
   public static final int PAR_A = 35;
   public static final int LEERBOOL = 19;
   public static final int ROMPER = 8;
-  public static final int NO = 45;
+  public static final int NO = 44;
   public static final int MEQ = 31;
-  public static final int VAL_BOL = 48;
-  public static final int VACIO = 44;
+  public static final int VAL_BOL = 47;
+  public static final int VACIO = 43;
   public static final int LEERCAR = 18;
   public static final int MEI = 33;
-  public static final int P_COMA = 43;
+  public static final int P_COMA = 42;
   public static final int HACER = 7;
   public static final int BOOLEANO = 10;
   public static final int PARA = 5;
@@ -101,7 +100,6 @@ public class ParserSym {
   "CORCHETE_A",
   "CORCHETE_C",
   "COMA",
-  "COMILLAS",
   "P_COMA",
   "VACIO",
   "NO",

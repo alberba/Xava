@@ -1,12 +1,10 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.Intermedio;
-
 public class ArrayG extends SimboloBase {
 
     private String id;
-    private L_array lArray;
-    private int dimension;
+    private final L_array lArray;
+    private final int dimension;
 
     public ArrayG(String id, L_array lArray, int dimension, int linea, int columna) {
         super(linea,columna);
@@ -27,20 +25,9 @@ public class ArrayG extends SimboloBase {
         return lArray;
     }
 
-    public void setlArray(L_array lArray) {
-        this.lArray = lArray;
-    }
 
     public int getDimension() {
         return dimension;
     }
 
-    public void setDimension(int dimension) {
-        this.dimension = dimension;
-    }
-
-    public void generarIntermedio(Intermedio intermedio) {
-        // Solicitamos un espacio de array en la tabla de variables del intermedio
-        intermedio.añadirArray(this);
-    }
 }

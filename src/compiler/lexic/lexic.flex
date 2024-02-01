@@ -82,7 +82,8 @@ COMILLAS = \"
 P_COMA = ;
 COMA = ,
 COMENTARIO = ## .* [\r|\n|\r\n]?
-MULT_COMT = \/\* [.|\r|\n]* \*\/
+MULT_COMT = \/\*[\s\S]*\*\/
+
 ESPACIO = [' '| \t|\r|\f]+
 SALTO_LINEA = \n
 VAL_LETRA = {COMILLAS}{LETRA}{COMILLAS}
@@ -183,7 +184,6 @@ ERROR = [^]
 {LLAVE_C}       { return symbol(ParserSym.LLAVE_C); }
 {CORCHETE_A}    { return symbol(ParserSym.CORCHETE_A); }
 {CORCHETE_C}    { return symbol(ParserSym.CORCHETE_C); }
-{COMILLAS}      { return symbol(ParserSym.COMILLAS); }
 {P_COMA}        { return symbol(ParserSym.P_COMA); }
 {COMA}          { return symbol(ParserSym.COMA); }
 {COMENTARIO}    { /* Ignorar comentarios */ }

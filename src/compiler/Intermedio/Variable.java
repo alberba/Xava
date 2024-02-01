@@ -3,24 +3,20 @@ package compiler.Intermedio;
 import compiler.sintactic.Symbols.EnumType;
 
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class Variable {
 
     private String id;
     private EnumType tipo;
-    private boolean esTemp;
-    private boolean esParam;
-    private ArrayList<Variable> longitud;
-    private String ambito;
+    private final ArrayList<Integer> longitud;
+    //private String ambito;
 
-    public Variable(String id, EnumType tipo, boolean esTemp, ArrayList<Variable> longitud, String ambito) {
+    public Variable(String id, EnumType tipo, ArrayList<Integer> longitud) {
+    //public Variable(String id, EnumType tipo, ArrayList<Integer> longitud, String ambito) {
         this.id = id;
         this.tipo = tipo;
-        this.esTemp = esTemp;
-        this.esParam = false;
         this.longitud = longitud;
-        this.ambito = ambito;
+        //this.ambito = ambito;
     }
 
     public String getId() {
@@ -39,25 +35,19 @@ public class Variable {
         this.tipo = tipo;
     }
 
-    public boolean isEsTemp() {
-        return esTemp;
-    }
-
-    public void setEsTemp(boolean esTemp) {
-        this.esTemp = esTemp;
-    }
-
-    public ArrayList<Variable> getLongitud() {
+    public ArrayList<Integer> getLongitud() {
         return longitud;
     }
 
-    public void setLongitud(ArrayList<Variable> longitud) {
-        this.longitud = longitud;
+    public int getNumElementos() {
+        int longitud = 1;
+        if (this.longitud == null) {
+            return 0;
+        }
+        for (Integer i : this.longitud) {
+            longitud *= i;
+        }
+        return longitud;
     }
 
-    public void setEsParam(boolean bool) { this.esParam = bool; }
-
-    public boolean isEsParam() {
-        return esParam;
-    }
 }

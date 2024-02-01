@@ -62,7 +62,7 @@ parser code {:
 terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CARACTER, CONST,
                 FUNCION, DEVUELVE, CONTINUAR, IMPRIMIR, LEERENT, LEERCAR, LEERBOOL, PRINCIPAL, SUMA, RESTA,
                 MULT, DIV, MOD, Y, O, IGUAL, IGUALNT, MAQ, MEQ, MAI, MEI, ASIG, PAR_A, PAR_C, LLAVE_A,
-                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, COMILLAS, P_COMA, VACIO, NO;
+                LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, P_COMA, VACIO, NO;
 
 terminal        String          DIGITO;
 terminal        String          ID;
@@ -92,6 +92,7 @@ non terminal    Args_Declf      ARGS_DECLF;
 non terminal    L_args_Declf    L_ARGS_DECLF;
 non terminal    Decls           DECLS;
 non terminal    Decl            DECL;
+non terminal    L_Dim           L_DIM;
 non terminal    Inst            INST;
 non terminal    C_sents         C_SENTS;
 non terminal    C_sent          C_SENT;
@@ -137,6 +138,11 @@ DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
                             ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
+                        }
+                        if (id.equals("principal")) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La función no puede llamarse Main
+                            ErrorC.añadirError(new ErrorC("No se puede crear una función llamada principal", idleft, Fase.SEMÁNTICO));
                         }
                         RESULT = new DeclF(eType, id, args_declf, eTypeleft, eTyperight);
                     :}
@@ -252,20 +258,41 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
 
                         RESULT = new Decl(type, lid, d_asignacion, typeleft, typeright);
                     :}
-                |   TYPE:type ARRAY:array P_COMA
+                |   TYPE:type L_DIM:l_dim ID:id P_COMA
                     {:
                         if (!type.getConstante()) {
-                            if (!tSimbolos.ponerSymbol(new Symbol(array.getId(), TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), arrayleft))) {
+
+                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, l_dim.getTamañoArray(), idleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
-                                ErrorC.añadirError(new ErrorC("Variable " + array.getId() + "declarada previamente", arrayleft, Fase.SEMÁNTICO));
+                                ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                             }
-                            RESULT = new Decl(type, array, typeleft, typeright);
+                            RESULT = new Decl(type, id, l_dim, typeleft, typeright);
                         } else {
                             // MANEJO DE ERRORES SEMANTICOS
                             // No se puede declarar un array de tipo constante
                             ErrorC.añadirError(new ErrorC("Un array no puede ser constante", typeleft, Fase.SEMÁNTICO));
                         }
+                    :}
+                ;
+
+L_DIM           ::= CORCHETE_A DIGITO:num CORCHETE_C L_DIM:l_dim
+                    {:
+                        if (Integer.parseInt(num) <= 0) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // El tamaño del array debe ser mayor que 0
+                            ErrorC.añadirError(new ErrorC("El tamaño del array debe ser mayor que 0", numleft, Fase.SEMÁNTICO));
+                        }
+                        RESULT = new L_Dim(num, l_dim, numleft, numright);
+                    :}
+                |  CORCHETE_A DIGITO:num CORCHETE_C
+                    {:
+                       if (Integer.parseInt(num) <= 0) {
+                           // MANEJO DE ERRORES SEMANTICOS
+                           // El tamaño del array debe ser mayor que 0
+                           ErrorC.añadirError(new ErrorC("El tamaño del array debe ser mayor que 0", numleft, Fase.SEMÁNTICO));
+                       }
+                       RESULT = new L_Dim(num, null, numleft, numright);
                     :}
                 ;
 

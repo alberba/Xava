@@ -9,17 +9,15 @@ import java.util.Stack;
 public class Intermedio {
 
     // Lista de instrucciones
-    private ArrayList<Instruccion> codigo;
+    private final ArrayList<Instruccion> codigo;
 
-    private ArrayList<Variable> tv;
+    private final ArrayList<Variable> tv;
 
-    private ArrayList<Procedimiento> tp;
+    private final ArrayList<Procedimiento> tp;
     private int nProdActual;
-    private Stack<String> pproc;
+    private final Stack<String> pproc;
 
     private int counterTemps = 0;
-
-    private int counterGlobales = 0;
 
     private boolean esParametro = false;
 
@@ -40,11 +38,14 @@ public class Intermedio {
         return "e" + contadorEtiquetas;
     }
 
+    /**
+     * Busca una variable en la tabla de variables y la devuelve. Si no existe, devuelve null. Utilizado por la clase Ensamblador
+     * @param id Identificador de la variable (sintaxis: "id$idFuncion" o "id" si es global o temporal)
+     * @return Variable
+     */
     public Variable buscarVariable(String id) {
-        Procedimiento proc = tp.get(nProdActual);
         for (Variable variable : tv) {
-            // Se busca tanto entre las variables pasadas por parámetro como en las variables locales
-            if ((variable.isEsParam() && variable.getId().equals(id + "$" + proc.getId())) || variable.getId().equals(id)) {
+            if (variable.getId().equals(id)) {
                 return variable;
             }
         }
@@ -54,27 +55,26 @@ public class Intermedio {
     /**
      * Añade una variable a la tabla de variables y la devuelve. Antes de añadir la variable, es necesario comprobar
      * que no exista ya otra variable con el mismo nombre en el mismo ámbito o en el ámbito global.
-     * @param id
-     * @param tipo
-     * @param longitud
-     * @return
+     * @param id Identificador de la variable
+     * @param tipo Tipo de la variable
+     * @param longitud Longitud de la variable (null si no es un array)
+     * @return La variable añadida, o encontrada
      */
-    public Variable añadirVariable(String id, EnumType tipo, ArrayList<Variable> longitud) {
-        Variable v = null;
+    public Variable añadirVariable(String id, EnumType tipo, ArrayList<Integer> longitud) {
+        Variable v;
         // Se mira si es una variable temporal
         if (id == null) {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
             if (tp.isEmpty()) {
-                v = new Variable("t" + counterTemps, tipo, true, longitud, "global"); // esTemp a true
+                v = new Variable("t$" + counterTemps, tipo, longitud);
             } else {
-                v = new Variable("t" + counterTemps, tipo, true, longitud, pproc.peek());
+                v = new Variable("t$" + counterTemps, tipo, longitud);
             }
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
-                v = new Variable(id, tipo, false, longitud, "global");
-                counterGlobales++;
+                v = new Variable(id, tipo, longitud);
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el procedimiento actual de la tabla
                 Procedimiento proc = tp.get(nProdActual);
@@ -97,17 +97,17 @@ public class Intermedio {
                     } else {
                         // Coincidencia en las declaraciones
                         // (a "i" se le resta el "n" de parámetros para recorrer las declaraciones desde 0)
-                        if (id.equals(proc.getDeclaraciones().get(i - nParams).getId())) {
+                        if ((id + "$" + pproc.peek()).equals(proc.getDeclaraciones().get(i - nParams).getId())) {
                             return proc.getDeclaraciones().get(i - nParams);
                         }
                     }
                 }
 
                 // Llegados a este punto, se puede asumir que la variable no existe, entonces será creada
-                v = new Variable(id, tipo, false, longitud, pproc.peek());
+                String idFuncion = pproc.peek();
+                v = new Variable(id + "$" + idFuncion, tipo, longitud);
                 // Se añade la variable a la lista correspondiente
                 if (esParametro) {
-                    v.setEsParam(true);
                     proc.addParametro(v);
                 } else {
                     proc.addDeclaracion(v);
@@ -130,15 +130,15 @@ public class Intermedio {
         codigo.add(inst);
     }
 
-    public void añadirArray(ArrayG arrayG) {
-        EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
-        ArrayList<Variable> variables = new ArrayList<>();
-        for (L_array lArray = arrayG.getlArray(); lArray != null; lArray = lArray.getlArray()) {
-            lArray.getExp().generarIntermedio(this);
-            variables.add(this.getUltimaVariable());
+    public void añadirArray(String id, L_Dim l_dim) {
+        EnumType typeArr = ts.getSymbol(id).getTipoReturn();
+
+        ArrayList<Integer> dimensiones = new ArrayList<>();
+        for (L_Dim lDim = l_dim; lDim != null; lDim = lDim.getL_dim()) {
+            dimensiones.add(lDim.getNum());
         }
-        this.añadirVariable(arrayG.getId(), typeArr, variables);
-        this.añadirInstruccion(new Instruccion(OperacionInst.DECARRAY,null,null, arrayG.getId()));
+
+        this.añadirVariable(id, typeArr, dimensiones);
     }
 
     public void consultarArray(ArrayG arrayG, boolean esIndexado) {
@@ -170,7 +170,7 @@ public class Intermedio {
 
         // Obtener las dimensiones del array
         assert array != null;
-        ArrayList<Variable> varArrayDecl = array.getLongitud();
+        ArrayList<Integer> varArrayDecl = array.getLongitud();
 
         // Bucle que añade todas las instrucciones que calculan la dirección de memoria a la que se quiere acceder
         Variable tempAnt = varArray.get(0);
@@ -178,9 +178,9 @@ public class Intermedio {
         for (int j = 0; j < varArray.size() - 1; j++) {
             temp = this.añadirVariable(null, EnumType.ENTERO, null);
             // En el ejemplo a [2] [1], se obtiene el valor de a [2] y se multiplica por 3, ya que la declaración de "a" es a[3] [3]
-            this.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, tempAnt.getId(), varArrayDecl.get(j+1).getId(), temp.getId()));
+            this.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, tempAnt.getId(), varArrayDecl.get(j+1).toString(), temp.getId()));
             if (j != 0) {
-                this.añadirInstruccion(new Instruccion(OperacionInst.SUMA, temp.getId(), varArray.get(j+1).getId(), temp.getId()));
+                this.añadirInstruccion(new Instruccion(OperacionInst.SUMA, temp.getId(), varArray.get(j+1).toString(), temp.getId()));
             }
 
             tempAnt = temp;
@@ -212,8 +212,8 @@ public class Intermedio {
 
     /**
      * Dado un identificador, devuelve el procedimiento correspondiente
-     * @param id
-     * @return
+     * @param id Identificador del procedimiento
+     * @return Objeto Procedimiento
      */
     public Procedimiento getProcedimiento(String id) {
         for (Procedimiento proc : tp) {
@@ -225,8 +225,8 @@ public class Intermedio {
     }
 
     /**
-     * Actualiza el apuntador al proceso actual
-     * @param id
+     * Actualiza el apuntador al procedimiento actual
+     * @param id Identificador del procedimiento
      */
     public void setNprodActual(String id) {
         for (Procedimiento p: tp) {
@@ -234,10 +234,6 @@ public class Intermedio {
                 nProdActual = tp.indexOf(p);
             }
         }
-    }
-
-    public int getNp() {
-        return tp.size();
     }
 
     public void setEsParametro(boolean esParametro) {
@@ -276,4 +272,5 @@ public class Intermedio {
     public ArrayList<Instruccion> getCodigo() {
         return codigo;
     }
+
 }

@@ -8,8 +8,8 @@ import compiler.Intermedio.OperacionInst;
 import compiler.Intermedio.Variable;
 
 public class Inst extends SimboloBase {
-    private String type;
-    private Exp exp;
+    private final String type;
+    private final Exp exp;
     private ArrayG arrayG;
     private C_sents c_sents;
     private Decl decl_cap;
@@ -48,7 +48,7 @@ public class Inst extends SimboloBase {
 
     /**
      *  Método que se encarga de crear las etiquetas e instrucciones qué servirán para crear su versión en compilador
-     * @param intermedio
+     * @param intermedio Objeto de la clase Intermedio que contiene las instrucciones y variables que se van a utilizar
      */
     public void generarIntermedio(Intermedio intermedio) {
         // Comprobar si tenemos una estructura if, for, while o do-while
@@ -110,7 +110,7 @@ public class Inst extends SimboloBase {
             case "asig":
                 exp.generarIntermedio(intermedio);
                 Variable varExp = intermedio.getUltimaVariable();
-                Variable var = intermedio.buscarVariable(id);
+                Variable var = intermedio.añadirVariable(id, varExp.getTipo(), null);
                 if (arrayG != null) {
                     intermedio.consultarArray(arrayG, false);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIGNADO, varExp.getId(), intermedio.getUltimaVariable().getId(), var.getId()));
@@ -134,56 +134,11 @@ public class Inst extends SimboloBase {
         return type;
     }
 
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public Exp getExp() {
-        return exp;
-    }
-
-    public void setExp(Exp exp) {
-        this.exp = exp;
-    }
-
-
-    public C_sents getC_sents() {
-        return c_sents;
-    }
-
-    public void setC_sents(C_sents c_sents) {
-        this.c_sents = c_sents;
-    }
-
-    public Decl getDecl_cap() {
-        return decl_cap;
-    }
-
-    public void setDecl_cap(Decl decl_cap) {
-        this.decl_cap = decl_cap;
-    }
-
     public String getId() {
         return id;
     }
 
     public void setId(String id) {
         this.id = id;
-    }
-
-    public Cont_cond getContCond() {
-        return contCond;
-    }
-
-    public void setContCond(Cont_cond contCond) {
-        this.contCond = contCond;
-    }
-
-    public Call_fn getCall_fn() {
-        return call_fn;
-    }
-
-    public void setCall_fn(Call_fn call_fn) {
-        this.call_fn = call_fn;
     }
 }
