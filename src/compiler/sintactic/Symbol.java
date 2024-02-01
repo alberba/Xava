@@ -28,16 +28,16 @@ public class Symbol {
         return nom;
     }
 
-    public TipoElemento getTipo() {
-        return tipo;
-    }
-
     public boolean isEsConst() {
         return esConst;
     }
 
     public int getDimension() {
         return dimension;
+    }
+
+    public int getNumElementos() {
+        return content.size();
     }
 
     public String getName() {

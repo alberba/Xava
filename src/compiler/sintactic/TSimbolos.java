@@ -27,13 +27,13 @@ public class TSimbolos {
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
         // Solo accederá en el ámbito global
         if (symbol.getTipoElemento() == TipoElemento.FUNCION) {
-            for (Symbol s : tsimbolos.get(0)) {
+            for (Symbol s : tsimbolos.getFirst()) {
                 if (s.equals(symbol)) {
                     return false;
                 }
             }
             // Se añade la función al ámbito global
-            tsimbolos.get(0).add(symbol);
+            tsimbolos.getFirst().add(symbol);
         } else {
             // Se comprueba que el símbolo no esté ya en el ámbito actual
             for (Symbol s : tsimbolos.get(nActual)) {
@@ -43,10 +43,13 @@ public class TSimbolos {
             }
 
             // Se comprueba que el símbolo no esté en el ámbito global
-            for (Symbol s : tsimbolos.get(0)) {
+            for (Symbol s : tsimbolos.getFirst()) {
                 if (s.equals(symbol)) {
                     return false;
                 }
+            }
+            if (symbol.getName().equals("nums")) {
+                int jorge = 1;
             }
             this.tsimbolos.get(nActual).add(symbol);
 
@@ -103,7 +106,7 @@ public class TSimbolos {
     public Symbol getFuncion(String id) {
 
         // Iterar en todos los elementos del ambito global
-        for (Symbol symbol : tsimbolos.get(0)) {
+        for (Symbol symbol : tsimbolos.getFirst()) {
             // Comprobamos si es una función y si es la función que buscamos
             if (symbol.getTipoElemento() == TipoElemento.FUNCION && symbol.getName().equals(id)) {
                 return symbol;
@@ -116,7 +119,7 @@ public class TSimbolos {
 
     public ArrayList<Symbol> getParametros(String idFunc) {
 
-        ArrayList<Symbol> globales = tsimbolos.get(0);
+        ArrayList<Symbol> globales = tsimbolos.getFirst();
         int ambitoFuncion = getAmbitoFuncion(idFunc);
 
         // Si no se ha encontrado la función, se devuelve null
@@ -151,12 +154,12 @@ public class TSimbolos {
         int ambito = 1;
         boolean encontrado = false;
         // Se recorren las declaraciones globales en busca de la función
-        for (int i = 0; i <= tsimbolos.get(0).size(); i++) {
+        for (int i = 0; i <= tsimbolos.getFirst().size(); i++) {
             // Si no es la declaración de una función, se ignora
-            if (tsimbolos.get(0).get(i).getTipoElemento() == TipoElemento.FUNCION) {
+            if (tsimbolos.getFirst().get(i).getTipoElemento() == TipoElemento.FUNCION) {
                 // ES UNA FUNCIÓN
                 // Si no es la que se busca, se ignora también
-                if (!tsimbolos.get(0).get(i).getName().equals(idFunc)) {
+                if (!tsimbolos.getFirst().get(i).getName().equals(idFunc)) {
                     // Se incrementa el ámbito por cada función recorrida hasta llegar a la que toca,
                     // ya que el ámbito de una función coincide con el orden en el que se declara
                     ambito++;
@@ -188,5 +191,22 @@ public class TSimbolos {
 
     public int getnActual() {
         return nActual;
+    }
+
+    /**
+     * Busca un símbolo sin tener en cuenta el ámbito, utilizado al declarar variables en ensamblador
+     * @param id
+     * @return
+     */
+    public Symbol getSymbolAssembly(String id) {
+        for (ArrayList<Symbol> ambito : tsimbolos) { // Se recorren los ámbitos
+            for (Symbol symbol : ambito) { // Y cada uno de sus elementos
+                // Hasta encontrar el símbolo que se busca
+                if (symbol.getName().equals(id)) {
+                    return symbol;
+                }
+            }
+        }
+        return null;
     }
 }

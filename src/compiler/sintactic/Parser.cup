@@ -255,7 +255,6 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                 |   TYPE:type ARRAY:array P_COMA
                     {:
                         if (!type.getConstante()) {
-
                             if (!tSimbolos.ponerSymbol(new Symbol(array.getId(), TipoElemento.ARRAY, type.getStype(), null, false, array.getDimension(), arrayleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada

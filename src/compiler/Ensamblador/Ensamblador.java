@@ -7,6 +7,7 @@ import compiler.Intermedio.Variable;
 import compiler.sintactic.Symbol;
 import compiler.sintactic.Symbols.EnumType;
 import compiler.sintactic.TSimbolos;
+import compiler.sintactic.TipoElemento;
 
 import java.util.ArrayList;
 
@@ -47,10 +48,13 @@ public class Ensamblador {
         codigo.add("*-----------------------------------------------------------");
 
         for (Variable var: intermedio.getTv()) {
-            Symbol symbol = ts.getSymbol(var.getId());
+            Symbol symbol = ts.getSymbolAssembly(var.getId());
             if (symbol != null && symbol.isConstant()) { // Constantes
                 codigo.add(var.getId() + "\t\tEQU\t" + var);
-            } else { // Variables
+            } else if (symbol != null && symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
+                codigo.add(var.getId() + "\t\tDS.W\t" + symbol.getNumElementos());
+            }
+            else { // Variables
                 codigo.add(var.getId() + "\t\tDS.W\t1");
             }
 
@@ -211,11 +215,11 @@ public class Ensamblador {
             // Se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
-                codigo.add("\tLSL\t" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tLSL\t #" + getValor(var2) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             } else { // Y la división
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
-                codigo.add("\tLSR\t" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tLSR\t #" + getValor(var2) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             }
             return true;
@@ -223,7 +227,7 @@ public class Ensamblador {
             // Tan solo se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var2 + ", D0");
-                codigo.add("\tLSL\t" + getValor(var1) / 2 + ", D0");
+                codigo.add("\tLSL\t #" + getValor(var1) / 2 + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 return true;
             } else { // No es el caso de la división (no tiene propiedad conmutativa)
@@ -252,37 +256,43 @@ public class Ensamblador {
                 codigo.add("\tSEQ\tD0");   // Set if equal
                 codigo.add("\tEXT.W\tD0"); // No se puede extender de byte a long directamente, se extiende de byte a word
                 codigo.add("\tEXT.L\tD0"); // Y después de word a long
-                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "DIFERENTE":
                 codigo.add("\tSNE\tD0");   // Set if NOT equal
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MENOR":
                 codigo.add("\tSLT\tD0");   // Set if less
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MENOR_IGUAL":
                 codigo.add("\tSLE\tD0");   // Set if less or equal
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MAYOR":
                 codigo.add("\tSGT\tD0");   // Set if greater
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MAYOR_IGUAL":
                 codigo.add("\tSGE\tD0");   // Set if greater or equal
                 codigo.add("\tEXT.W\tD0");
                 codigo.add("\tEXT.L\tD0");
-                codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
         }
     }
@@ -307,7 +317,7 @@ public class Ensamblador {
 
         String var2 = convertirOperador(instruccion.getOperador2());
         codigo.add("\tMOVE.W\t" + var2 + ", D0");
-        codigo.add("\tLEA\t" + instruccion.getOperador1() + "A0");
+        codigo.add("\tLEA\t" + instruccion.getOperador1() + ", A0");
         // Se le suma
         codigo.add("\tMOVE.W\t(A0, D0.W), " + instruccion.getDestino());
 
