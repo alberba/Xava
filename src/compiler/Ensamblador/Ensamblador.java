@@ -16,6 +16,7 @@ public class Ensamblador {
 
     Intermedio intermedio;
     TSimbolos ts;
+    ArrayList<Variable> arrays;
     private final ArrayList<String> codigo;
 
     public Ensamblador(Intermedio intermedio, TSimbolos ts) {
@@ -23,6 +24,7 @@ public class Ensamblador {
         this.ts = ts;
         this.intermedio = intermedio;
         codigo = new ArrayList<>();
+        arrays = new ArrayList<>();
 
     }
 
@@ -52,7 +54,8 @@ public class Ensamblador {
             if (symbol != null && symbol.isConstant()) { // Constantes
                 codigo.add(var.getId() + "\t\tEQU\t" + var);
             } else if (symbol != null && symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
-                codigo.add(var.getId() + "\t\tDS.W\t" + symbol.getNumElementos());
+                // Los arrays se declararán en tiempo de ejecución
+                arrays.add(var);
             }
             else { // Variables
                 codigo.add(var.getId() + "\t\tDS.W\t1");
@@ -140,6 +143,16 @@ public class Ensamblador {
                 codigo.add("\tJSR LEERCAR\t");
                 codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
+            case DECARRAY:
+                ArrayList<Variable> variables = new ArrayList<>();
+                for (Variable array : arrays) {
+                    if (array.getId().equals(instruccion.getDestino())) {
+                        variables = array.getLongitud(); // Se obtienen las variables que componen la dimensión del array
+                    }
+                }
+                for (int i = 0; i < variables.size(); i++) {
+                    // Se multiplican los valores de las variables
+                }
             default:
                 break;
         }

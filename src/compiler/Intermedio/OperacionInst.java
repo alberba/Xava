@@ -30,5 +30,6 @@ public enum OperacionInst {
     IMPRIMIR,
     ENTRADA_ENT,
     ENTRADA_BOOL,
-    ENTRADA_CAR
+    ENTRADA_CAR,
+    DECARRAY
 }

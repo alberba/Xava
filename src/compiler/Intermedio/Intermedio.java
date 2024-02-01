@@ -138,6 +138,7 @@ public class Intermedio {
             variables.add(this.getUltimaVariable());
         }
         this.añadirVariable(arrayG.getId(), typeArr, variables);
+        this.añadirInstruccion(new Instruccion(OperacionInst.DECARRAY,null,null, arrayG.getId()));
     }
 
     public void consultarArray(ArrayG arrayG, boolean esIndexado) {
