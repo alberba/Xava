@@ -1907,7 +1907,25 @@ class CUP$Parser$actions {
 		int args_callleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int args_callright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Args_Call args_call = (Args_Call)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = new Call_fn(id, args_call, args_callleft, args_callright);          
+		
+                    if (args_call != null) { // Caso con argumentos
+                        // Se verifica que el número coincida
+                        if (args_call.getNumArgs() != tSimbolos.getNumParametros(id)) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // El número de argumentos no coincide
+                            ErrorC.añadirError(new ErrorC("El número de argumentos no coincide con el esperado en la función", args_call.getLinea(), Fase.SEMÁNTICO));
+                        }
+                        RESULT = new Call_fn(id, args_call, args_callleft, args_callright);
+                    } else { // Caso sin argumentos
+                        // Se verifica que no tenga que haber argumentos
+                        if (tSimbolos.getNumParametros(id) != 0) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // El número de argumentos no coincide
+                            ErrorC.añadirError(new ErrorC("Se esperan argumentos en la función", idleft, Fase.SEMÁNTICO));
+                        }
+                        RESULT = new Call_fn(id, null, idleft, idright);
+                    }
+                
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("CALL_FN",37, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

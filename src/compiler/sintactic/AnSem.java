@@ -169,10 +169,11 @@ public class AnSem {
     public void gestReturnFunc(RetProc retProc) {
         EnumType typeFunc = ts.getTypeFuncionActual();
         if (typeFunc == EnumType.VACIO) {
-            ErrorC.añadirError(new ErrorC("No se puede poner un DEVOLVER en una función vacío", retProc.getLinea(), Fase.SEMÁNTICO));
-
+            ErrorC.añadirError(new ErrorC("No se puede poner un DEVOLVER en una función de tipo vacío", retProc.getLinea(), Fase.SEMÁNTICO));
         } else {
             EnumType typeReturn = gestExp(retProc.getE());
+            System.out.println(typeFunc);
+            System.out.println(typeReturn);
             if (typeReturn != typeFunc) {
                 ErrorC.añadirError(new ErrorC("El tipo de devolución no coincide con el tipo de la función", retProc.getLinea(), Fase.SEMÁNTICO));
             }
@@ -227,6 +228,26 @@ public class AnSem {
     public void gestExpLogica(Exp exp) {
         if (gestExp(exp) != EnumType.BOOLEANO) {
             ErrorC.añadirError(new ErrorC("La expresión debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+        }
+    }
+
+    /**
+     * Función que comprueba si la expresión es del tipo Entero o no
+     * @param args_call
+     * @param id
+     */
+    public void gestArgsCall(Args_Call args_call, String id) {
+        Symbol symbol = ts.getFuncion(id);
+        if (symbol == null) { // No sé si se tiene que checkear acá
+            ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
+        } else {
+            L_args_Call aux = args_call.getL_args_call();
+            for (int i = 0; i < ts.getNumParametros(id); i++) {
+                // ARREGLAR (getTipo devolverá "car" o "ent" o algo así en lugar de "CARACTER" o "ENTERO"), habrá que cambiar varias cosas más, yo haría un switch en el constructor y que tipo sea EnumType o algo así
+                if (aux.getValue().getTipo() != ts.getParametros(id).get(i).getTipoReturn().name()) {
+                    ErrorC.añadirError(new ErrorC("El tipo de alguno de los parámetros no coincide con el tipo de la función", args_call.getLinea(), Fase.SEMÁNTICO));
+                }
+            }
         }
     }
 

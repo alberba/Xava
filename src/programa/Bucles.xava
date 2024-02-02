@@ -1,0 +1,29 @@
+funcion ent dowhile(ent contador);
+funcion ent for(ent contador);
+
+principal{
+    ent contador := 5;
+    ent resultado := 0;
+    imprimir(dowhile(contador));
+    imprimir(for(contador));
+}
+
+funcion ent dowhile(ent contador){
+    ent a := contador;
+    ent result := contador;
+
+    hacer{
+        result := contador + result;
+        a:= a - 1;
+    }mientras(a != 0);
+
+    devuelve result;
+}
+
+funcion ent for(ent contador){
+    ent result := contador;
+    para(ent a = 0; a < contador; a = a + 1){
+        result := contador + result;
+    }
+    devuelve result;
+}

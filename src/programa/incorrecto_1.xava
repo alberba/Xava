@@ -1,24 +1,24 @@
 funcion ent alt_plus(ent a, bool b);
 
-principal{
+principal {
     ent result1, result2 := 0;
     bool result := verdadero;
     
     ## ERROR: No se le puede asignar un int a una variable booleana
     result := alt_plus(result1, verdadero);
 
-    ## ERROR: No se le han pasado suficientes argumentos
+    ## ERROR: Número insuficiente de argumentos pasados a la función
     result1 := alt_plus();
 
     ## ERROR: El tipo de uno de los argumentos no coincide con la definición de la función
     result1 := alt_plus(result1, result1);
 
-    ## ERROR: Se le han pasado demasiados argumentos
+    ## ERROR: Número elevado de argumentos pasados a la función
     result1 := alt_plus(result1, result, result2);
 }
 
 funcion ent alt_plus(ent a, bool b) {
-    si(b = verdadero){
+    si (b = verdadero) {
         devuelve a;
     }
     devuelve a - 1;

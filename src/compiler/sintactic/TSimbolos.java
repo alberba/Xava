@@ -9,6 +9,8 @@ import java.util.Objects;
 public class TSimbolos {
     private final ArrayList<ArrayList<Symbol>> tsimbolos;
     private int nActual;
+    private boolean hayFunciones;
+    private int indiceDeclFunciones;
 
     public TSimbolos() {
         this.tsimbolos = new ArrayList<>();
@@ -16,6 +18,7 @@ public class TSimbolos {
         this.nActual = 0;
         // Se inicializa el ámbito global con final -1 (sin contenido)
         this.tsimbolos.add(new ArrayList<>());
+        this.hayFunciones = false;
     }
 
     public void añadirAmbito() {
@@ -30,6 +33,11 @@ public class TSimbolos {
             for (Symbol s : tsimbolos.get(0)) {
                 if (s.equals(symbol)) {
                     return false;
+                }
+                // Al encontrar la primera función, se marca que hay funciones y se guarda el índice
+                if (!hayFunciones) {
+                    hayFunciones = true;
+                    indiceDeclFunciones = tsimbolos.get(0).size();
                 }
             }
             // Se añade la función al ámbito global
@@ -127,15 +135,25 @@ public class TSimbolos {
         ArrayList<Symbol> parametros = new ArrayList<>();
         // Los parámetros estarán situados al inicio del ámbito de la función
         for (int i = 0; i < funcion.size() && (funcion.get(i).getTipoElemento() == TipoElemento.PARAMETRO); i++) {
-
-            parametros.add(globales.get(i));
+            parametros.add(funcion.get(i));
         }
 
         return parametros.isEmpty() ? null : parametros;
     }
 
+    /**
+     * Método utilizado para obtener el número de parámetros de una función
+     * @param idFunc
+     * @return Número de parámetros de la función
+     */
+    public int getNumParametros(String idFunc) {
+        ArrayList<Symbol> parametros = getParametros(idFunc);
+        return parametros == null ? 0 : parametros.size();
+    }
+
     public EnumType getTypeFuncionActual() {
-        return tsimbolos.get(nActual).get(0).getTipoReturn();
+        // Se utiliza el ámbito - 1 como offset para obtener la declaración de la función
+        return tsimbolos.get(0).get(indiceDeclFunciones + (nActual - 1)).getTipoReturn();
     }
 
     /**

@@ -503,7 +503,28 @@ L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C L_ARR:list_array
                 :}
                 ;
 
-CALL_FN         ::= ID:id ARGS_CALL:args_call                                                       {: RESULT = new Call_fn(id, args_call, args_callleft, args_callright);          :}
+CALL_FN         ::= ID:id ARGS_CALL:args_call
+                {:
+                    if (args_call != null) { // Caso con argumentos
+                        // Se verifica que el número coincida
+                        if (args_call.getNumArgs() != tSimbolos.getNumParametros(id)) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // El número de argumentos no coincide
+                            ErrorC.añadirError(new ErrorC("El número de argumentos no coincide con el esperado en la función", args_call.getLinea(), Fase.SEMÁNTICO));
+                        } else {
+                            // Se verifica que el tipo de los argumentos coincida
+                            ansem.gestArgsCall(id, args_call);
+                        }
+                    } else { // Caso sin argumentos
+                        // Se verifica que no tenga que haber argumentos
+                        if (tSimbolos.getNumParametros(id) != 0) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // El número de argumentos no coincide
+                            ErrorC.añadirError(new ErrorC("Se esperan argumentos en la función", idleft, Fase.SEMÁNTICO));
+                        }
+                    }
+                    RESULT = new Call_fn(id, null, idleft, idright);
+                :}
                 ;
 
 M               ::=                                                                                 {: tSimbolos.añadirAmbito();                                                    :}

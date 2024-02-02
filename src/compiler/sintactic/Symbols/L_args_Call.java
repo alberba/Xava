@@ -20,6 +20,17 @@ public class L_args_Call extends SimboloBase {
         this.value = value;
     }
 
+    /**
+     * Función utilizada para calcular el número de parámetros pasados a una función
+     * @return Número de parámetros obtenidos por el momento
+     */
+    public int getNumArgs() {
+        if (l_args_call != null) {
+            return l_args_call.getNumArgs() + 1;
+        }
+        return 1; // L_args_call siempre tendrá un value
+    }
+
     public ArrayList<Variable> generarIntermedio(Intermedio intermedio, ArrayList<Variable> variables) {
         value.generarIntermedio(intermedio);
         variables.add(intermedio.getUltimaVariable());
