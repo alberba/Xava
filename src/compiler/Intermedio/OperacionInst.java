@@ -7,8 +7,6 @@ public enum OperacionInst {
     MULTIPLICACION,
     DIVISION,
     MODULO,
-    Y,
-    O,
     NO,
     INDEXADO,
     ASIGNADO,
@@ -25,11 +23,8 @@ public enum OperacionInst {
     LLAMADA,
     RETORNO,
     PARAMETRO_SIMPLE,
-    PARAMETRO_ARRAY,
-    PARAMETRO_R,
     IMPRIMIR,
     ENTRADA_ENT,
     ENTRADA_BOOL,
     ENTRADA_CAR,
-    DECARRAY
 }

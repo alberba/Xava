@@ -63,7 +63,9 @@ public class Main {
 
         }
         if (ErrorC.hayErrores()) {
-            ErrorC.printErrores();
+            String errores = ErrorC.allErroresToString();
+            System.out.println(errores);
+            guardarFichero("errores.txt", errores, rutaArchivo);
             System.exit(0);
         } else {
             guardarFichero("tSimbolo.txt", parser.getTSimbolos().toString(), rutaArchivo);

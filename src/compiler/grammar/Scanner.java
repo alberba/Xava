@@ -3,12 +3,16 @@
 // source: src/compiler/lexic/lexic.flex
 
 package compiler.grammar;
+import java.io.*;
 import java.util.ArrayList;
 
 import compiler.ErrorC;
 import compiler.sintactic.Fase;
+import java_cup.runtime.*;
 import java_cup.runtime.ComplexSymbolFactory.ComplexSymbol;
 import java_cup.runtime.ComplexSymbolFactory.Location;
+
+import compiler.grammar.ParserSym;
 
 
 // See https://github.com/jflex-de/jflex/issues/222
@@ -433,8 +437,8 @@ public class Scanner implements java_cup.runtime.Scanner {
     **/
 
     private ComplexSymbol symbol(int type) {
-        Location l = new Location(yyline+1, yycolumn+1); // primera posición del token
-        Location r = new Location(yyline+1, yycolumn+1+yylength()); // ultima posición del token
+        Location l = new Location(yyline+1, yycolumn+1, yyline+1); // primera posición del token
+        Location r = new Location(yyline+1, yycolumn+1+yylength(), yyline+1); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r);
         tokens.add(c);
         return c;
@@ -444,8 +448,8 @@ public class Scanner implements java_cup.runtime.Scanner {
        Construcción de un simbolo con atributo asociado.
     **/
     private ComplexSymbol symbol(int type, Object value){
-        Location l = new Location(yyline+1, yycolumn+1); // primera posición del token
-        Location r = new Location(yyline+1, yycolumn+1+yylength()); // ultima posición del token
+        Location l = new Location(yyline+1, yycolumn+1, yyline+1); // primera posición del token
+        Location r = new Location(yyline+1, yycolumn+1+yylength(), yyline+1); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r, value);
         tokens.add(c);
         return c;

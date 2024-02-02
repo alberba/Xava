@@ -160,13 +160,7 @@ public class Intermedio {
         }
 
         // Obtener la posición del array
-        Variable array = null;
-        for (Variable variable : tv) {
-            if (variable.getId().equals(arrayG.getId())) {
-                array = variable;
-                break;
-            }
-        }
+        Variable array = añadirVariable(arrayG.getId(), typeArr, null);
 
         // Obtener las dimensiones del array
         assert array != null;

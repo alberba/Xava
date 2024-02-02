@@ -3,9 +3,9 @@ ent [3] arr;
 ent global_integer := 3;
 
 principal{
-    arr[0] := 1;
-    arr[1] := 2;
-    arr[2] := 3;
+    [0] arr := 1;
+    [1] arr := 2;
+    [2] arr := 3;
     const ent a := 5;
     ent input := 0;
  

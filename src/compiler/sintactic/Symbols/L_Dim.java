@@ -12,18 +12,6 @@ public class L_Dim extends SimboloBase{
         this.l_dim = l_dim;
     }
 
-    /**
-     * Utilizado para obtener el número total de elementos en un array
-     * @return número total de elementos en un array
-     */
-    public int getTamañoArray() {
-        if (l_dim == null) {
-            return num;
-        } else {
-            return num * l_dim.getTamañoArray();
-        }
-    }
-
     public int getNum() {
         return num;
     }

@@ -33,24 +33,11 @@ public class ErrorC {
     }
 
     public static void añadirError(ErrorC err) {
-        try {
-            errores.add(err);
-            BufferedWriter writer = new BufferedWriter(new FileWriter("Resultado/errores.txt", true));
-            writer.write(err.toString() + "\n");
-            writer.close();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
+        errores.add(err);
     }
 
     public static boolean hayErrores() {
         return !errores.isEmpty();
-    }
-
-    public static void printErrores() {
-        for (ErrorC errorC : errores) {
-            System.out.println(errorC);
-        }
     }
 
     @Override
@@ -60,5 +47,13 @@ public class ErrorC {
         else {
             return "Error de " + fase.name() + ": " + mensaje + ". Línea: " + linea + ".";
         }
+    }
+
+    public static String allErroresToString(){
+        StringBuilder errores = new StringBuilder();
+        for (ErrorC errorC : ErrorC.errores) {
+            errores.append(errorC.toString()).append("\n");
+        }
+        return errores.toString();
     }
 }

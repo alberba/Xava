@@ -6,7 +6,7 @@ principal {
 
     [0] nums := 3;
     [1] nums := 5;
-    [2] nums := 8;
+    [2] nums := 6;
     ent j;
 
     imprimir(factorial([0]nums));

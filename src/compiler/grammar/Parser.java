@@ -12,6 +12,7 @@ import compiler.sintactic.Symbol;
 import compiler.sintactic.Symbols.L_array;
 import compiler.ErrorC;
 import java.util.List;
+import java_cup.runtime.XMLElement;
 
 /** CUP v0.11b 20160615 (GIT 4ac7450) generated parser.
   */
@@ -520,6 +521,7 @@ public class Parser extends java_cup.runtime.lr_parser {
     }
 
 
+
 /** Cup generated class to encapsulate user supplied action code.*/
 @SuppressWarnings({"rawtypes", "unchecked", "unused"})
 class CUP$Parser$actions {
@@ -649,6 +651,11 @@ class CUP$Parser$actions {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
                             ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
+                        }
+                        if (id.equals("principal")) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La función no puede llamarse Main
+                            ErrorC.añadirError(new ErrorC("No se puede crear una función llamada principal", idleft, Fase.SEMÁNTICO));
                         }
                         RESULT = new DeclF(eType, id, args_declf, eTypeleft, eTyperight);
                     
@@ -1102,8 +1109,12 @@ class CUP$Parser$actions {
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
                         if (!type.getConstante()) {
+                            int nDimensiones = 0;
+                            for (L_Dim aux = l_dim; aux != null; aux = aux.getL_dim()) {
+                                nDimensiones++;
+                            }
 
-                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, l_dim.getTamañoArray(), idleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, nDimensiones, idleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -1261,7 +1272,13 @@ class CUP$Parser$actions {
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
                         Symbol symbol = tSimbolos.getSymbol(id);
-                        ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        if (symbol.isEsConst()) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // No se puede asignar un valor a una constante
+                            ErrorC.añadirError(new ErrorC("No se puede modificar una constante", idleft, Fase.SEMÁNTICO));
+                        } else {
+                            ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        }
                         RESULT = new Inst("asig", id, null, exp, idleft, idright);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("INST",24, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);

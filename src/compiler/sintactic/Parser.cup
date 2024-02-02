@@ -57,6 +57,7 @@ parser code {:
         }
         return dimensiones;
     }
+
 :}
 
 terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CARACTER, CONST,
@@ -261,8 +262,12 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                 |   TYPE:type L_DIM:l_dim ID:id P_COMA
                     {:
                         if (!type.getConstante()) {
+                            int nDimensiones = 0;
+                            for (L_Dim aux = l_dim; aux != null; aux = aux.getL_dim()) {
+                                nDimensiones++;
+                            }
 
-                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, l_dim.getTamañoArray(), idleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, nDimensiones, idleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -329,7 +334,13 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                 |   ID:id ASIG E:exp P_COMA
                     {:
                         Symbol symbol = tSimbolos.getSymbol(id);
-                        ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        if (symbol.isEsConst()) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // No se puede asignar un valor a una constante
+                            ErrorC.añadirError(new ErrorC("No se puede modificar una constante", idleft, Fase.SEMÁNTICO));
+                        } else {
+                            ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        }
                         RESULT = new Inst("asig", id, null, exp, idleft, idright);
                     :}
                 |   ARRAY:array ASIG E:exp P_COMA
