@@ -1914,8 +1914,10 @@ class CUP$Parser$actions {
                             // MANEJO DE ERRORES SEMANTICOS
                             // El número de argumentos no coincide
                             ErrorC.añadirError(new ErrorC("El número de argumentos no coincide con el esperado en la función", args_call.getLinea(), Fase.SEMÁNTICO));
+                        } else {
+                            // Se verifica que el tipo de los argumentos coincida
+                            ansem.gestArgsCall(id, args_call);
                         }
-                        RESULT = new Call_fn(id, args_call, args_callleft, args_callright);
                     } else { // Caso sin argumentos
                         // Se verifica que no tenga que haber argumentos
                         if (tSimbolos.getNumParametros(id) != 0) {
@@ -1923,8 +1925,8 @@ class CUP$Parser$actions {
                             // El número de argumentos no coincide
                             ErrorC.añadirError(new ErrorC("Se esperan argumentos en la función", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new Call_fn(id, null, idleft, idright);
                     }
+                    RESULT = new Call_fn(id, null, idleft, idright);
                 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("CALL_FN",37, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }

@@ -49,7 +49,6 @@ public class TSimbolos {
                     return false;
                 }
             }
-
             // Se comprueba que el símbolo no esté en el ámbito global
             for (Symbol s : tsimbolos.get(0)) {
                 if (s.equals(symbol)) {
@@ -57,17 +56,13 @@ public class TSimbolos {
                 }
             }
             this.tsimbolos.get(nActual).add(symbol);
-
         }
-
-
         return true;
     }
 
 
     // Busca el símbolo a partir de su id en el ámbito indicado
     public Symbol busquedaSymbolAmbito(int ambito, String id) {
-
         if (ambito != 0) { // Se mira si el nivel es el global
             // Se verifica que el nivel tenga símbolos
             if (this.tsimbolos.isEmpty()) {

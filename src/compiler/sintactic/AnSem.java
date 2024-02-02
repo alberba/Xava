@@ -19,64 +19,12 @@ public class AnSem {
      * @return Tipo de la expresión resultante
      */
     public EnumType gestExp(Exp exp) {
-
-        EnumType tipo;
-        switch (exp.getValue().getTipo()) {
-            case "Ent":
-                tipo = EnumType.ENTERO;
-                break;
-            case "Car":
-                tipo = EnumType.CARACTER;
-                break;
-            case "Bol":
-                tipo = EnumType.BOOLEANO;
-                break;
-            case "Id":
-                Symbol s = ts.getSymbol(exp.getValue().getValue());
-                if (s == null) {
-                    ErrorC.añadirError(new ErrorC("La variable no existe", exp.getLinea(), Fase.SEMÁNTICO));
-                    return null;
-                } else {
-                    tipo = s.getTipoReturn();
-                }
-                break;
-            case "Arr":
-                Symbol sArr = ts.getSymbol(exp.getValue().getValue());
-                if (sArr == null) {
-                    ErrorC.añadirError(new ErrorC("El array no existe", exp.getLinea(), Fase.SEMÁNTICO));
-                    return null;
-                } else {
-                    tipo = sArr.getTipoReturn();
-                }
-                break;
-            case "Call_fn":
-                Symbol sCall = ts.getSymbol(exp.getValue().getCall_fn().getId());
-                if (sCall == null) {
-                    ErrorC.añadirError(new ErrorC("La función no existe", exp.getLinea(), Fase.SEMÁNTICO));
-                    return null;
-                } else {
-                    tipo = sCall.getTipoReturn();
-                    // Comprobación de retorno de función
-                    if (sCall.getTipoReturn() == EnumType.VACIO) {
-                        ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", exp.getLinea(), Fase.SEMÁNTICO));
-                        return null;
-                    }
-                }
-                break;
-            case "Entrada":
-                tipo = exp.getValue().getEntrada().getEnumType();
-                break;
-            case "Exp":
-                tipo = gestExp(exp.getValue().getExp());
-                if (tipo == null) {
-                    return null;
-                }
-                break;
-            default:
-                ErrorC.añadirError(new ErrorC("Tipo de valor erróneo", exp.getLinea(), Fase.SEMÁNTICO));
-                return null;
+        // Check del value
+        EnumType tipo = gestValue(exp.getValue());
+        if (tipo == null) {
+            return null;
         }
-
+        // Check de la operación
         Op op = exp.getOp();
         if (op != null) {
             // Comprobación de operadores según el tipo de dato
@@ -114,12 +62,63 @@ public class AnSem {
                     case SUMA, RESTA, MULT, DIV, MOD -> EnumType.ENTERO;
                 };
             }
-
-
         } else {
             // No hay operador, por tanto es la producción Exp -> Value
             // No hace falta comprobar nada mas
             return tipo;
+        }
+    }
+
+    /**
+     * Comprueba que el Value sea correcto y devuelve el tipo de la expresión
+     * @param value Value a comprobar
+     * @return Tipo subyacente básico del value
+     */
+    private EnumType gestValue(Value value) {
+        switch (value.getTipo()) {
+            case "Ent":
+                return EnumType.ENTERO;
+            case "Car":
+                return EnumType.CARACTER;
+            case "Bol":
+                return EnumType.BOOLEANO;
+            case "Id":
+                Symbol s = ts.getSymbol(value.getValue());
+                if (s == null) {
+                    ErrorC.añadirError(new ErrorC("La variable no existe", value.getLinea(), Fase.SEMÁNTICO));
+                    return null;
+                } else {
+                    return s.getTipoReturn();
+                }
+            case "Arr":
+                Symbol sArr = ts.getSymbol(value.getValue());
+                if (sArr == null) {
+                    ErrorC.añadirError(new ErrorC("El array no existe", value.getLinea(), Fase.SEMÁNTICO));
+                    return null;
+                } else {
+                    return sArr.getTipoReturn();
+                }
+            case "Call_fn":
+                Symbol sCall = ts.getSymbol(value.getCall_fn().getId());
+                if (sCall == null) {
+                    ErrorC.añadirError(new ErrorC("La función no existe", value.getLinea(), Fase.SEMÁNTICO));
+                    return null;
+                } else {
+                    EnumType tipo = sCall.getTipoReturn();
+                    // Comprobación de retorno de función
+                    if (tipo == EnumType.VACIO) {
+                        ErrorC.añadirError(new ErrorC("La función no devuelve ningún valor", value.getLinea(), Fase.SEMÁNTICO));
+                        return null;
+                    }
+                    return tipo;
+                }
+            case "Entrada":
+                return value.getEntrada().getEnumType();
+            case "Exp":
+                return gestExp(value.getExp());
+            default:
+                ErrorC.añadirError(new ErrorC("Tipo de valor erróneo", value.getLinea(), Fase.SEMÁNTICO));
+                return null;
         }
     }
 
@@ -236,17 +235,26 @@ public class AnSem {
      * @param args_call
      * @param id
      */
-    public void gestArgsCall(Args_Call args_call, String id) {
+    public void gestArgsCall(String id, Args_Call args_call) {
         Symbol symbol = ts.getFuncion(id);
         if (symbol == null) { // No sé si se tiene que checkear acá
             ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
         } else {
+            // Se comprueba que el tipo de los parámetros sea el correcto para cada uno de los argumentos
             L_args_Call aux = args_call.getL_args_call();
-            for (int i = 0; i < ts.getNumParametros(id); i++) {
-                // ARREGLAR (getTipo devolverá "car" o "ent" o algo así en lugar de "CARACTER" o "ENTERO"), habrá que cambiar varias cosas más, yo haría un switch en el constructor y que tipo sea EnumType o algo así
-                if (aux.getValue().getTipo() != ts.getParametros(id).get(i).getTipoReturn().name()) {
-                    ErrorC.añadirError(new ErrorC("El tipo de alguno de los parámetros no coincide con el tipo de la función", args_call.getLinea(), Fase.SEMÁNTICO));
+            ArrayList<Symbol> parametros = ts.getParametros(id);
+            boolean error = false;
+
+            for (int i = ts.getNumParametros(id) - 1; i >= 0; i--) { // Por algún motivo parece que se guardan al revés los parámetros
+                if (gestValue(aux.getValue()) != parametros.get(i).getTipoReturn()) {
+                    error = true;
                 }
+                // Siguiente argumento
+                aux = aux.getL_args_call();
+            }
+
+            if (error) { // Se hace de esta forma para no poner un error por cada parámetro incorrecto
+                ErrorC.añadirError(new ErrorC("El tipo de alguno de los parámetros no coincide con el tipo de la función", args_call.getLinea(), Fase.SEMÁNTICO));
             }
         }
     }
