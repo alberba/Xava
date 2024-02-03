@@ -9,11 +9,13 @@ public class Variable {
     private String id;
     private EnumType tipo;
     private final ArrayList<Integer> longitud;
+    private final boolean esTemp;
 
-    public Variable(String id, EnumType tipo, ArrayList<Integer> longitud) {
+    public Variable(String id, EnumType tipo, ArrayList<Integer> longitud, boolean esTemp) {
         this.id = id;
         this.tipo = tipo;
         this.longitud = longitud;
+        this.esTemp = esTemp;
     }
 
     public String getId() {
@@ -46,6 +48,10 @@ public class Variable {
         }
 
         return longitud;
+    }
+
+    public boolean isEsTemp() {
+        return esTemp;
     }
 
 }

@@ -332,7 +332,7 @@ public class Ensamblador {
         codigo.add("\tMOVE.W\t" + var2 + ", D0");
         codigo.add("\tLEA\t" + instruccion.getOperador1() + ", A0");
         // Se le suma
-        codigo.add("\tMOVE.W\t(A0, D0.W), " + instruccion.getDestino());
+        codigo.add("\tMOVE.W\t(A0, D0.W), " + convertirOperador(instruccion.getDestino()));
 
     }
 
@@ -345,9 +345,9 @@ public class Ensamblador {
     private void ensambladorAsignado(Instruccion instruccion) {
 
         // Se obtiene el valor a asignar (No hace comprobar si es un literal o una variable, ya que se asume que es una variable)
-        codigo.add("\tMOVE.W\t" + instruccion.getOperador2() + ", D0");
+        codigo.add("\tMOVE.W\t" + convertirOperador(instruccion.getOperador2()) + ", D0");
         codigo.add("\tLEA\t" + instruccion.getDestino() + ", A0");
-        codigo.add("\tMOVE.W\t" + instruccion.getOperador1() + ", (A0, D0.W)");
+        codigo.add("\tMOVE.W\t" + convertirOperador(instruccion.getOperador1()) + ", (A0, D0.W)");
 
     }
 

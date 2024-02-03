@@ -3,6 +3,7 @@ package compiler.Main;
 import compiler.Ensamblador.Ensamblador;
 import compiler.ErrorC;
 import compiler.Intermedio.Intermedio;
+import compiler.Optimizador;
 import compiler.grammar.Parser;
 import compiler.grammar.Scanner;
 import java_cup.runtime.ComplexSymbolFactory;
@@ -91,6 +92,18 @@ public class Main {
         endTime = System.nanoTime();
         System.out.println("Ensamblador time: " + (endTime - startTime) / 1000000 + "ms");
         guardarFichero("ensamblador.x68", ensamblador.toString(), rutaArchivo);
+
+        // Programa optimizado
+        startTime = System.nanoTime();
+        Optimizador optimizador = new Optimizador(intermedio);
+        Intermedio intermedioMejorado = optimizador.optimizarIntermedio();
+        endTime = System.nanoTime();
+        System.out.println("Optimizador time: " + (endTime - startTime) / 1000000 + "ms");
+        guardarFichero("intermedioMejorado.txt", intermedioMejorado.toString(), rutaArchivo);
+
+        ensamblador = new Ensamblador(intermedioMejorado, parser.getTSimbolos());
+        ensamblador.generarEnsamblador();
+        guardarFichero("ensambladorMejorado.x68", ensamblador.toString(), rutaArchivo);
 
         sc.close();
 

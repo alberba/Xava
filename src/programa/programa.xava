@@ -26,7 +26,7 @@ funcion ent pow(ent b, ent e) {
     ent resultado := 1;
     ent absE := abs(e);
 
-    mientras(absE > 0) {
+    mientras(absE > 0 o resultado > 0) {
         ## Jorge jijijaja
         /* test
         Jorge multilinea jijijaja

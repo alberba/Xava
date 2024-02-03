@@ -9,9 +9,9 @@ import java.util.Stack;
 public class Intermedio {
 
     // Lista de instrucciones
-    private final ArrayList<Instruccion> codigo;
+    private ArrayList<Instruccion> codigo;
 
-    private final ArrayList<Variable> tv;
+    private ArrayList<Variable> tv;
 
     private final ArrayList<Procedimiento> tp;
     private int nProdActual;
@@ -67,14 +67,14 @@ public class Intermedio {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
             if (tp.isEmpty()) {
-                v = new Variable("t$" + counterTemps, tipo, longitud);
+                v = new Variable("t$" + counterTemps, tipo, longitud, true);
             } else {
-                v = new Variable("t$" + counterTemps, tipo, longitud);
+                v = new Variable("t$" + counterTemps, tipo, longitud, true);
             }
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
-                v = new Variable(id, tipo, longitud);
+                v = new Variable(id, tipo, longitud, false);
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el procedimiento actual de la tabla
                 Procedimiento proc = tp.get(nProdActual);
@@ -100,7 +100,7 @@ public class Intermedio {
 
                 // Llegados a este punto, se puede asumir que la variable no existe, entonces será creada
                 String idFuncion = pproc.peek();
-                v = new Variable(id + "$" + idFuncion, tipo, longitud);
+                v = new Variable(id + "$" + idFuncion, tipo, longitud, false);
                 // Se añade la variable a la lista correspondiente
                 if (esParametro) {
                     proc.addParametro(v);
@@ -261,4 +261,11 @@ public class Intermedio {
         return codigo;
     }
 
+    public void setCodigo(ArrayList<Instruccion> codigo) {
+        this.codigo = codigo;
+    }
+
+    public void setTv(ArrayList<Variable> tv) {
+        this.tv = tv;
+    }
 }
