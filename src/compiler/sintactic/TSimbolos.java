@@ -5,7 +5,6 @@ import compiler.sintactic.Symbols.EnumType;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@SuppressWarnings("BooleanMethodIsAlwaysInverted")
 public class TSimbolos {
     private final ArrayList<ArrayList<Symbol>> tsimbolos;
     private int nActual;
@@ -26,10 +25,12 @@ public class TSimbolos {
         this.tsimbolos.add(new ArrayList<>());
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean ponerSymbol(Symbol symbol) {
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
         // Solo accederá en el ámbito global
         if (symbol.getTipoElemento() == TipoElemento.FUNCION) {
+
             for (Symbol s : tsimbolos.get(0)) {
                 if (s.equals(symbol)) {
                     return false;
@@ -40,8 +41,10 @@ public class TSimbolos {
                     indiceDeclFunciones = tsimbolos.get(0).size();
                 }
             }
+
             // Se añade la función al ámbito global
             tsimbolos.get(0).add(symbol);
+
         } else {
             // Se comprueba que el símbolo no esté ya en el ámbito actual
             for (Symbol s : tsimbolos.get(nActual)) {
@@ -49,20 +52,25 @@ public class TSimbolos {
                     return false;
                 }
             }
+
             // Se comprueba que el símbolo no esté en el ámbito global
             for (Symbol s : tsimbolos.get(0)) {
                 if (s.equals(symbol)) {
                     return false;
                 }
             }
+
             this.tsimbolos.get(nActual).add(symbol);
+
         }
+
         return true;
     }
 
 
     // Busca el símbolo a partir de su id en el ámbito indicado
     public Symbol busquedaSymbolAmbito(int ambito, String id) {
+
         if (ambito != 0) { // Se mira si el nivel es el global
             // Se verifica que el nivel tenga símbolos
             if (this.tsimbolos.isEmpty()) {
@@ -118,8 +126,6 @@ public class TSimbolos {
     }
 
     public ArrayList<Symbol> getParametros(String idFunc) {
-
-        ArrayList<Symbol> globales = tsimbolos.get(0);
         int ambitoFuncion = getAmbitoFuncion(idFunc);
 
         // Si no se ha encontrado la función, se devuelve null
@@ -138,7 +144,7 @@ public class TSimbolos {
 
     /**
      * Método utilizado para obtener el número de parámetros de una función
-     * @param idFunc
+     * @param idFunc id de la función
      * @return Número de parámetros de la función
      */
     public int getNumParametros(String idFunc) {
@@ -157,6 +163,7 @@ public class TSimbolos {
      * @return n del ambito de la función
      */
     private int getAmbitoFuncion(String idFunc) {
+
         if (Objects.equals(idFunc, "main")) {
             return tsimbolos.size() - 1;
         }

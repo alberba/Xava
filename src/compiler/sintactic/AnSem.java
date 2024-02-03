@@ -128,7 +128,6 @@ public class AnSem {
      *
      * @param eType Tipo de la variable
      * @param exp Expresión de la derecha de la asignación
-     * @return true si la asignación se realiza correctamente, false en caso contrario
      */
     public void gestAsig(EnumType eType, Exp exp) {
         EnumType eType2 = gestExp(exp);
@@ -171,8 +170,6 @@ public class AnSem {
             ErrorC.añadirError(new ErrorC("No se puede poner un DEVOLVER en una función de tipo vacío", retProc.getLinea(), Fase.SEMÁNTICO));
         } else {
             EnumType typeReturn = gestExp(retProc.getE());
-            System.out.println(typeFunc);
-            System.out.println(typeReturn);
             if (typeReturn != typeFunc) {
                 ErrorC.añadirError(new ErrorC("El tipo de devolución no coincide con el tipo de la función", retProc.getLinea(), Fase.SEMÁNTICO));
             }
@@ -231,13 +228,15 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba si la expresión es del tipo Entero o no
-     * @param args_call
-     * @param id
+     * Función que verifica si la función existe y si los argumentos que se le pasan son correctos
+     * @param args_call Argumentos de la llamada a la función
+     * @param id ID de la función
      */
     public void gestArgsCall(String id, Args_Call args_call) {
+
         Symbol symbol = ts.getFuncion(id);
-        if (symbol == null) { // No sé si se tiene que checkear acá
+
+        if (symbol == null) {
             ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
         } else {
             // Se comprueba que el tipo de los parámetros sea el correcto para cada uno de los argumentos
