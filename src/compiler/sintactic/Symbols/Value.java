@@ -8,6 +8,7 @@ import compiler.Intermedio.Variable;
 public class Value extends SimboloBase {
     private String value;
     private String tipo;
+    private Val_Bol val_bol;
     private Call_fn call_fn;
     private Entrada entrada;
     private Exp exp;
@@ -29,6 +30,12 @@ public class Value extends SimboloBase {
         super(linea,columna);
         this.tipo = "Call_fn";
         this.call_fn = call_fn;
+    }
+
+    public Value(Val_Bol val_bol, int linea, int columna) {
+        super(linea,columna);
+        this.tipo = "Bol";
+        this.val_bol = val_bol;
     }
 
     public Value(Entrada entrada, int linea, int columna) {
@@ -53,16 +60,8 @@ public class Value extends SimboloBase {
         return value;
     }
 
-    public void setValue(String value) {
-        this.value = value;
-    }
-
     public Exp getExp() {
         return exp;
-    }
-
-    public void setExp(Exp exp) {
-        this.exp = exp;
     }
 
     public String getTipo() {
@@ -77,24 +76,12 @@ public class Value extends SimboloBase {
         return call_fn;
     }
 
-    public void setCall_fn(Call_fn call_fn) {
-        this.call_fn = call_fn;
-    }
-
     public Entrada getEntrada() {
         return entrada;
     }
 
-    public void setEntrada(Entrada entrada) {
-        this.entrada = entrada;
-    }
-
     public ArrayG getArrayG() {
         return arrayG;
-    }
-
-    public void setArrayG(ArrayG arrayG) {
-        this.arrayG = arrayG;
     }
 
     /**
@@ -121,16 +108,15 @@ public class Value extends SimboloBase {
                     // Guardamos el valor carácter en una variable temporal
                     v = intermedio.añadirVariable(null, EnumType.CARACTER, null);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, value, null, v.getId()));
-                case "Bol":
-                    // Guardamos el valor booleano en una variable temporal
-                    v = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
-                    if (value.equals("verdadero")) {
-                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, v.getId()));
-                    } else {
-                        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, v.getId()));
-                    }
-
-                    break;
+            }
+        }
+        if(val_bol != null) {
+            // Guardamos el valor booleano en una variable temporal
+            Variable v = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
+            if (val_bol == Val_Bol.VERDADERO) {
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, v.getId()));
+            } else {
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, v.getId()));
             }
         }
         if(arrayG != null) {
@@ -140,7 +126,6 @@ public class Value extends SimboloBase {
         }
         if(call_fn != null) {
             // Llamada a un subprograma
-            Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
             call_fn.generarIntermedio(intermedio, true);
         }
         if(entrada != null) {

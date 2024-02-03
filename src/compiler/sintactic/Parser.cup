@@ -14,6 +14,7 @@ import compiler.sintactic.Symbol;
 import compiler.sintactic.Symbols.L_array;
 import compiler.ErrorC;
 import java.util.List;
+import java.util.ArrayList;
 
 class Parser;
 parser code {:
@@ -47,7 +48,7 @@ parser code {:
 
     private String showExpectedTokenIds() {
         List<String> list = this.expected_token_ids().stream().map(this::symbl_name_from_id).toList();
-        return (list.size() > 0) ? list.toString() : "something else";
+        return (!list.isEmpty()) ? list.toString() : "something else";
     }
 
     private int getDimensionesArray(L_array list_array) {
@@ -58,16 +59,25 @@ parser code {:
         return dimensiones;
     }
 
+
+    /**
+     * Ignore fatal errors
+     *
+     * @param message
+     * @param info
+     */
+    @Override
+    public void report_fatal_error(String message, Object info) {}
+
 :}
 
-terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CARACTER, CONST,
+terminal        SI, SINO, SINOSI, PARA, MIENTRAS, HACER, ROMPER, ENTERO, BOOLEANO, CARACTER, CONST, VERDADERO, FALSO,
                 FUNCION, DEVUELVE, CONTINUAR, IMPRIMIR, LEERENT, LEERCAR, LEERBOOL, PRINCIPAL, SUMA, RESTA,
                 MULT, DIV, MOD, Y, O, IGUAL, IGUALNT, MAQ, MEQ, MAI, MEI, ASIG, PAR_A, PAR_C, LLAVE_A,
                 LLAVE_C, CORCHETE_A, CORCHETE_C, COMA, P_COMA, VACIO, NO;
 
 terminal        String          DIGITO;
 terminal        String          ID;
-terminal        String          VAL_BOL;
 terminal        String          VAL_LETRA;
 
 non terminal                    M;
@@ -105,6 +115,7 @@ non terminal    Exp             E;
 non terminal    Entrada         ENTRADA;
 non terminal    Op              OP;
 non terminal    Value           VALUE;
+non terminal    Val_Bol         VAL_BOL;
 non terminal    ArrayG          ARRAY;
 non terminal    L_array         L_ARR;
 
@@ -135,7 +146,7 @@ DECLSF          ::= DECLF:declf DECLSF:declsf                                   
                 ;
 
 DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
-                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true, 0, idleft))) {
+                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
                             ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -157,7 +168,7 @@ ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C
                 ;
 
 L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
-                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -166,7 +177,7 @@ L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
                     :}
                 |   STYPE:stype ID:id
                     {:
-                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, 0, idleft))) {
+                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, idleft))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -250,7 +261,7 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                             }
                         }
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
-                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), 0, lidleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), lidleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable declarada previamente", aux.getLinea(), Fase.SEMÁNTICO));
@@ -262,22 +273,23 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                 |   TYPE:type L_DIM:l_dim ID:id P_COMA
                     {:
                         if (!type.getConstante()) {
-                            int nDimensiones = 0;
+                            // Se pasan las dimensiones a ArrayList
+                            ArrayList<Integer> dimensiones = new ArrayList<>();
                             for (L_Dim aux = l_dim; aux != null; aux = aux.getL_dim()) {
-                                nDimensiones++;
+                                dimensiones.add(aux.getNum());
                             }
 
-                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), null, false, nDimensiones, idleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), dimensiones, false, idleft))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                             }
-                            RESULT = new Decl(type, id, l_dim, typeleft, typeright);
                         } else {
                             // MANEJO DE ERRORES SEMANTICOS
                             // No se puede declarar un array de tipo constante
                             ErrorC.añadirError(new ErrorC("Un array no puede ser constante", typeleft, Fase.SEMÁNTICO));
                         }
+                        RESULT = new Decl(type, id, l_dim, typeleft, typeright);
                     :}
                 ;
 
@@ -306,16 +318,19 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         RESULT = new Inst("cond", exp, c_sents, null, null, cont_cond, null, expleft, expright);
                     :}
 
-                |   PARA PAR_A DECL:decl_cap P_COMA E:exp P_COMA INST:inst PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C
+                |   PARA PAR_A DECL:decl_cap E:exp P_COMA INST:inst PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C
                     {:
-                        int n = 0;
-                        for (Lid aux = decl_cap.getLid(); aux != null; aux = aux.getLid()) {
-                            n++;
-                            if (n > 1) {
+                        if (decl_cap.getLid() != null) {
+                            if (decl_cap.getLid().getLid() != null) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // Solo se puede declarar una variable en el para
-                                ErrorC.añadirError(new ErrorC("Solo se puede declarar una variable en el para", aux.getLinea(), Fase.SEMÁNTICO));
+                                ErrorC.añadirError(new ErrorC("Solo se puede declarar una variable en el para", decl_cap.getLinea(), Fase.SEMÁNTICO));
                             }
+                        }
+                        if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La expresión de condición de salida tiene que dar como resultado un valor booleano
+                            ErrorC.añadirError(new ErrorC("La condición de salida tiene que ser booleana", decl_cap.getLinea(), Fase.SEMÁNTICO));
                         }
                         if (inst.getType() != "asig") {
                             // MANEJO DE ERRORES SEMANTICOS
@@ -350,7 +365,7 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         RESULT = new Inst("asig", array.getId(), array, exp, arrayleft, arrayright);
                     :}
                 |   IMPRIMIR PAR_A E:exp PAR_C P_COMA                                               {: RESULT = new Inst("impr", null, null, exp, expleft, expright);                     :}
-                |   CALL_FN:call_fn
+                |   CALL_FN:call_fn P_COMA
                     {:
                         Symbol symbol = tSimbolos.getSymbol(call_fn.getId());
                         if (symbol.getTipoReturn() != EnumType.VACIO) {
@@ -467,13 +482,17 @@ VALUE           ::= DIGITO:num                                                  
                 |   ID:id                                                                           {: RESULT = new Value(id, "Id", idleft, idright);                               :}
                 |   ARRAY:array
                 {:
-                    ansem.gestArray(array.getId(), array.getDimension(), arrayleft);
+                    ansem.gestArray(array, arrayleft);
                     RESULT = new Value(array, arrayleft, arrayright);
                 :}
-            |   VAL_LETRA:val_letra                                                                 {: RESULT = new Value(val_letra, "Car", val_letraleft, val_letraright);         :}
-                |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, "Bol", val_bolleft, val_bolright);               :}
+                |   VAL_LETRA:val_letra                                                             {: RESULT = new Value(val_letra, "Car", val_letraleft, val_letraright);         :}
+                |   VAL_BOL:val_bol                                                                 {: RESULT = new Value(val_bol, val_bolleft, val_bolright);                      :}
                 |   PAR_A E:exp PAR_C                                                               {: RESULT = new Value(exp, expleft, expright);                                  :}
                 |   ENTRADA:entrada                                                                 {: RESULT = new Value(entrada, entradaleft, entradaright);                      :}
+                ;
+
+VAL_BOL         ::= VERDADERO                                                                       {: RESULT = Val_Bol.VERDADERO;                                                              :}
+                |   FALSO                                                                           {: RESULT = Val_Bol.FALSO;                                                             :}
                 ;
 
 ARRAY           ::= L_ARR:list_arr ID:id
@@ -505,25 +524,30 @@ L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C L_ARR:list_array
 
 CALL_FN         ::= ID:id ARGS_CALL:args_call
                 {:
-                    if (args_call != null) { // Caso con argumentos
-                        // Se verifica que el número coincida
-                        if (args_call.getNumArgs() != tSimbolos.getNumParametros(id)) {
-                            // MANEJO DE ERRORES SEMANTICOS
-                            // El número de argumentos no coincide
-                            ErrorC.añadirError(new ErrorC("El número de argumentos no coincide con el esperado en la función", args_call.getLinea(), Fase.SEMÁNTICO));
-                        } else {
-                            // Se verifica que el tipo de los argumentos coincida
-                            ansem.gestArgsCall(id, args_call);
-                        }
-                    } else { // Caso sin argumentos
-                        // Se verifica que no tenga que haber argumentos
-                        if (tSimbolos.getNumParametros(id) != 0) {
-                            // MANEJO DE ERRORES SEMANTICOS
-                            // El número de argumentos no coincide
-                            ErrorC.añadirError(new ErrorC("Se esperan argumentos en la función", idleft, Fase.SEMÁNTICO));
+                    if (tSimbolos.getFuncion(id) == null) {
+                        ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
+                    } else {
+                        // No tiene sentido validar los parámetros de una función que no existe
+                        if (args_call != null) { // Caso con argumentos
+                            // Se verifica que el número coincida
+                            if (args_call.getNumArgs() != tSimbolos.getNumParametros(id)) {
+                                // MANEJO DE ERRORES SEMANTICOS
+                                // El número de argumentos no coincide
+                                ErrorC.añadirError(new ErrorC("El número de argumentos no coincide con el esperado en la función", args_call.getLinea(), Fase.SEMÁNTICO));
+                            } else {
+                                // Se verifica que el tipo de los argumentos coincida
+                                ansem.gestArgsCall(id, args_call);
+                            }
+                        } else { // Caso sin argumentos
+                            // Se verifica que no tenga que haber argumentos
+                            if (tSimbolos.getNumParametros(id) != 0) {
+                                // MANEJO DE ERRORES SEMANTICOS
+                                // El número de argumentos no coincide
+                                ErrorC.añadirError(new ErrorC("Se esperan argumentos en la función", idleft, Fase.SEMÁNTICO));
+                            }
                         }
                     }
-                    RESULT = new Call_fn(id, null, idleft, idright);
+                    RESULT = new Call_fn(id, args_call, idleft, idright);
                 :}
                 ;
 

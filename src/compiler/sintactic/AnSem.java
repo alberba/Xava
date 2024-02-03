@@ -91,7 +91,7 @@ public class AnSem {
                     return s.getTipoReturn();
                 }
             case "Arr":
-                Symbol sArr = ts.getSymbol(value.getValue());
+                Symbol sArr = ts.getSymbol(value.getArrayG().getId());
                 if (sArr == null) {
                     ErrorC.añadirError(new ErrorC("El array no existe", value.getLinea(), Fase.SEMÁNTICO));
                     return null;
@@ -144,18 +144,28 @@ public class AnSem {
      * Función que comprueba, en caso de que sea un array, si existe el simbolo y si tiene las mismas dimensiones
      * que la declaración.
      *
-     * @param id ID del array
-     * @param nDimensiones cuantas dimensiones tiene el array
      * @param linea Linea del código donde se encuentra el array
      */
-    public void gestArray(String id, int nDimensiones, int linea) {
-        Symbol symbol = ts.getSymbol(id);
+    public void gestArray(ArrayG array, int linea) {
+        Symbol symbol = ts.getSymbol(array.getId());
 
         if (symbol == null) {
             ErrorC.añadirError(new ErrorC("El array no existe", linea, Fase.SEMÁNTICO));
         } else {
-            if (symbol.getDimension() != nDimensiones) {
+            if (symbol.getNDimensiones() != array.getDimension()) {
                 ErrorC.añadirError(new ErrorC("La variable no tiene esas dimensiones", linea, Fase.SEMÁNTICO));
+            } else {
+                int i = 0;
+                for (L_array l_arr = array.getlArray(); l_arr != null; l_arr = l_arr.getlArray()) {
+                    // Si una de las indexaciones se realiza con un literal
+                    if (l_arr.getExp().getValue().getTipo().equals("Ent")) {
+                        // Podemos comprobar en tiempo de compilación si es correcto
+                        if (Integer.parseInt(l_arr.getExp().getValue().getValue()) >= symbol.getDimensiones().get(i)) {
+                            ErrorC.añadirError(new ErrorC("El índice del array se encuentra fuera del rango de elementos", l_arr.getExp().getLinea(), Fase.SEMÁNTICO));
+                        }
+                    }
+                    i++;
+                }
             }
         }
     }
@@ -182,11 +192,17 @@ public class AnSem {
      * @param fsents conjunto de sentencias de la función
      */
     public void isReturn(FSents fsents) {
-        if (fsents.getRetProc() == null && ts.getTypeFuncionActual() != EnumType.VACIO) {
-            ErrorC.añadirError(new ErrorC("Se debe poner un DEVOLVER al final de la función", fsents.getLinea(), Fase.SEMÁNTICO));
-        } else {
-            // Comprobará que el return esté bien hecho
-            gestReturnFunc(fsents.getRetProc());
+        if (fsents.getRetProc() == null) { // Caso sin devuelve
+             if (ts.getTypeFuncionActual() != EnumType.VACIO) { // Tiene que ser vacío
+                 ErrorC.añadirError(new ErrorC("Se debe poner un DEVOLVER al final de la función", fsents.getLinea(), Fase.SEMÁNTICO));
+             }
+        } else { // Caso con devuelve
+            if (ts.getTypeFuncionActual() != EnumType.VACIO) { // Tiene que no ser vacío
+                // Comprobará que el return esté bien hecho
+                gestReturnFunc(fsents.getRetProc());
+            } else {
+                ErrorC.añadirError(new ErrorC("No se puede poner un DEVOLVER en una función de tipo vacío", fsents.getRetProc().getLinea(), Fase.SEMÁNTICO));
+            }
         }
 
     }
@@ -200,17 +216,19 @@ public class AnSem {
      */
     public boolean existeFuncion(Cap cap) {
         Symbol symbol = ts.getFuncion(cap.getId());
+        // Se verifica la existencia de la función
         if (symbol == null) {
             ErrorC.añadirError(new ErrorC("La función no existe", cap.getLinea(), Fase.SEMÁNTICO));
             return false;
         } else {
+            // Se verifica coincidencia también en cada uno de los parámetros
             ArrayList<Symbol> parametros = ts.getParametros(cap.getId());
             for (L_args_Cap l_args_cap = cap.getArgs_cap().getL_args_cap(); l_args_cap != null; l_args_cap = l_args_cap.getL_args_cap()) {
-                if (ts.getSymbol(l_args_cap.getId()).equals(parametros.get(0))) {
+                if (!ts.getSymbol(l_args_cap.getId()).equals(parametros.get(parametros.size() - 1))) {
                     ErrorC.añadirError(new ErrorC("El parámetro " + l_args_cap.getId() + " no existe", l_args_cap.getLinea(), Fase.SEMÁNTICO));
                     return false;
                 }
-                parametros.remove(0);
+                parametros.remove(parametros.size() - 1);
             }
             return true;
         }
@@ -233,29 +251,23 @@ public class AnSem {
      * @param id ID de la función
      */
     public void gestArgsCall(String id, Args_Call args_call) {
+        // Se comprueba que el tipo de los parámetros sea el correcto para cada uno de los argumentos
+        L_args_Call aux = args_call.getL_args_call();
+        ArrayList<Symbol> parametros = ts.getParametros(id);
+        boolean error = false;
 
-        Symbol symbol = ts.getFuncion(id);
-
-        if (symbol == null) {
-            ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
-        } else {
-            // Se comprueba que el tipo de los parámetros sea el correcto para cada uno de los argumentos
-            L_args_Call aux = args_call.getL_args_call();
-            ArrayList<Symbol> parametros = ts.getParametros(id);
-            boolean error = false;
-
-            for (int i = ts.getNumParametros(id) - 1; i >= 0; i--) { // Por algún motivo parece que se guardan al revés los parámetros
-                if (gestValue(aux.getValue()) != parametros.get(i).getTipoReturn()) {
-                    error = true;
-                }
-                // Siguiente argumento
-                aux = aux.getL_args_call();
+        for (int i = ts.getNumParametros(id) - 1; i >= 0; i--) { // Por algún motivo parece que se guardan al revés los parámetros
+            if (gestValue(aux.getValue()) != parametros.get(i).getTipoReturn()) {
+                error = true;
             }
-
-            if (error) { // Se hace de esta forma para no poner un error por cada parámetro incorrecto
-                ErrorC.añadirError(new ErrorC("El tipo de alguno de los parámetros no coincide con el tipo de la función", args_call.getLinea(), Fase.SEMÁNTICO));
-            }
+            // Siguiente argumento
+            aux = aux.getL_args_call();
         }
+
+        if (error) { // Se hace de esta forma para no poner un error por cada parámetro incorrecto
+            ErrorC.añadirError(new ErrorC("El tipo de alguno de los parámetros no coincide con el tipo de la función", args_call.getLinea(), Fase.SEMÁNTICO));
+        }
+
     }
 
 }

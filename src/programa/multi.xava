@@ -1,0 +1,32 @@
+funcion vacio imprimirLetra(ent num);
+
+principal {
+    ent[3][3] matriz;
+
+    para (ent i := 0; i < 3; i := i + 1;) {
+        para (ent j := 0; j < 3; j := j + 1;) {
+            si (i = j) {
+                [i][j] matriz := 1;
+            } sino {
+                [i][j] matriz := 0;
+            }
+        }
+    }
+
+    para (ent x := 0; x < 3; x := x + 1;) {
+        para (ent k := 0; k < 3; k := k + 1;) {
+            imprimir([x][k] matriz);
+            imprimirLetra([x][k] matriz);
+        }
+    }
+
+
+}
+
+funcion vacio imprimirLetra(ent num) {
+    si (num = 1) {
+        imprimir("a");
+    } sino {
+        imprimir("b");
+    }
+}

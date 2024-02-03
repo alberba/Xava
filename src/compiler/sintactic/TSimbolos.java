@@ -38,7 +38,7 @@ public class TSimbolos {
                 // Al encontrar la primera función, se marca que hay funciones y se guarda el índice
                 if (!hayFunciones) {
                     hayFunciones = true;
-                    indiceDeclFunciones = tsimbolos.get(0).size();
+                    indiceDeclFunciones = tsimbolos.get(0).size() - 1;
                 }
             }
 
@@ -67,8 +67,11 @@ public class TSimbolos {
         return true;
     }
 
-
-    // Busca el símbolo a partir de su id en el ámbito indicado
+    /**
+     * Busca el símbolo a partir de su id en el ámbito indicado
+     * @param id id del símbolo
+     * @return Símbolo si se encuentra, null si no
+     */
     public Symbol busquedaSymbolAmbito(int ambito, String id) {
 
         if (ambito != 0) { // Se mira si el nivel es el global
@@ -88,6 +91,31 @@ public class TSimbolos {
         for (Symbol simbolo: this.tsimbolos.get(0)) {
             if (simbolo.getName().equals(id)) {
                 return simbolo;
+            }
+        }
+
+        // Si no se ha encontrado, se devuelve null
+        return null;
+    }
+
+    /**
+     * Utilizado en ensamblador, busca el símbolo en toda la ts
+     * @param id id del símbolo
+     * @return Símbolo si se encuentra, null si no
+     */
+    public Symbol busquedaSymbolEnsamblador(String id) {
+        // Se verifica que haya símbolos
+        if (this.tsimbolos.isEmpty()) {
+            return null;
+        }
+
+        // Se recorren los ámbitos
+        for (ArrayList<Symbol> ambito : this.tsimbolos) {
+            // Se recorre el ámbito en busca del símbolo
+            for (Symbol simbolo : ambito) {
+                if (simbolo.getName().equals(id)) {
+                    return simbolo;
+                }
             }
         }
 

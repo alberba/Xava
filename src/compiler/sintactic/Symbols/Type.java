@@ -1,6 +1,5 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.Intermedio;
 public class Type extends SimboloBase {
 
     private boolean constante;
@@ -16,18 +15,8 @@ public class Type extends SimboloBase {
         return constante;
     }
 
-    public void setConstante(boolean constante) {
-        this.constante = constante;
-    }
-
     public EnumType getStype() {
         return stype;
     }
 
-    public void setStype(EnumType stype) {
-        this.stype = stype;
-    }
-
-    public void generarIntermedio(Intermedio intermedio) {
-    }
 }

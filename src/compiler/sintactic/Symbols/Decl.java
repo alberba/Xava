@@ -29,7 +29,6 @@ public class Decl extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-        type.generarIntermedio(intermedio);
 
         if (lid != null) {
             ArrayList<Variable> varLids = new ArrayList<>();

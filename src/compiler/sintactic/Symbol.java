@@ -8,36 +8,31 @@ public class Symbol {
     private final String nom;
     private final TipoElemento tipo;
     private final EnumType tipoReturn;
-    private ArrayList<Symbol> content;
+    private final ArrayList<Integer> dimensiones;
     private final boolean esConst;
-    private final int dimension;
-    private int line;
+    private final int line;
 
     public Symbol(String nom, TipoElemento tipo, EnumType tipoReturn,
-                  ArrayList<Symbol> content, boolean esConst, int dimension, int line) {
+                  ArrayList<Integer> dimensiones, boolean esConst, int line) {
         this.nom = nom;
         this.tipo = tipo;
         this.tipoReturn = tipoReturn;
-        this.content = content;
+        this.dimensiones = dimensiones;
         this.esConst = esConst;
-        this.dimension = dimension;
         this.line = line;
     }
 
-    public String getNom() {
-        return nom;
-    }
 
     public boolean isEsConst() {
         return esConst;
     }
 
-    public int getDimension() {
-        return dimension;
+    public ArrayList<Integer> getDimensiones() {
+        return dimensiones;
     }
 
-    public int getNumElementos() {
-        return content.size();
+    public int getNDimensiones() {
+        return dimensiones.size();
     }
 
     public String getName() {
@@ -52,26 +47,12 @@ public class Symbol {
         return tipoReturn;
     }
 
-    public ArrayList<Symbol> getContent() {
-        return content;
-    }
-
-    public void setContent(ArrayList<Symbol> content) {
-        this.content = content;
-    }
-
     public boolean isConstant() {
         return esConst;
     }
 
-    public int getLine() {
-        return line;
-    }
 
-    public void setLine(int line) {
-        this.line = line;
-    }
-
+    @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override
     public boolean equals(Object obj) {
         return this.getName().equals(((Symbol) obj).getName());
@@ -80,7 +61,7 @@ public class Symbol {
     @Override
     public String toString() {
         return "Symbol [nom=" + nom + ", tipo=" + tipo + ", tipoReturn="
-                + tipoReturn + ", content=" + content + ", esConst=" + esConst
+                + tipoReturn + ", dimensiones=" + dimensiones + ", esConst=" + esConst
                 + ", line=" + line + "]";
     }
 

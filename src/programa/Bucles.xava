@@ -10,10 +10,10 @@ principal{
 
 funcion ent dowhile(ent contador){
     ent a := contador;
-    ent result := contador;
+    ent result := 0;
 
     hacer{
-        result := contador + result;
+        result := a + result;
         a:= a - 1;
     }mientras(a != 0);
 
@@ -21,9 +21,9 @@ funcion ent dowhile(ent contador){
 }
 
 funcion ent for(ent contador){
-    ent result := contador;
-    para(ent a = 0; a < contador; a = a + 1){
-        result := contador + result;
+    ent result := 0;
+    para (ent a := 0; a <= contador; a := a + 1;) {
+        result := a + result;
     }
     devuelve result;
 }

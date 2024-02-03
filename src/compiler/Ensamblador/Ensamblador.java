@@ -50,8 +50,11 @@ public class Ensamblador {
 
         for (Variable var: intermedio.getTv()) {
             // Si es una variable temporal se declara al empezar
-            Symbol symbol = ts.getSymbol(var.getId());
-            if (symbol != null) {
+            String [] id = var.getId().split("\\$");
+            if (id[0].startsWith("t") && esNum(id[1])) {
+                codigo.add(var.getId() + "\t\tDS.W\t1");
+            } else {
+                Symbol symbol = ts.busquedaSymbolEnsamblador(id[0]);
                 if (symbol.isConstant()) { // Constantes
                     codigo.add(var.getId() + "\t\tEQU\t" + var);
                 } else {
@@ -61,9 +64,6 @@ public class Ensamblador {
                         codigo.add(var.getId() + "\t\tDS.W\t1");
                     }
                 }
-            } else {
-                // Es temporal
-                codigo.add(var.getId() + "\t\tDS.W\t1");
             }
         }
 

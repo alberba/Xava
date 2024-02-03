@@ -1,20 +1,20 @@
-funcion entero suma(ent a, ent b);
+funcion ent suma(ent a, ent b);
 
 principal {
     ent res := 0;
     ent [2] valores;
-    valores[0] := 0;
-    valores[1] := 1;
+    [0] valores := 0;
+    [1] valores := 1;
 
     ## ERROR: Funcion no declarada
-    res = suma_2(valores[0], 5);
+    res := suma_2([0] valores, 5);
     imprimir(res);
 
     ## ERROR: Índice fuera de rango
-    res = suma(valores[2], 5);
+    res := suma([2] valores, 5);
     imprimir(res);
 }
 
-funcion entero suma(ent a, ent b) {
+funcion ent suma(ent a, ent b) {
     devuelve a + b;
 }

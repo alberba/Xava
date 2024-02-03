@@ -438,7 +438,7 @@ public class Scanner implements java_cup.runtime.Scanner {
 
     private ComplexSymbol symbol(int type) {
         Location l = new Location(yyline+1, yycolumn+1, yyline+1); // primera posición del token
-        Location r = new Location(yyline+1, yycolumn+1+yylength(), yyline+1); // ultima posición del token
+        Location r = new Location(yyline+1, yycolumn+1+yylength(), yycolumn+1); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r);
         tokens.add(c);
         return c;
@@ -449,7 +449,7 @@ public class Scanner implements java_cup.runtime.Scanner {
     **/
     private ComplexSymbol symbol(int type, Object value){
         Location l = new Location(yyline+1, yycolumn+1, yyline+1); // primera posición del token
-        Location r = new Location(yyline+1, yycolumn+1+yylength(), yyline+1); // ultima posición del token
+        Location r = new Location(yyline+1, yycolumn+1+yylength(), yycolumn+1); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r, value);
         tokens.add(c);
         return c;
@@ -1050,7 +1050,7 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 89: break;
           case 38:
-            { return symbol(ParserSym.VAL_BOL, "falso");
+            { return symbol(ParserSym.FALSO);
             }
             // fall through
           case 90: break;
@@ -1115,7 +1115,7 @@ public class Scanner implements java_cup.runtime.Scanner {
             // fall through
           case 102: break;
           case 51:
-            { return symbol(ParserSym.VAL_BOL, "verdadero");
+            { return symbol(ParserSym.VERDADERO);
             }
             // fall through
           case 103: break;

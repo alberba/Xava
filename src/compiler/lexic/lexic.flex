@@ -114,7 +114,7 @@ ERROR = [^]
     **/
     private ComplexSymbol symbol(int type, Object value){
         Location l = new Location(yyline+1, yycolumn+1, yyline+1); // primera posición del token
-        Location r = new Location(yyline+1, yycolumn+1+yylength(), yyline+1); // ultima posición del token
+        Location r = new Location(yyline+1, yycolumn+1+yylength(), yycolumn+1); // ultima posición del token
         ComplexSymbol c = new ComplexSymbol(ParserSym.terminalNames[type], type, l, r, value);
         tokens.add(c);
         return c;
@@ -124,8 +124,8 @@ ERROR = [^]
 %%
 
 {PRINCIPAL}     { return symbol(ParserSym.PRINCIPAL);               }
-{VERDADERO}     { return symbol(ParserSym.VAL_BOL, "verdadero");    }
-{FALSO}         { return symbol(ParserSym.VAL_BOL, "falso");        }
+{VERDADERO}     { return symbol(ParserSym.VERDADERO);               }
+{FALSO}         { return symbol(ParserSym.FALSO);                   }
 {VACIO}         { return symbol(ParserSym.VACIO);                   }
 {DIGITO}        { return symbol(ParserSym.DIGITO, this.yytext());   }
 {VAL_LETRA}     { return symbol(ParserSym.VAL_LETRA, this.yytext());}

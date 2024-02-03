@@ -13,7 +13,6 @@ import java.io.BufferedWriter;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 
@@ -36,7 +35,8 @@ public class Main {
             programa = new FileReader(rutaArchivo);
         } catch (Exception e) {
             System.out.println(rutaArchivo);
-            System.out.println(e.toString());
+            //noinspection ThrowablePrintedToSystemOut
+            System.out.println(e);
             System.out.println("Error al abrir el archivo");
             System.exit(1);
         }
@@ -132,7 +132,7 @@ public class Main {
             }
             archivo.close();
         } catch (Exception e) {
-            System.out.println(e.toString());
+            System.out.println(e);
             System.out.println("Error al guardar el archivo de los tokens");
             System.exit(1);
         }

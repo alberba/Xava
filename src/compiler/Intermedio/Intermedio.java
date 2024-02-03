@@ -78,11 +78,8 @@ public class Intermedio {
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el procedimiento actual de la tabla
                 Procedimiento proc = tp.get(nProdActual);
-                System.out.println("id:" + id);
-                System.out.println("nProdActual:" + nProdActual);
                 // Se guardan las cantidades para recorrer los arrays posteriormente
                 int nParams = proc.getNumParametros();
-                System.out.println("nParams:" + nParams);
                 int nVars = nParams + proc.getNumDeclaraciones();
 
                 // Se recorren las variables del proceso en busca de coincidencias con el identificador
@@ -90,8 +87,6 @@ public class Intermedio {
                     if (i < nParams) {
                         // Coincidencia en los parámetros
                         if ((id + "$" + proc.getId()).equals(proc.getParametros().get(i).getId())) {
-                            System.out.println(id);
-                            System.out.println(proc.getId());
                             return proc.getParametros().get(i);
                         }
                     } else {
@@ -146,8 +141,7 @@ public class Intermedio {
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();
         int nbytes = 0;
         switch (typeArr) {
-            case CARACTER -> nbytes = 2;
-            case ENTERO -> nbytes = 4;
+            case CARACTER, ENTERO -> nbytes = 2;
             case BOOLEANO -> nbytes = 1;
             default -> {
             }

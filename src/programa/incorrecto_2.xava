@@ -8,13 +8,10 @@ principal{
     [2] arr := 3;
     const ent a := 5;
     ent input := 0;
- 
+
     ## ERROR: no se puede modificar una variable constante
     a := 3;
 
     ## ERROR: no se le puede asignar un valor boleano a una variable numérica
     input := leerBool();
-
-    ## WARNING: División por 0
-    global_integer := global_integer/0;
 }
