@@ -52,20 +52,29 @@ public class Ensamblador {
             // Si es una variable temporal se declara al empezar
             String [] id = var.getId().split("\\$");
             if (id[0].startsWith("t") && esNum(id[1])) {
-                codigo.add(var.getId() + "\t\tDS.W\t1");
+                switch (var.getTipo()) {
+                    case ENTERO, CARACTER -> codigo.add(var.getId() + "\t\tDS.W\t1");
+                    case BOOLEANO -> codigo.add(var.getId() + "\t\tDS.B\t1");
+                }
             } else {
                 Symbol symbol = ts.busquedaSymbolEnsamblador(id[0]);
                 if (symbol.isConstant()) { // Constantes
                     codigo.add(var.getId() + "\t\tEQU\t" + var);
                 } else {
+                    String tipo = "";
+                    switch (symbol.getTipoReturn()) {
+                        case ENTERO, CARACTER -> tipo = "DS.W";
+                        case BOOLEANO -> tipo = "DS.B";
+                    }
                     if (symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
-                        codigo.add(var.getId() + "\t\tDS.W\t" + var.getNumElementos());
+                        codigo.add(var.getId() + "\t\t" + tipo + "\t" + var.getNumElementos());
                     } else { // Variables
-                        codigo.add(var.getId() + "\t\tDS.W\t1");
+                        codigo.add(var.getId() + "\t\t" + tipo + "\t1");
                     }
                 }
             }
         }
+        codigo.add("\t\t\tDS.W\t0");
 
     }
 
@@ -168,8 +177,11 @@ public class Ensamblador {
      */
     private void ensambladorAsig(Instruccion instruccion) {
         String var1 = convertirOperador(instruccion.getOperador1());
-
-        codigo.add("\tMOVE.W\t" + var1 + ", " + instruccion.getDestino());
+        if (intermedio.buscarVariable(instruccion.getDestino()).getTipo() == EnumType.BOOLEANO) {
+            codigo.add("\tMOVE.B\t" + var1 + ", " + instruccion.getDestino());
+        } else {
+            codigo.add("\tMOVE.W\t" + var1 + ", " + instruccion.getDestino());
+        }
     }
 
     /**
@@ -267,44 +279,32 @@ public class Ensamblador {
             case "IGUAL":
                 // Scc hace set si se cumple, clear si no, nos viene perfecto
                 codigo.add("\tSEQ\tD0");   // Set if equal
-                codigo.add("\tEXT.W\tD0"); // No se puede extender de byte a long directamente, se extiende de byte a word
-                codigo.add("\tEXT.L\tD0"); // Y después de word a long
-                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tCMP.B\t#-1, D0");
                 codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "DIFERENTE":
                 codigo.add("\tSNE\tD0");   // Set if NOT equal
-                codigo.add("\tEXT.W\tD0");
-                codigo.add("\tEXT.L\tD0");
-                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tCMP.B\t#-1, D0");
                 codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MENOR":
                 codigo.add("\tSLT\tD0");   // Set if less
-                codigo.add("\tEXT.W\tD0");
-                codigo.add("\tEXT.L\tD0");
-                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tCMP.B\t#-1, D0");
                 codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MENOR_IGUAL":
                 codigo.add("\tSLE\tD0");   // Set if less or equal
-                codigo.add("\tEXT.W\tD0");
-                codigo.add("\tEXT.L\tD0");
-                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tCMP.B\t#-1, D0");
                 codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MAYOR":
                 codigo.add("\tSGT\tD0");   // Set if greater
-                codigo.add("\tEXT.W\tD0");
-                codigo.add("\tEXT.L\tD0");
-                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tCMP.B\t#-1, D0");
                 codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MAYOR_IGUAL":
                 codigo.add("\tSGE\tD0");   // Set if greater or equal
-                codigo.add("\tEXT.W\tD0");
-                codigo.add("\tEXT.L\tD0");
-                codigo.add("\tCMP.W\t#-1, D0");
+                codigo.add("\tCMP.B\t#-1, D0");
                 codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
         }
@@ -316,9 +316,9 @@ public class Ensamblador {
      * @param instruccion Instrucción a traducir
      */
     private void ensambladorNo(Instruccion instruccion) {
-        codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", D0");
-        codigo.add("\tNOT.W\tD0");
-        codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
+        codigo.add("\tMOVE.B\t" + instruccion.getDestino() + ", D0");
+        codigo.add("\tNOT.B\tD0");
+        codigo.add("\tMOVE.B\tD0, " + instruccion.getDestino());
     }
 
     /**
@@ -359,8 +359,8 @@ public class Ensamblador {
     private void ensambladorSCond(Instruccion instruccion) {
 
         String var1 = convertirOperador(instruccion.getOperador1());
-        codigo.add("\tMOVE.W\t" + var1 + ", D0");
-        codigo.add("\tCMP.W\t#0, D0");
+        codigo.add("\tMOVE.B\t" + var1 + ", D0");
+        codigo.add("\tCMP.B\t#0, D0");
         codigo.add("\tBEQ\t" + instruccion.getDestino());
 
     }
@@ -409,7 +409,12 @@ public class Ensamblador {
 
         // Recuperar los valores de retorno, si es que hay
         if (proc.getTipo() != EnumType.VACIO) {
-            codigo.add("\tMOVE.W\t(A7)+, " + instruccion.getOperador1());
+            codigo.add("\tMOVE.W\t(A7)+, D6"); // Recuperar el valor de retorno
+            if (proc.getTipo() == EnumType.BOOLEANO) {
+                codigo.add("\tMOVE.B\tD6, " + instruccion.getOperador1());
+            } else {
+                codigo.add("\tMOVE.W\tD6, " + instruccion.getOperador1());
+            }
         }
 
         // Recuperamos espacio de la pila descartando los valores ocupados por los parámetros
@@ -426,7 +431,11 @@ public class Ensamblador {
      */
     private void ensambladorImprimir(Instruccion instruccion) {
         EnumType tipo = intermedio.buscarVariable(instruccion.getDestino()).getTipo();
-        codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", D1");
+        if (tipo == EnumType.BOOLEANO) {
+            codigo.add("\tMOVE.B\t" + instruccion.getDestino() + ", D1");
+        } else {
+            codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", D1");
+        }
         // Se llama a la subrutina correspondiente según el tipo de variable
         switch (tipo) {
             case BOOLEANO -> codigo.add("\tJSR IMPRIMIRBOOL");
@@ -461,7 +470,7 @@ public class Ensamblador {
         codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
         codigo.add("\tCLR.L\tD0"); // Limpiar D0
         codigo.add("\tMOVE.W\tD0, A1");
-        codigo.add("\tCMP\t#0, D1"); // Mirar si es verdadero o falso
+        codigo.add("\tCMP.B\t#0, D1"); // Mirar si es verdadero o falso
         codigo.add("\tBEQ\t.ESFALSO");
         codigo.add("\tLEA\t.VERDADERO, A1"); // Guardar contenido a imprimir
         codigo.add("\tBRA\t.IMPRIMIR");
@@ -517,9 +526,9 @@ public class Ensamblador {
         codigo.add("\tCMP.B\t#'F', D1");
         codigo.add("\tBEQ\t.FALSO");
         codigo.add("\tBRA\tLEERBOOL"); // Si no se encuentra un carácter válido, se vuelve a pedir una entrada
-        codigo.add(".VERDADERO\tMOVE.W\t#-1, D1");
+        codigo.add(".VERDADERO\tMOVE.B\t#-1, D1");
         codigo.add("\tBRA\t.FINBOOL");
-        codigo.add(".FALSO\tMOVE.W\t#0, D1");
+        codigo.add(".FALSO\tMOVE.B\t#0, D1");
         codigo.add(".FINBOOl");
         codigo.add("\tRTS");
         codigo.add("*-----------------------------------------------------------");

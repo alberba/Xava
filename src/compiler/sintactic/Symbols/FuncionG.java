@@ -7,8 +7,8 @@ import compiler.Intermedio.Procedimiento;
 
 public class FuncionG extends SimboloBase {
 
-    private Cap cap;
-    private FSents fsents;
+    private final Cap cap;
+    private final FSents fsents;
 
     public FuncionG(Cap cap, FSents fsents, int linea, int columna) {
         super(linea,columna);
@@ -25,6 +25,8 @@ public class FuncionG extends SimboloBase {
         intermedio.addPproc(proc.getId());
         cap.generarIntermedio(intermedio);
         fsents.generarIntermedio(intermedio);
+        if (proc.getTipo() == EnumType.VACIO)
+            intermedio.añadirInstruccion(new Instruccion(OperacionInst.RETORNO, null, null, null));
         intermedio.subPproc();
     }
 
