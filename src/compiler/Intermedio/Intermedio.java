@@ -53,8 +53,7 @@ public class Intermedio {
     }
 
     /**
-     * Añade una variable a la tabla de variables y la devuelve. Antes de añadir la variable, es necesario comprobar
-     * que no exista ya otra variable con el mismo nombre en el mismo ámbito o en el ámbito global.
+     * Añade una variable a la tabla de variables y la devuelve. Si ya existe, la devuelve.
      * @param id Identificador de la variable
      * @param tipo Tipo de la variable
      * @param longitud Longitud de la variable (null si no es un array)
@@ -66,11 +65,7 @@ public class Intermedio {
         if (id == null) {
             counterTemps++;
             // El nombre de las variables temporales será tn, siendo n el número de variable volátil
-            if (tp.isEmpty()) {
-                v = new Variable("t$" + counterTemps, tipo, longitud, true);
-            } else {
-                v = new Variable("t$" + counterTemps, tipo, longitud, true);
-            }
+            v = new Variable("t$" + counterTemps, tipo, longitud, true);
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global

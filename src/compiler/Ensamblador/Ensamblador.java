@@ -13,10 +13,8 @@ import java.util.ArrayList;
 
 public class Ensamblador {
 
-
     Intermedio intermedio;
     TSimbolos ts;
-    ArrayList<Variable> arrays;
     private final ArrayList<String> codigo;
 
     public Ensamblador(Intermedio intermedio, TSimbolos ts) {
@@ -24,7 +22,6 @@ public class Ensamblador {
         this.ts = ts;
         this.intermedio = intermedio;
         codigo = new ArrayList<>();
-        arrays = new ArrayList<>();
 
     }
 
