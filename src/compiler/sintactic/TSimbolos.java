@@ -38,7 +38,7 @@ public class TSimbolos {
                 // Al encontrar la primera función, se marca que hay funciones y se guarda el índice
                 if (!hayFunciones) {
                     hayFunciones = true;
-                    indiceDeclFunciones = tsimbolos.get(0).size() - 1;
+                    indiceDeclFunciones = tsimbolos.get(0).size();
                 }
             }
 

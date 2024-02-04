@@ -13,7 +13,7 @@ public class Intermedio {
 
     private ArrayList<Variable> tv;
 
-    private final ArrayList<Procedimiento> tp;
+    private ArrayList<Procedimiento> tp;
     private int nProdActual;
     private final Stack<String> pproc;
 
@@ -74,7 +74,7 @@ public class Intermedio {
         } else {
             // Si no lo es, primero se observa si se trata de la declaración de una variable global
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
-                v = new Variable(id, tipo, longitud, false);
+                v = new Variable(id + "$0g", tipo, longitud, false);
             } else { // En caso contrario, se busca en el procedimiento actual
                 // Se obtiene el procedimiento actual de la tabla
                 Procedimiento proc = tp.get(nProdActual);
@@ -267,5 +267,13 @@ public class Intermedio {
 
     public void setTv(ArrayList<Variable> tv) {
         this.tv = tv;
+    }
+
+    public ArrayList<Procedimiento> getTp() {
+        return tp;
+    }
+
+    public void setTp(ArrayList<Procedimiento> tp) {
+        this.tp = tp;
     }
 }

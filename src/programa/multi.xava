@@ -1,7 +1,15 @@
+ent a:= 3;
 funcion vacio imprimirLetra(ent num);
 
 principal {
     ent[3][3] matriz;
+    bool bandera := verdadero;
+    ent r := 3 * 4 + 2;
+    si (0 = 0) {
+        imprimir("h");
+    } sino {
+        imprimir("y");
+    }
 
     para (ent i := 0; i < 3; i := i + 1;) {
         para (ent j := 0; j < 3; j := j + 1;) {

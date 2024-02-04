@@ -58,7 +58,7 @@ public class AnSem {
             } else {
                 // El tipo de la expresión será el tipo de los operandos
                 return switch (op) {
-                    case IGUAL, IGUALNT, Y, O, MAI, MEI, MAQ, MEQ -> EnumType.BOOLEANO;
+                    case IGUAL, IGUALNT, Y, O, MAI, MEI, MAQ, MEQ, NO -> EnumType.BOOLEANO;
                     case SUMA, RESTA, MULT, DIV, MOD -> EnumType.ENTERO;
                 };
             }
@@ -131,6 +131,9 @@ public class AnSem {
      */
     public void gestAsig(EnumType eType, Exp exp) {
         EnumType eType2 = gestExp(exp);
+        if (eType2 == null) {
+            return;
+        }
         if (eType != eType2) {
             if (exp.getValue().getCall_fn() != null) {
                 ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getValue().getCall_fn().getLinea(), Fase.SEMÁNTICO));

@@ -2,7 +2,7 @@ package compiler.Intermedio;
 
 public class Instruccion {
 
-    private OperacionInst operacion;
+    private final OperacionInst operacion;
     private String operador1;
     private String operador2;
     private String destino;
@@ -39,6 +39,10 @@ public class Instruccion {
                 return "if " + operador1 + " > " + operador2 + " goto " + destino;
             case MAYOR_IGUAL:
                 return "if " + operador1 + " >= " + operador2 + " goto " + destino;
+            case Y:
+                return "if " + operador1 + " and " + operador2 + " goto " + destino;
+            case O:
+                return "if " + operador1 + " or " + operador2 + " goto " + destino;
             case NO:
                 return "if not " + operador1 + " goto " + destino;
             case ASIG:
@@ -104,5 +108,9 @@ public class Instruccion {
 
     public void setOperador2(String operador2) {
         this.operador2 = operador2;
+    }
+
+    public void setDestino(String destino) {
+        this.destino = destino;
     }
 }

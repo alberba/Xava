@@ -814,8 +814,8 @@ class CUP$Parser$actions {
 		
                         if (ansem.existeFuncion(cap)) {
                             ansem.isReturn(f_sents);
-                            RESULT = new FuncionG(cap, f_sents, capleft, capright);
                         }
+                        RESULT = new FuncionG(cap, f_sents, capleft, capright);
 
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("FUNCIONG",5, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-4)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1297,12 +1297,14 @@ class CUP$Parser$actions {
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
                         Symbol symbol = tSimbolos.getSymbol(id);
-                        if (symbol.isEsConst()) {
-                            // MANEJO DE ERRORES SEMANTICOS
-                            // No se puede asignar un valor a una constante
-                            ErrorC.añadirError(new ErrorC("No se puede modificar una constante", idleft, Fase.SEMÁNTICO));
-                        } else {
-                            ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        if (symbol != null) {
+                            if (symbol.isEsConst()) {
+                                // MANEJO DE ERRORES SEMANTICOS
+                                // No se puede asignar un valor a una constante
+                                ErrorC.añadirError(new ErrorC("No se puede modificar una constante", idleft, Fase.SEMÁNTICO));
+                            } else {
+                                ansem.gestAsig(symbol.getTipoReturn(), exp);
+                            }
                         }
                         RESULT = new Inst("asig", id, null, exp, idleft, idright);
                     
@@ -1322,7 +1324,9 @@ class CUP$Parser$actions {
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
                         Symbol symbol = tSimbolos.getSymbol(array.getId());
-                        ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        if (symbol != null){
+                            ansem.gestAsig(symbol.getTipoReturn(), exp);
+                        }
                         RESULT = new Inst("asig", array.getId(), array, exp, arrayleft, arrayright);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("INST",24, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1631,7 +1635,6 @@ class CUP$Parser$actions {
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-                    System.out.println("NO");
                     ansem.gestExpLogica(exp);
                     RESULT = new Exp(exp, expleft, expright);
                 
@@ -1777,10 +1780,12 @@ class CUP$Parser$actions {
 		Call_fn call_fn = (Call_fn)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
                     Symbol symbol = tSimbolos.getSymbol(call_fn.getId());
-                    if (symbol.getTipoReturn() == EnumType.VACIO) {
-                        // MANEJO DE ERRORES SEMANTICOS
-                        // La función no devuelve nada
-                        ErrorC.añadirError(new ErrorC("La función no devuelve nada", call_fn.getLinea(), Fase.SEMÁNTICO));
+                    if (symbol != null) {
+                        if (symbol.getTipoReturn() == EnumType.VACIO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La función no devuelve nada
+                            ErrorC.añadirError(new ErrorC("La función no devuelve nada", call_fn.getLinea(), Fase.SEMÁNTICO));
+                        }
                     }
 
                     RESULT = new Value(call_fn, call_fnleft, call_fnright);
@@ -1893,6 +1898,7 @@ class CUP$Parser$actions {
 		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
+
                     int nDimensiones = getDimensionesArray(list_arr);
                     RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
                 
@@ -1952,9 +1958,7 @@ class CUP$Parser$actions {
 		int args_callright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Args_Call args_call = (Args_Call)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-                    if (tSimbolos.getFuncion(id) == null) {
-                        ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
-                    } else {
+                    if (tSimbolos.getFuncion(id) != null) {
                         // No tiene sentido validar los parámetros de una función que no existe
                         if (args_call != null) { // Caso con argumentos
                             // Se verifica que el número coincida

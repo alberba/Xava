@@ -8,6 +8,8 @@ public enum OperacionInst {
     DIVISION,
     MODULO,
     NO,
+    Y,
+    O,
     INDEXADO,
     ASIGNADO,
     ETIQUETA,

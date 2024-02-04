@@ -10,9 +10,9 @@ import java.util.Objects;
 
 public class Exp extends SimboloBase {
 
-    private Value value;
-    private Op op;
-    private Exp exp;
+    private final Value value;
+    private final Op op;
+    private final Exp exp;
 
     public Exp(Value value, Op op, Exp exp, int linea, int columna) {
         super(linea, columna);
@@ -39,25 +39,16 @@ public class Exp extends SimboloBase {
         return value;
     }
 
-    public void setValue(Value value) {
-        this.value = value;
-    }
 
     public Op getOp() {
         return op;
     }
 
-    public void setOp(Op op) {
-        this.op = op;
-    }
 
     public Exp getExp() {
         return exp;
     }
 
-    public void setExp(Exp exp) {
-        this.exp = exp;
-    }
 
     /**
      * Método que crea las etiquetas e instrucciones necesarias para la ejecución
@@ -116,6 +107,7 @@ public class Exp extends SimboloBase {
                 value.generarIntermedio(intermedio);
             } else {
                 // Si no tiene value ni op, se trata de la negación de una expresión
+                assert exp != null;
                 exp.generarIntermedio(intermedio);
                 intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, null, null, intermedio.getUltimaVariable().getId()));
             }
@@ -152,7 +144,7 @@ public class Exp extends SimboloBase {
                 // Creamos la variable destino de la operación
                 Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
 
-                // Se añade la primera instrucción encontrada (mult vs div)
+                // Se añade la primera instrucción encontrada (mult vs. div)
                 if (listaObjeto.get(indexMin) == Op.MULT) {
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.MULTIPLICACION, variables[0].getId(), variables[1].getId(), temp.getId()));
                 } else if (listaObjeto.get(indexMin) == Op.DIV) {
@@ -175,7 +167,7 @@ public class Exp extends SimboloBase {
                 // Creamos la variable destino de la operación
                 Variable temp = intermedio.añadirVariable(null, EnumType.ENTERO, null);
 
-                // Se añade la primera instrucción encontrada (sum vs rest)
+                // Se añade la primera instrucción encontrada (sum vs. rest)
                 if (listaObjeto.get(indexMin) == Op.SUMA) {
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SUMA, variables[0].getId(), variables[1].getId(), temp.getId()));
                 } else {
@@ -196,10 +188,68 @@ public class Exp extends SimboloBase {
     /**
      * Método que genera el intermedio de una operación lógica: se crea una comparación entre los dos valores y se
      * asigna 0 o -1 según si el resultado es true o false
-     * @param listaObjeto
-     * @param intermedio
+     * @param listaObjeto Lista de objetos que contiene la operación general
+     * @param intermedio Objeto de la clase Intermedio para gestionar 3@ direcciones
      */
     private void generarIntermedioLogic(ArrayList<Object> listaObjeto, Intermedio intermedio) {
+        Variable[] variables;
+        OperacionInst op = null;
+        System.out.println(listaObjeto);
+
+        if (listaObjeto.size() > 1) {
+            for (int i = 0; i < listaObjeto.size(); i = i + 2) {
+                variables = obtenerVariablesOperacion(i + 1, listaObjeto, intermedio);
+                Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
+                // Comprobación de la operación
+                switch ((Op) listaObjeto.get(i + 1)) {
+                    case IGUAL -> op = OperacionInst.IGUAL;
+                    case IGUALNT -> op = OperacionInst.DIFERENTE;
+                    case MAI -> op = OperacionInst.MAYOR_IGUAL;
+                    case MEI -> op = OperacionInst.MENOR_IGUAL;
+                    case MAQ -> op = OperacionInst.MAYOR;
+                    case MEQ -> op = OperacionInst.MENOR;
+                }
+                // Se añade la instrucción
+                generarInstruccionLogica(intermedio, variables, temp, op);
+                // Se sustituye la operación por la variable temporal
+                listaObjeto.remove(i + 2);
+                listaObjeto.remove(i + 1);
+                listaObjeto.remove(i);
+
+                listaObjeto.add(i, intermedio.getUltimaVariable());
+            }
+        }
+
+        while(listaObjeto.size() > 1) {
+            // Aqui solo nos quedarían operaciones de tipo var &&/|| var
+            variables = obtenerVariablesOperacion(1, listaObjeto, intermedio);
+            Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
+            switch ((Op) listaObjeto.get(1)) {
+                case Y -> op = OperacionInst.Y;
+                case O -> op = OperacionInst.O;
+            }
+            generarInstruccionLogica(intermedio, variables, temp, op);
+
+            listaObjeto.remove(2);
+            listaObjeto.remove(1);
+            listaObjeto.remove(0);
+
+            listaObjeto.add(0, intermedio.getUltimaVariable());
+        }
+    }
+
+    private void generarInstruccionLogica(Intermedio intermedio, Variable[] variables, Variable temp, OperacionInst op) {
+        String etrue = intermedio.nuevaEtiqueta();
+        intermedio.añadirInstruccion(new Instruccion(op, variables[0].getId(), variables[1].getId(), etrue));
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, temp.getId()));
+        String efalse = intermedio.nuevaEtiqueta();
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, efalse)); // goto efalse
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, etrue)); // etrue: skip
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, temp.getId())); // tn= -1
+        intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, efalse)); // efalse: skip
+    }
+
+    /*private void generarIntermedioLogic(ArrayList<Object> listaObjeto, Intermedio intermedio) {
         Variable[] variables;
         OperacionInst op = null;
 
@@ -235,7 +285,7 @@ public class Exp extends SimboloBase {
 
             listaObjeto.add(0, intermedio.getUltimaVariable());
         }
-    }
+    }*/
 
     /**
      * Se obtienen las dos variables de una operación x op y, siendo x e y las variables
@@ -249,9 +299,8 @@ public class Exp extends SimboloBase {
 
         // Se obtiene la variable, ya sea a partir de un valor individual o de una expresión
         // Var 1
-        if (listaObjeto.get(index - 1) instanceof Value) {
+        if (listaObjeto.get(index - 1) instanceof Value aux) {
             // Transformamos el valor en una variable
-            Value aux = (Value) listaObjeto.get(index - 1);
             aux.generarIntermedio(intermedio);
             variables[0] = intermedio.getUltimaVariable();
         } else {
@@ -259,9 +308,8 @@ public class Exp extends SimboloBase {
         }
 
         // Var 2
-        if (listaObjeto.get(index + 1) instanceof Value) {
+        if (listaObjeto.get(index + 1) instanceof Value aux) {
             // Transformamos el valor en una variable
-            Value aux = (Value) listaObjeto.get(index + 1);
             aux.generarIntermedio(intermedio);
             variables[1] = intermedio.getUltimaVariable();
         } else {

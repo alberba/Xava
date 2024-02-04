@@ -106,6 +106,16 @@ public class Ensamblador {
             case MAYOR_IGUAL:
                 ensambladorComp(instruccion, instruccion.getOperacion().toString());
                 break;
+            case Y:
+                codigo.add("\tMOVE.B\t" + instruccion.getOperador2() + ", D0");
+                codigo.add("\tAND.B\t" + instruccion.getOperador1() + ", D0");
+                codigo.add("\tBNE\t" + instruccion.getDestino());
+                break;
+            case O:
+                codigo.add("\tMOVE.B\t" + instruccion.getOperador2() + ", D0");
+                codigo.add("\tOR.B\t" + instruccion.getOperador1() + ", D0");
+                codigo.add("\tBNE\t" + instruccion.getDestino());
+                break;
             case NO:
                 ensambladorNo(instruccion);
                 break;

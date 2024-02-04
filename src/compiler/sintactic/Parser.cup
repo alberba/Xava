@@ -198,8 +198,8 @@ FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C
                     {:
                         if (ansem.existeFuncion(cap)) {
                             ansem.isReturn(f_sents);
-                            RESULT = new FuncionG(cap, f_sents, capleft, capright);
                         }
+                        RESULT = new FuncionG(cap, f_sents, capleft, capright);
 
                     :}
                 ;
@@ -471,10 +471,12 @@ VALUE           ::= DIGITO:num                                                  
                 |   CALL_FN:call_fn
                 {:
                     Symbol symbol = tSimbolos.getSymbol(call_fn.getId());
-                    if (symbol.getTipoReturn() == EnumType.VACIO) {
-                        // MANEJO DE ERRORES SEMANTICOS
-                        // La función no devuelve nada
-                        ErrorC.añadirError(new ErrorC("La función no devuelve nada", call_fn.getLinea(), Fase.SEMÁNTICO));
+                    if (symbol != null) {
+                        if (symbol.getTipoReturn() == EnumType.VACIO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La función no devuelve nada
+                            ErrorC.añadirError(new ErrorC("La función no devuelve nada", call_fn.getLinea(), Fase.SEMÁNTICO));
+                        }
                     }
 
                     RESULT = new Value(call_fn, call_fnleft, call_fnright);
@@ -497,6 +499,7 @@ VAL_BOL         ::= VERDADERO                                                   
 
 ARRAY           ::= L_ARR:list_arr ID:id
                 {:
+
                     int nDimensiones = getDimensionesArray(list_arr);
                     RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
                 :}
@@ -524,9 +527,7 @@ L_ARR        ::= CORCHETE_A E:expArr CORCHETE_C L_ARR:list_array
 
 CALL_FN         ::= ID:id ARGS_CALL:args_call
                 {:
-                    if (tSimbolos.getFuncion(id) == null) {
-                        ErrorC.añadirError(new ErrorC("La función no existe", args_call.getLinea(), Fase.SEMÁNTICO));
-                    } else {
+                    if (tSimbolos.getFuncion(id) != null) {
                         // No tiene sentido validar los parámetros de una función que no existe
                         if (args_call != null) { // Caso con argumentos
                             // Se verifica que el número coincida
