@@ -24,6 +24,7 @@ public class Optimizador {
         }
         eliminarVariablesnoUsadas();
         return intermedio;
+
     }
 
     private void eliminarVariablesnoUsadas() {
