@@ -248,7 +248,7 @@ public class Ensamblador {
             return true;
         }
         // Si var2 es múltiplo de 2
-        if (esMultiploDeDos(instruccion.getOperador2())) {
+        if (esPotenciaDeDos(instruccion.getOperador2())) {
             // Se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
@@ -260,7 +260,7 @@ public class Ensamblador {
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             }
             return true;
-        } else if (esMultiploDeDos(instruccion.getOperador1())) { // Si no lo es, pero var1 sí
+        } else if (esPotenciaDeDos(instruccion.getOperador1())) { // Si no lo es, pero var1 sí
             // Tan solo se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var2 + ", D0");
@@ -276,12 +276,9 @@ public class Ensamblador {
     }
 
     private int logBase2(int num) {
-        int counter = 0;
-        while (num != 0) {
-            counter++;
-            num = num >> 1;
-        }
-        return counter - 1;
+        // Devuelve el número de 0s tras el último 1, equivale al log base 2
+        // 8 = 1000 -> 3, 16 = 10000 -> 4, 32 = 100000 -> 5...
+        return Integer.numberOfTrailingZeros(num);
     }
 
 
@@ -575,10 +572,10 @@ public class Ensamblador {
     }
 
     // Solo funciona para literales
-    private boolean esMultiploDeDos(String operador) {
+    private boolean esPotenciaDeDos(String operador) {
         if (esNum(operador)) {
             int num = Integer.parseInt(operador);
-            return num % 2 == 0;
+            return (num & (num - 1)) == 0; // Si es potencia de 2, será n = 100... y n-1 = 011..., no comparten ningún bit
         }
         return false;
     }
