@@ -200,12 +200,8 @@ public class AnSem {
                  ErrorC.añadirError(new ErrorC("Se debe poner un DEVOLVER al final de la función", fsents.getLinea(), Fase.SEMÁNTICO));
              }
         } else { // Caso con devuelve
-            if (ts.getTypeFuncionActual() != EnumType.VACIO) { // Tiene que no ser vacío
-                // Comprobará que el return esté bien hecho
-                gestReturnFunc(fsents.getRetProc());
-            } else {
-                ErrorC.añadirError(new ErrorC("No se puede poner un DEVOLVER en una función de tipo vacío", fsents.getRetProc().getLinea(), Fase.SEMÁNTICO));
-            }
+            // Comprobará que el return esté bien hecho
+            gestReturnFunc(fsents.getRetProc());
         }
 
     }
@@ -249,7 +245,8 @@ public class AnSem {
     }
 
     /**
-     * Función que verifica si la función existe y si los argumentos que se le pasan son correctos
+     * Función que verifica si los argumentos que se le pasan son correctos.
+     * Se habrá verificado de antemano que el número de parametros coincida.
      * @param args_call Argumentos de la llamada a la función
      * @param id ID de la función
      */

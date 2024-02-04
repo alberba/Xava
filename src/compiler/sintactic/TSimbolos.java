@@ -8,7 +8,6 @@ import java.util.Objects;
 public class TSimbolos {
     private final ArrayList<ArrayList<Symbol>> tsimbolos;
     private int nActual;
-    private boolean hayFunciones;
     private int indiceDeclFunciones;
 
     public TSimbolos() {
@@ -17,7 +16,8 @@ public class TSimbolos {
         this.nActual = 0;
         // Se inicializa el ámbito global con final -1 (sin contenido)
         this.tsimbolos.add(new ArrayList<>());
-        this.hayFunciones = false;
+        //
+        this.indiceDeclFunciones = -1;
     }
 
     public void añadirAmbito() {
@@ -31,13 +31,16 @@ public class TSimbolos {
         // Solo accederá en el ámbito global
         if (symbol.getTipoElemento() == TipoElemento.FUNCION) {
 
-            for (Symbol s : tsimbolos.get(0)) {
-                if (s.equals(symbol)) {
-                    return false;
+            if (tsimbolos.get(0).isEmpty()) {
+                indiceDeclFunciones = 0;
+            } else {
+                for (Symbol s : tsimbolos.get(0)) {
+                    if (s.equals(symbol)) {
+                        return false;
+                    }
                 }
                 // Al encontrar la primera función, se marca que hay funciones y se guarda el índice
-                if (!hayFunciones) {
-                    hayFunciones = true;
+                if (indiceDeclFunciones == -1) {
                     indiceDeclFunciones = tsimbolos.get(0).size();
                 }
             }

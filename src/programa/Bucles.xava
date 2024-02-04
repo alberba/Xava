@@ -22,7 +22,8 @@ funcion ent dowhile(ent contador){
 
 funcion ent for(ent contador){
     ent result := 0;
-    para (ent a := 0; a <= contador; a := a + 1;) {
+    ent a := 0;
+    para (a <= contador; a := a + 1;) {
         result := a + result;
     }
     devuelve result;

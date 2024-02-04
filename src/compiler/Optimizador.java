@@ -17,8 +17,7 @@ public class Optimizador {
     public Intermedio optimizarIntermedio() {
         while (hayCambios) {
             hayCambios = false;
-            asignDiferidas();
-            brancSobreBranc();
+            diferidasAndbranc();
             hayOperacionesConstantes();
             eliminarEtiquetasNoAccesibles();
             eliminarCodigoMuerto();
@@ -36,6 +35,12 @@ public class Optimizador {
         for (Instruccion instruccion : instrucciones) {
             if (!variablesAnalizadas.contains(instruccion.getDestino())) {
                 variablesAnalizadas.add(instruccion.getDestino());
+            }
+            if (!variablesAnalizadas.contains(instruccion.getOperador1())) {
+                variablesAnalizadas.add(instruccion.getOperador1());
+            }
+            if (!variablesAnalizadas.contains(instruccion.getOperador2())) {
+                variablesAnalizadas.add(instruccion.getOperador2());
             }
         }
 
@@ -55,67 +60,55 @@ public class Optimizador {
 
     }
 
-    private void asignDiferidas() {
+    private void diferidasAndbranc(){
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
         ArrayList<Variable> variables = intermedio.getTv();
         ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
         ArrayList<Variable> variablesAEliminar = new ArrayList<>();
         ArrayList<String> variablesAnalizadas = new ArrayList<>();
-
-
-        Instruccion asigDiferida;
+        Instruccion instruccion;
         for (int i = 0; i < instrucciones.size(); i++) {
-            asigDiferida = instrucciones.get(i);
+            boolean eliminado = false;
+            instruccion = instrucciones.get(i);
 
-            if (!variablesAnalizadas.contains(asigDiferida.getDestino()) && asigDiferida.getOperacion() == OperacionInst.ASIG &&
-                    intermedio.buscarVariable(asigDiferida.getDestino()).isEsTemp()) {
+            if (!variablesAnalizadas.contains(instruccion.getDestino()) && instruccion.getOperacion() == OperacionInst.ASIG
+                    && intermedio.buscarVariable(instruccion.getDestino()).isEsTemp()) {
 
                 boolean otraAsig = false;
                 ArrayList <Instruccion> instruccionesAux = new ArrayList<>();
                 for (int j = i + 1; j < instrucciones.size() && !otraAsig; j++) {
 
                     Instruccion aux = instrucciones.get(j);
-                    if (esOperandoIgual(aux.getOperador1(), asigDiferida.getDestino()) || esOperandoIgual(aux.getOperador2(), asigDiferida.getDestino())) {
+                    if (esOperandoIgual(aux.getOperador1(), instruccion.getDestino()) || esOperandoIgual(aux.getOperador2(), instruccion.getDestino())) {
                         instruccionesAux.add(aux);
                     } else {
 
-                        if (esOperandoIgual(aux.getDestino(), asigDiferida.getDestino())) {
-                            otraAsig = true;
+                        if (esOperandoIgual(aux.getDestino(), instruccion.getDestino())) {
+                            if (aux.getOperacion() == OperacionInst.RETORNO) {
+                                instruccionesAux.add(aux);
+                            } else {
+                                otraAsig = true;
+                            }
                         }
                     }
                 }
                 if (otraAsig) {
-                    variablesAnalizadas.add(asigDiferida.getDestino());
+                    variablesAnalizadas.add(instruccion.getDestino());
                 } else {
                     hayCambios = true;
                     for(Instruccion aux: instruccionesAux){
-                        if (actualizarInstruccion(aux, asigDiferida)) {
-                            instruccionesAEliminar.add(asigDiferida);
-                            variablesAnalizadas.add(asigDiferida.getDestino());
-                            variablesAEliminar.add(intermedio.buscarVariable(asigDiferida.getDestino()));
+                        if (actualizarInstruccion(aux, instruccion)) {
+                            eliminado = true;
+                            instruccionesAEliminar.add(instruccion);
+                            variablesAnalizadas.add(instruccion.getDestino());
+                            variablesAEliminar.add(intermedio.buscarVariable(instruccion.getDestino()));
                         }
                     }
                 }
             }
-        }
-
-        if (!instruccionesAEliminar.isEmpty()) {
-            // Eliminación de las instrucciones y variables que ya no se usan
-            instrucciones.removeAll(instruccionesAEliminar);
-            variables.removeAll(variablesAEliminar);
-
-            // Actualización de la lista de instrucciones y variables
-            intermedio.setTv(variables);
-            intermedio.setCodigo(instrucciones);
-        }
-    }
-
-    private void brancSobreBranc() {
-        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-
-        Instruccion instruccion;
-        for (int i = 0; i < instrucciones.size(); i++) {
-            instruccion = instrucciones.get(i);
+            if (eliminado) {
+                continue;
+            }
             switch (instruccion.getOperacion()) {
                 case SALTO_COND:
                 case MENOR:
@@ -125,25 +118,30 @@ public class Optimizador {
                 case MAYOR:
                 case MAYOR_IGUAL:
                 case NO:
-                    break;
-                default:
-                    continue;
-            }
-            boolean encontrado = false;
-            for (int j = i + 1; j + 1 < instrucciones.size() && !encontrado; j++) {
-                if (instrucciones.get(j).getOperacion() == OperacionInst.ETIQUETA) {
-                    encontrado = true;
-                    if(instrucciones.get(j).getDestino().equals(instruccion.getDestino())) {
-                        if (instrucciones.get(j + 1).getOperacion() == OperacionInst.SALTO_INCON) {
-                            hayCambios = true;
-                            instruccion.setDestino(instrucciones.get(j + 1).getDestino());
+                    boolean encontrado = false;
+                    for (int j = i + 1; j + 1 < instrucciones.size() && !encontrado; j++) {
+                        if (instrucciones.get(j).getOperacion() == OperacionInst.ETIQUETA) {
+                            encontrado = true;
+                            if(instrucciones.get(j).getDestino().equals(instruccion.getDestino())) {
+                                if (instrucciones.get(j + 1).getOperacion() == OperacionInst.SALTO_INCON) {
+                                    hayCambios = true;
+                                    instruccion.setDestino(instrucciones.get(j + 1).getDestino());
+                                }
+                            }
                         }
                     }
-                }
             }
+
         }
-        // Actualización de la lista de instrucciones
-        intermedio.setCodigo(instrucciones);
+        if (!instruccionesAEliminar.isEmpty()) {
+            // Eliminación de las instrucciones y variables que ya no se usan
+            instrucciones.removeAll(instruccionesAEliminar);
+            variables.removeAll(variablesAEliminar);
+
+            // Actualización de la lista de instrucciones y variables
+            intermedio.setTv(variables);
+            intermedio.setCodigo(instrucciones);
+        }
     }
 
     private void hayOperacionesConstantes() {
@@ -184,23 +182,13 @@ public class Optimizador {
                     break;
                 case IGUAL:
                     esLogica = true;
-                    try {
-                        // Versión para ints
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == Integer.parseInt(instruccion.getOperador2());
-                    } catch (NumberFormatException e) {
-                        // Versión para chars (será un string de 1 elemento)
-                        condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
-                    }
+                    // Sirve tanto para ints como para chars
+                    condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
                     break;
                 case DIFERENTE:
                     esLogica = true;
-                    // Versión para ints
-                    try {
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) != Integer.parseInt(instruccion.getOperador2());
-                    } catch (NumberFormatException e) {
-                        // Versión para chars (será un string de 1 elemento)
-                        condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
-                    }
+                    // Sirve tanto para ints como para chars
+                    condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
                     break;
                 case MENOR:
                     esLogica = true;
@@ -254,6 +242,8 @@ public class Optimizador {
                     }
                     break;
                 case NO:
+                case Y:
+                case O:
                 case IGUAL:
                 case DIFERENTE:
                 case MENOR:
@@ -371,7 +361,7 @@ public class Optimizador {
         } catch (NumberFormatException | NullPointerException e) {
             // Si los operadores son char, es una operación constante
             return instruccion.getOperador1() != null && instruccion.getOperador1().length() == 1 && // length == 1 implica char constante
-                    (instruccion.getOperacion() == OperacionInst.SALTO_COND || instruccion.getOperacion() == OperacionInst.NO || // es una operación de un solo operador
+                    ((instruccion.getOperacion() == OperacionInst.IGUAL || instruccion.getOperacion() == OperacionInst.DIFERENTE) &&
                             (instruccion.getOperador2() != null && instruccion.getOperador2().length() == 1)); // o el segundo operador es char constante también
         }
     }
@@ -385,6 +375,10 @@ public class Optimizador {
         }
         if (esOperandoIgual(aux.getOperador2(), asigDiferida.getDestino())) {
             aux.setOperador2(asigDiferida.getOperador1());
+            return true;
+        }
+        if (esOperandoIgual(aux.getDestino(), asigDiferida.getDestino())) {
+            aux.setDestino(asigDiferida.getOperador1());
             return true;
         }
 

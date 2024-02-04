@@ -12,7 +12,6 @@ public class Inst extends SimboloBase {
     private final Exp exp;
     private ArrayG arrayG;
     private C_sents c_sents;
-    private Decl decl_cap;
     private Inst inst;
     private String id;
     private Cont_cond contCond;
@@ -22,13 +21,12 @@ public class Inst extends SimboloBase {
     /**
      * Constructor para ifs, fors y whiles
      */
-    public Inst(String type, Exp exp, C_sents c_sents, Decl decl_cap, Inst inst, Cont_cond contCond, Call_fn call_fn, int linea, int columna) {
+    public Inst(String type, Exp exp, C_sents c_sents, Inst inst, Cont_cond contCond, Call_fn call_fn, int linea, int columna) {
 
         super(linea,columna);
         this.type = type;
         this.exp = exp;
         this.c_sents = c_sents;
-        this.decl_cap = decl_cap;
         this.inst = inst;
         this.contCond = contCond;
         this.call_fn = call_fn;
@@ -81,7 +79,6 @@ public class Inst extends SimboloBase {
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal));
                     break;
                 case "para":
-                    decl_cap.generarIntermedio(intermedio);
                     String labelInit_p = intermedio.nuevaEtiqueta();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelInit_p));
                     exp.generarIntermedio(intermedio);

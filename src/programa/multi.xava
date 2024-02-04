@@ -11,8 +11,10 @@ principal {
         imprimir("y");
     }
 
-    para (ent i := 0; i < 3; i := i + 1;) {
-        para (ent j := 0; j < 3; j := j + 1;) {
+    ent i := 0;
+    para (i < 3; i := i + 1;) {
+        ent j := 0;
+        para (j < 3; j := j + 1;) {
             si (i = j) {
                 [i][j] matriz := 1;
             } sino {
@@ -21,8 +23,10 @@ principal {
         }
     }
 
-    para (ent x := 0; x < 3; x := x + 1;) {
-        para (ent k := 0; k < 3; k := k + 1;) {
+    ent x := 0;
+    para (x < 3; x := x + 1;) {
+        ent k := 0;
+        para (k < 3; k := k + 1;) {
             imprimir([x][k] matriz);
             imprimirLetra([x][k] matriz);
         }
