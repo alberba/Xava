@@ -124,6 +124,7 @@ public class Optimizador {
         for (int i = 0; i < instrucciones.size(); i++) {
             instruccion = instrucciones.get(i);
             String operacion;
+            // Si la operación no es constante, se salta a la siguiente
             if (!esOperacionConstante(instruccion)) {
                 continue;
             }
@@ -154,11 +155,23 @@ public class Optimizador {
                     break;
                 case IGUAL:
                     esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == Integer.parseInt(instruccion.getOperador2());
+                    try {
+                        // Versión para ints
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == Integer.parseInt(instruccion.getOperador2());
+                    } catch (NumberFormatException e) {
+                        // Versión para chars (será un string de 1 elemento)
+                        condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
+                    }
                     break;
                 case DIFERENTE:
                     esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) != Integer.parseInt(instruccion.getOperador2());
+                    // Versión para ints
+                    try {
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) != Integer.parseInt(instruccion.getOperador2());
+                    } catch (NumberFormatException e) {
+                        // Versión para chars (será un string de 1 elemento)
+                        condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
+                    }
                     break;
                 case MENOR:
                     esLogica = true;
@@ -320,13 +333,17 @@ public class Optimizador {
 
     private boolean esOperacionConstante(Instruccion instruccion) {
         try {
+            // Si los operadores son int, es una operación constante
             Integer.parseInt(instruccion.getOperador1());
             if (instruccion.getOperacion() != OperacionInst.SALTO_COND && instruccion.getOperacion() != OperacionInst.NO) {
                 Integer.parseInt(instruccion.getOperador2());
             }
             return true;
         } catch (NumberFormatException | NullPointerException e) {
-            return false;
+            // Si los operadores son char, es una operación constante
+            return instruccion.getOperador1() != null && instruccion.getOperador1().length() == 1 && // length == 1 implica char constante
+                    (instruccion.getOperacion() == OperacionInst.SALTO_COND || instruccion.getOperacion() == OperacionInst.NO || // es una operación de un solo operador
+                            (instruccion.getOperador2() != null && instruccion.getOperador2().length() == 1)); // o el segundo operador es char constante también
         }
     }
 
