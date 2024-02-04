@@ -194,7 +194,6 @@ public class Exp extends SimboloBase {
     private void generarIntermedioLogic(ArrayList<Object> listaObjeto, Intermedio intermedio) {
         Variable[] variables;
         OperacionInst op = null;
-        System.out.println(listaObjeto);
 
         if (listaObjeto.size() > 1) {
             for (int i = 0; i < listaObjeto.size(); i = i + 2) {

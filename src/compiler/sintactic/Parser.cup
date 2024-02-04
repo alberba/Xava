@@ -437,10 +437,10 @@ ENTRADA         ::= LEERBOOL
                         RESULT = new Entrada(EnumType.CARACTER, cs.getLeft().getLine(), cs.getLeft().getColumn());
                     :}
                 |   LEERENT
-                {:
-                    ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
-                    RESULT = new Entrada(EnumType.ENTERO, cs.getLeft().getLine(), cs.getLeft().getColumn());
-                :}
+                    {:
+                        ComplexSymbolFactory.ComplexSymbol cs = (ComplexSymbolFactory.ComplexSymbol) cur_token;
+                        RESULT = new Entrada(EnumType.ENTERO, cs.getLeft().getLine(), cs.getLeft().getColumn());
+                    :}
                 ;
 
 E               ::= VALUE:value OP:op E:exp                                                         {: RESULT = new Exp(value, op, exp, valueleft, valueright);                      :}

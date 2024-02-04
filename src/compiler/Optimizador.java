@@ -23,7 +23,36 @@ public class Optimizador {
             eliminarEtiquetasNoAccesibles();
             eliminarCodigoMuerto();
         }
+        eliminarVariablesnoUsadas();
         return intermedio;
+    }
+
+    private void eliminarVariablesnoUsadas() {
+        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
+        ArrayList<Variable> variables = intermedio.getTv();
+        ArrayList<Variable> variablesAEliminar = new ArrayList<>();
+        ArrayList<String> variablesAnalizadas = new ArrayList<>();
+
+        for (Instruccion instruccion : instrucciones) {
+            if (!variablesAnalizadas.contains(instruccion.getDestino())) {
+                variablesAnalizadas.add(instruccion.getDestino());
+            }
+        }
+
+        for (Variable variable : variables) {
+            if (!variablesAnalizadas.contains(variable.getId())) {
+                variablesAEliminar.add(variable);
+            }
+        }
+
+        if (!variablesAEliminar.isEmpty()) {
+            // Eliminación de las variables que ya no se usan
+            variables.removeAll(variablesAEliminar);
+
+            // Actualización de la lista de variables
+            intermedio.setTv(variables);
+        }
+
     }
 
     private void asignDiferidas() {
