@@ -242,16 +242,21 @@ public class Ensamblador {
     private boolean optMultDiv(Instruccion instruccion, String op) {
         String var1 = convertirOperador(instruccion.getOperador1());
         String var2 = convertirOperador(instruccion.getOperador2());
+        // Si var1 es 0 o var 2 es 0 y es una multiplicación (para evitar división entre 0), se optimiza haciendo un clear
+        if (getValor(var1) == 0 || getValor(var2) == 0 && op.equals("MULS")) {
+            codigo.add("\tCLR.W\t" + instruccion.getDestino());
+            return true;
+        }
         // Si var2 es múltiplo de 2
         if (esMultiploDeDos(instruccion.getOperador2())) {
             // Se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
-                codigo.add("\tLSL\t#" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tLSL\t#" + logBase2(getValor(var2)) + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             } else { // Y la división
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
-                codigo.add("\tLSR\t#" + getValor(var2) / 2 + ", D0");
+                codigo.add("\tLSR\t#" + logBase2(getValor(var2)) + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             }
             return true;
@@ -259,7 +264,7 @@ public class Ensamblador {
             // Tan solo se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var2 + ", D0");
-                codigo.add("\tLSL\t#" + getValor(var1) / 2 + ", D0");
+                codigo.add("\tLSL\t#" + logBase2(getValor(var1)) + ", D0");
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
                 return true;
             } else { // No es el caso de la división (no tiene propiedad conmutativa)
@@ -268,6 +273,15 @@ public class Ensamblador {
         } else { // Sin múltiplo de 2, no hay nada que optimizar
             return false;
         }
+    }
+
+    private int logBase2(int num) {
+        int counter = 0;
+        while (num != 0) {
+            counter++;
+            num = num >> 1;
+        }
+        return counter - 1;
     }
 
 
