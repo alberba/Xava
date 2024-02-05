@@ -323,7 +323,7 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // La expresión de condición de salida tiene que dar como resultado un valor booleano
-                            ErrorC.añadirError(new ErrorC("La condición de salida tiene que ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("La condición de salida debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
                         }
                         if (inst.getType() != "asig") {
                             // MANEJO DE ERRORES SEMANTICOS
@@ -333,9 +333,22 @@ INST            ::= SI PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C CONT_CO
                         RESULT = new Inst("para", exp, c_sents, inst, null, null, expleft, expright);
                     :}
 
-                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C                      {: RESULT = new Inst("mientras", exp, c_sents, null, null, null, expleft, expright);     :}
+                |   MIENTRAS PAR_A E:exp PAR_C LLAVE_A C_SENTS:c_sents LLAVE_C
+                    {:
+                        if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La expresión de condición de salida tiene que dar como resultado un valor booleano
+                            ErrorC.añadirError(new ErrorC("La condición de salida debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+                        }
+                        RESULT = new Inst("mientras", exp, c_sents, null, null, null, expleft, expright);
+                    :}
                 |   HACER LLAVE_A C_SENTS:c_sents LLAVE_C MIENTRAS PAR_A E:exp PAR_C P_COMA
                     {:
+                        if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La expresión de condición de salida tiene que dar como resultado un valor booleano
+                            ErrorC.añadirError(new ErrorC("La condición de salida debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+                        }
                         RESULT = new Inst("hacer_mientras", exp, c_sents, null, null, null, c_sentsleft, c_sentsright);
                     :}
 
@@ -440,7 +453,11 @@ E               ::= VALUE:value OP:op E:exp                                     
                 |   VALUE:value                                                                     {: RESULT = new Exp(value, valueleft, valueright);                               :}
                 |   NO E:exp
                 {:
-                    ansem.gestExpLogica(exp);
+                    if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // La expresión debe ser de tipo booleano
+                        ErrorC.añadirError(new ErrorC("La expresión debe ser de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
                     RESULT = new Exp(exp, expleft, expright);
                 :}
                 ;

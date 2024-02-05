@@ -144,8 +144,9 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba, en caso de que sea un array, si existe el simbolo y si los valores de indexación presentan
-     * coherencia con la declaración (que se encuentre dentro del rango permitido).
+     * Función que comprueba que si existe el simbolo correspondiente al array
+     * y si los valores de indexación presentan coherencia con la declaración
+     * (que se encuentre dentro del rango permitido).
      * @param linea Linea del código donde se encuentra el array
      */
     public void gestArray(ArrayG array, int linea) {
@@ -232,17 +233,6 @@ public class AnSem {
                 parametros.remove(parametros.size() - 1);
             }
             return true;
-        }
-    }
-
-    /**
-     * Función que comprueba si la expresión es del tipo Logica o no
-     *
-     * @param exp Expresión a comprobar
-     */
-    public void gestExpLogica(Exp exp) {
-        if (gestExp(exp) != EnumType.BOOLEANO) {
-            ErrorC.añadirError(new ErrorC("La expresión debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
         }
     }
 

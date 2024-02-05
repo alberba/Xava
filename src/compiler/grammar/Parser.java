@@ -1226,7 +1226,7 @@ class CUP$Parser$actions {
                         if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // La expresión de condición de salida tiene que dar como resultado un valor booleano
-                            ErrorC.añadirError(new ErrorC("La condición de salida tiene que ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+                            ErrorC.añadirError(new ErrorC("La condición de salida debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
                         }
                         if (inst.getType() != "asig") {
                             // MANEJO DE ERRORES SEMANTICOS
@@ -1249,7 +1249,14 @@ class CUP$Parser$actions {
 		int c_sentsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int c_sentsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		C_sents c_sents = (C_sents)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		 RESULT = new Inst("mientras", exp, c_sents, null, null, null, expleft, expright);     
+		
+                        if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La expresión de condición de salida tiene que dar como resultado un valor booleano
+                            ErrorC.añadirError(new ErrorC("La condición de salida debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+                        }
+                        RESULT = new Inst("mientras", exp, c_sents, null, null, null, expleft, expright);
+                    
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("INST",24, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-6)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1265,6 +1272,11 @@ class CUP$Parser$actions {
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).right;
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
 		
+                        if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // La expresión de condición de salida tiene que dar como resultado un valor booleano
+                            ErrorC.añadirError(new ErrorC("La condición de salida debe ser booleana", exp.getLinea(), Fase.SEMÁNTICO));
+                        }
                         RESULT = new Inst("hacer_mientras", exp, c_sents, null, null, null, c_sentsleft, c_sentsright);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("INST",24, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-8)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1617,7 +1629,11 @@ class CUP$Parser$actions {
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-                    ansem.gestExpLogica(exp);
+                    if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // La expresión debe ser de tipo booleano
+                        ErrorC.añadirError(new ErrorC("La expresión debe ser de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
                     RESULT = new Exp(exp, expleft, expright);
                 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("E",31, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1880,7 +1896,6 @@ class CUP$Parser$actions {
 		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-
                     int nDimensiones = getDimensionesArray(list_arr);
                     RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
                 

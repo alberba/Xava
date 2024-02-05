@@ -2,6 +2,7 @@ funcion ent suma(ent a, ent b);
 
 principal {
     ent res := 0;
+    ent jorge := 5;
     ent [2] valores;
     [0] valores := 0;
     [1] valores := 1;
@@ -16,6 +17,11 @@ principal {
     ## ERROR: Índice fuera de rango
     res := suma([2] valores, 5);
     imprimir(res);
+
+    ## ERROR: Esperada expresión lógica
+    mientras (jorge + 1) {
+        imprimir(jorge);
+    }
 }
 
 funcion ent suma(ent a, ent b) {
