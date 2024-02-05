@@ -302,35 +302,25 @@ public class Ensamblador {
             case "IGUAL":
                 // Scc hace set si se cumple, clear si no, nos viene perfecto
                 codigo.add("\tSEQ\tD0");   // Set if equal
-                codigo.add("\tCMP.B\t#-1, D0");
-                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "DIFERENTE":
                 codigo.add("\tSNE\tD0");   // Set if NOT equal
-                codigo.add("\tCMP.B\t#-1, D0");
-                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MENOR":
                 codigo.add("\tSLT\tD0");   // Set if less
-                codigo.add("\tCMP.B\t#-1, D0");
-                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MENOR_IGUAL":
                 codigo.add("\tSLE\tD0");   // Set if less or equal
-                codigo.add("\tCMP.B\t#-1, D0");
-                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MAYOR":
                 codigo.add("\tSGT\tD0");   // Set if greater
-                codigo.add("\tCMP.B\t#-1, D0");
-                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
             case "MAYOR_IGUAL":
                 codigo.add("\tSGE\tD0");   // Set if greater or equal
-                codigo.add("\tCMP.B\t#-1, D0");
-                codigo.add("\tBEQ\t" + instruccion.getDestino());
                 break;
         }
+        codigo.add("\tCMP.B\t#-1, D0");
+        codigo.add("\tBEQ\t" + instruccion.getDestino());
     }
 
     /**
