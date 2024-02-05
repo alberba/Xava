@@ -1,6 +1,7 @@
-package compiler;
+package compiler.Optimizador;
 
 import compiler.Intermedio.*;
+import compiler.Optimizador.ExpresionesDisponibles.AnExpDisponible;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -11,16 +12,19 @@ public class Optimizador {
 
     private final Intermedio intermedio;
     private boolean hayCambios = true;
+    private AnExpDisponible expDisponible;
 
     public Optimizador(Intermedio intermedio) {
         this.intermedio = intermedio;
+        this.expDisponible = new AnExpDisponible();
     }
 
     public Intermedio optimizarIntermedio() {
         while (hayCambios) {
             hayCambios = false;
-            optimizar();
-            eliminarCodigoMuerto();
+            ExpDisponibles();
+            //optimizar();
+            //eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
         return intermedio;
@@ -468,4 +472,38 @@ public class Optimizador {
                 && intermedio.buscarVariable(instruccion.getDestino()).isEsTemp();
     }
 
+
+    /*******************************************************************************************************************
+     * *****************************************************************************************************************
+     * ****************************************************************************************************************/
+
+    private boolean esAsig(Instruccion instruccion){
+        switch (instruccion.getOperacion()){
+            case ASIG:
+            case SUMA:
+            case RESTA:
+            case MODULO:
+            case ASIGNADO:
+            case INDEXADO:
+            case MULTIPLICACION:
+            case DIVISION:
+                return true;
+        }
+        return false;
+    }
+    //Realiza expDisponibles
+    private void ExpDisponibles(){
+        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
+        for (Instruccion instruccion : instrucciones){
+            if(esAsig(instruccion)){
+                String id = expDisponible.getExpDisponible(instruccion);
+                if(!id.equals("$")){
+                    instruccion.setOperacion(OperacionInst.ASIG);
+                    instruccion.setOperador1(id);
+                }
+                expDisponible.removeExpDisponible(instruccion.getDestino());
+            }
+        }
+        this.expDisponible.Clear();
+    }
 }

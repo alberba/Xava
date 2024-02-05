@@ -2,7 +2,7 @@ package compiler.Intermedio;
 
 public class Instruccion {
 
-    private final OperacionInst operacion;
+    private OperacionInst operacion;
     private String operador1;
     private String operador2;
     private String destino;
@@ -113,4 +113,6 @@ public class Instruccion {
     public void setDestino(String destino) {
         this.destino = destino;
     }
+
+    public void setOperacion(OperacionInst op){this.operacion = op;}
 }
