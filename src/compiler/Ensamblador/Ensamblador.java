@@ -58,19 +58,15 @@ public class Ensamblador {
                 }
             } else {
                 Symbol symbol = ts.busquedaSymbolEnsamblador(id[0]);
-                if (symbol.isConstant()) { // Constantes
-                    codigo.add(var.getId() + "\t\tEQU\t" + var);
-                } else {
-                    String tipo = "";
-                    switch (symbol.getTipoReturn()) {
-                        case ENTERO, CARACTER -> tipo = "DS.W";
-                        case BOOLEANO -> tipo = "DS.B";
-                    }
-                    if (symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
-                        codigo.add(var.getId() + "\t\t" + tipo + "\t" + var.getNumElementos());
-                    } else { // Variables
-                        codigo.add(var.getId() + "\t\t" + tipo + "\t1");
-                    }
+                String tipo = "";
+                switch (symbol.getTipoReturn()) {
+                    case ENTERO, CARACTER -> tipo = "DS.W";
+                    case BOOLEANO -> tipo = "DS.B";
+                }
+                if (symbol.getTipoElemento() == TipoElemento.ARRAY) { // Arrays
+                    codigo.add(var.getId() + "\t\t" + tipo + "\t" + var.getNumElementos());
+                } else { // Variables
+                    codigo.add(var.getId() + "\t\t" + tipo + "\t1");
                 }
             }
         }
@@ -163,7 +159,7 @@ public class Ensamblador {
             case ENTRADA_BOOL:
                 flagsSubrutinas[2] = true;
                 codigo.add("\tJSR LEERBOOL\t");
-                codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
+                codigo.add("\tMOVE.B\tD1, " + instruccion.getDestino());
                 break;
             case ENTRADA_CAR:
                 flagsSubrutinas[3] = true;
@@ -223,8 +219,10 @@ public class Ensamblador {
      */
     private void ensambladorMultDivMod(Instruccion instruccion, String op, boolean esMod) {
         // Se mira si se puede optimizar la operación
-        if (optMultDiv(instruccion, op)) {
-            return;
+        if (!esMod) {
+            if (optMultDiv(instruccion, op)) {
+                return;
+            }
         }
         // En caso contrario, se opera normalmente
         String var1 = convertirOperador(instruccion.getOperador1());
@@ -456,6 +454,7 @@ public class Ensamblador {
      */
     private void ensambladorImprimir(Instruccion instruccion) {
         EnumType tipo = intermedio.buscarVariable(instruccion.getDestino()).getTipo();
+        codigo.add("\tCLR.L\tD1");
         if (tipo == EnumType.BOOLEANO) {
             codigo.add("\tMOVE.B\t" + instruccion.getDestino() + ", D1");
         } else {
@@ -536,7 +535,7 @@ public class Ensamblador {
             codigo.add("");
             codigo.add("*-----------------------------------------------------------");
         }
-        if(flagsSubrutinas[2]) {
+        if(flagsSubrutinas[3] || flagsSubrutinas[2]) { // leerBool necesita leerCar, si se activa leerBool, leerCar también
             codigo.add("LEERCAR:");
             codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
             codigo.add("\tCLR.L\tD0"); // Limpiar D0
@@ -547,9 +546,14 @@ public class Ensamblador {
             codigo.add("");
             codigo.add("*-----------------------------------------------------------");
         }
-        if(flagsSubrutinas[3]) {
+        if(flagsSubrutinas[2]) {
             codigo.add("LEERBOOL:");
             codigo.add("\tJSR\tLEERCAR");
+            codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+            codigo.add("\tLEA\t.AUX, A1");
+            codigo.add("\tMOVE.W\t#13, D0");
+            codigo.add("\tTRAP\t#15");
+            codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
             codigo.add("\tCMP.B\t#'v', D1");
             codigo.add("\tBEQ\t.VERDADERO");
             codigo.add("\tCMP.B\t#'V', D1");
@@ -562,8 +566,9 @@ public class Ensamblador {
             codigo.add(".VERDADERO\tMOVE.B\t#-1, D1");
             codigo.add("\tBRA\t.FINBOOL");
             codigo.add(".FALSO\tMOVE.B\t#0, D1");
-            codigo.add(".FINBOOl");
+            codigo.add(".FINBOOL");
             codigo.add("\tRTS");
+            codigo.add(".AUX\tDC.B\t' ', 0");
             codigo.add("*-----------------------------------------------------------");
         }
     }

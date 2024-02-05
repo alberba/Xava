@@ -6,16 +6,46 @@ funcion ent pow(ent b, ent e);
 
 principal {
     ent base := leerEnt();
-    ent i := 0;
-    mientras (i < 10) {
-        imprimir(i);
-        i := i + 1;
+    ## Check asignación múltiple
+    const ent conEnt := -1;
+    const car conCar, conCar2 := "a";
+    car letr := conCar;
+    ## Check asignación de constantes
+    imprimir(conCar);
+    imprimir(conCar2);
+    imprimir(letr);
+    ent k, l, m := conEnt + 1;
+    imprimir("m");
+    imprimir(m);
+    l := l + 1;
+    imprimir("l");
+    imprimir(l);
+    imprimir("m");
+    imprimir(m);
+    imprimir("I");
+    ## Check bucles anidados
+
+    mientras (k < 3) {
+        ent i := 0;
+        para (i < 10; i := i + 1;) {
+            imprimir(i);
+            si (k = 0) {
+                continuar;
+            }
+            si (i = 5) {
+                romper;
+            }
+        }
+        k := k + 1;
+        si (k = 1) {
+            continuar;
+        }
         si (i = 5) {
             romper;
         }
     }
     ent j := 0;
-    para(j<10; j := j + 1;) {
+    para (j < 10; j := j + 1;) {
         si (j % 2 = 0) {
             continuar;
         }
@@ -23,6 +53,7 @@ principal {
     }
     ent exponent := leerEnt();
     imprimir(pow(base, exponent));
+    imprimir(leerBool());
 }
 
 ##
@@ -41,11 +72,14 @@ funcion ent pow(ent b, ent e) {
     ent resultado := 1;
     ent absE := abs(e);
 
+    /* test
+            Jorge multilinea jijijaja
+            test 2 */
     mientras(absE > 0 y resultado > 0) {
         ## Jorge jijijaja
         /* test
-        Jorge multilinea jijijaja
-        test 2 */
+                Jorge multilinea jijijaja
+                test 2 */
         resultado := resultado * b;
         absE := absE - 1;
     }

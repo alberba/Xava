@@ -71,8 +71,9 @@ public class Intermedio {
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
                 v = new Variable(id + "$0g", tipo, longitud, false);
             } else { // En caso contrario, se busca en el procedimiento actual
-                // Comprobar si la variable es global
+                // Antes se busca en la tabla de variables para ver si ya existe
                 for (Variable variable : tv) {
+                    // Se busca también en el ámbito global
                     if (variable.getId().equals(id + "$0g")) {
                         return variable;
                     } else if (!variable.getId().contains("$0g")) {

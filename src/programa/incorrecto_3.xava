@@ -11,6 +11,9 @@ principal {
     imprimir(res);
 
     ## ERROR: Índice fuera de rango
+    ent a := [-1] valores;
+
+    ## ERROR: Índice fuera de rango
     res := suma([2] valores, 5);
     imprimir(res);
 }

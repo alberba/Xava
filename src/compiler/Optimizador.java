@@ -17,9 +17,8 @@ public class Optimizador {
     public Intermedio optimizarIntermedio() {
         while (hayCambios) {
             hayCambios = false;
-            diferidasAndbranc();
-            hayOperacionesConstantes();
-            eliminarEtiquetasNoAccesibles();
+            diferidasAndbrancAndConstantes();
+            //eliminarEtiquetasNoAccesibles();
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
@@ -65,31 +64,110 @@ public class Optimizador {
      * Método que se encarga de procesar las asignaciones diferidas y los saltos sobre saltos. Se juntan ambas optimizaciones para evitar
      * dobles recorridos del código intermedio.
      */
-    private void diferidasAndbranc() {
+    private void diferidasAndbrancAndConstantes() {
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
         ArrayList<Variable> variables = intermedio.getTv();
         ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
         ArrayList<Variable> variablesAEliminar = new ArrayList<>();
+        TreeMap<String, Boolean> labels = new TreeMap<>();
+        ArrayList<Integer> indexEtiquetas = new ArrayList<>();
         HashSet<String> variablesAnalizadas = new HashSet<>();
 
         Instruccion instruccion;
         // Recorrerá todas las instrucciones
+        boolean eliminado = false;
         for (int i = 0; i < instrucciones.size(); i++) {
-            boolean eliminado = false;
+            eliminado = false;
             instruccion = instrucciones.get(i);
 
             if (esAsignacionDiferida(instruccion, variablesAnalizadas)) {
                 // En caso de ser una asignación diferida, se procesa
                 eliminado = procesarAsignacionDiferida(i, instrucciones, variablesAnalizadas, instruccionesAEliminar, variablesAEliminar);
-            }
 
-            // Si la instrucción se va a eliminar, no cabe seguir comprobando esta misma instrucción
-            if (eliminado) {
-                continue;
+                // Si la instrucción se va a eliminar, no cabe seguir comprobando esta misma instrucción
+                if (eliminado) {
+                    continue;
+                }
+
+            } else if (esOperacionConstante(instruccion)) {
+                String operacion;
+                boolean condicionCumplida = false;
+                // Variable para comprobar más tarde si se trata de una operación lógica
+                boolean esLogica = false;
+                hayCambios = true;
+                // En caso de ser constante, se realizará la operación según el tipo de instrucción
+                switch (instruccion.getOperacion()) {
+                    case SUMA:
+                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) + Integer.parseInt(instruccion.getOperador2()));
+                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                        break;
+                    case RESTA:
+                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) - Integer.parseInt(instruccion.getOperador2()));
+                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                        break;
+                    case MULTIPLICACION:
+                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) * Integer.parseInt(instruccion.getOperador2()));
+                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                        break;
+                    case DIVISION:
+                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) / Integer.parseInt(instruccion.getOperador2()));
+                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                        break;
+                    case MODULO:
+                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) % Integer.parseInt(instruccion.getOperador2()));
+                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                        break;
+                    case IGUAL:
+                        esLogica = true;
+                        // Sirve tanto para ints como para chars
+                        condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
+                        break;
+                    case DIFERENTE:
+                        esLogica = true;
+                        // Sirve tanto para ints como para chars
+                        condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
+                        break;
+                    case MENOR:
+                        esLogica = true;
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) < Integer.parseInt(instruccion.getOperador2());
+                        break;
+                    case MENOR_IGUAL:
+                        esLogica = true;
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) <= Integer.parseInt(instruccion.getOperador2());
+                        break;
+                    case MAYOR:
+                        esLogica = true;
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) > Integer.parseInt(instruccion.getOperador2());
+                        break;
+                    case MAYOR_IGUAL:
+                        esLogica = true;
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) >= Integer.parseInt(instruccion.getOperador2());
+                        break;
+                    case SALTO_COND:
+                        esLogica = true;
+                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == 0;
+                        break;
+                }
+
+                // En caso de ser una operación lógica, se cambiará la instrucción por un salto incondicional en caso
+                // de que la condición se cumpla, o se eliminará la instrucción en caso contrario
+                if (esLogica) {
+                    if (condicionCumplida) {
+                        instrucciones.set(i, new Instruccion(OperacionInst.SALTO_INCON, null, null, instruccion.getDestino()));
+                    } else {
+                        instrucciones.remove(instruccion);
+                        i--;
+                    }
+                }
+
             }
 
             // Se comprueba si hay un salto a una etiqueta donde la siguiente instrucción es un salto incondicional
             switch (instruccion.getOperacion()) {
+                case ETIQUETA:
+                    indexEtiquetas.add(i);
+                    labels.put(instruccion.getDestino(), false);
+                    break;
                 case SALTO_COND:
                 case MENOR:
                 case MENOR_IGUAL:
@@ -113,9 +191,26 @@ public class Optimizador {
                             }
                         }
                     }
+                case LLAMADA:
+                case SALTO_INCON:
+                case Y:
+                case O:
+                    labels.put(instruccion.getDestino(), true);
+                    break;
             }
 
         }
+        // Comprueba si existe una etiqueta a la que no se accede
+        if (labels.containsValue(false)) {
+            for (Integer indexEtiqueta : indexEtiquetas) {
+                instruccion = instrucciones.get(indexEtiqueta);
+                if (!labels.get(instruccion.getDestino())) {
+                    hayCambios = true;
+                    instruccionesAEliminar.add(instruccion);
+                }
+            }
+        }
+
         // Si se han eliminado instrucciones, se actualiza el código intermedio
         if (!instruccionesAEliminar.isEmpty()) {
             // Eliminación de las instrucciones y variables que ya no se usan
@@ -134,7 +229,7 @@ public class Optimizador {
      * operaciones con valores constantes, ya que estas se pueden realizar en tiempo de compilación.
      * En caso de encontrar uno, se realizará la operación y se actualizará la instrucción
      */
-    private void hayOperacionesConstantes() {
+    private void procesarOperacionConstante() {
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
 
         Instruccion instruccion;

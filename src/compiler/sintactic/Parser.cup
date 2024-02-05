@@ -492,7 +492,6 @@ VAL_BOL         ::= VERDADERO                                                   
 
 ARRAY           ::= L_ARR:list_arr ID:id
                 {:
-
                     int nDimensiones = getDimensionesArray(list_arr);
                     RESULT = new ArrayG(id, list_arr, nDimensiones, idleft, idright);
                 :}

@@ -82,7 +82,7 @@ COMILLAS = \"
 P_COMA = ;
 COMA = ,
 COMENTARIO = ## .* [\r|\n|\r\n]?
-MULT_COMT = \/\*[\s\S]*\*\/
+MULT_COMT = \/\*[^\*|\/]*\*\/
 
 ESPACIO = [' '| \t|\r|\f]+
 SALTO_LINEA = \n

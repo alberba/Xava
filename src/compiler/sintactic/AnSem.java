@@ -144,9 +144,8 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba, en caso de que sea un array, si existe el simbolo y si tiene las mismas dimensiones
-     * que la declaración.
-     *
+     * Función que comprueba, en caso de que sea un array, si existe el simbolo y si los valores de indexación presentan
+     * coherencia con la declaración (que se encuentre dentro del rango permitido).
      * @param linea Linea del código donde se encuentra el array
      */
     public void gestArray(ArrayG array, int linea) {
@@ -165,6 +164,9 @@ public class AnSem {
                         // Podemos comprobar en tiempo de compilación si es correcto
                         if (Integer.parseInt(l_arr.getExp().getValue().getValue()) >= symbol.getDimensiones().get(i)) {
                             ErrorC.añadirError(new ErrorC("El índice del array se encuentra fuera del rango de elementos", l_arr.getExp().getLinea(), Fase.SEMÁNTICO));
+                        }
+                        if (Integer.parseInt(l_arr.getExp().getValue().getValue()) < 0) {
+                            ErrorC.añadirError(new ErrorC("La indexación presenta un valor negativo", l_arr.getExp().getLinea(), Fase.SEMÁNTICO));
                         }
                     }
                     i++;
