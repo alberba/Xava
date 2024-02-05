@@ -2,7 +2,9 @@ package compiler;
 
 import compiler.Intermedio.*;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.TreeMap;
 
 public class Optimizador {
 
@@ -17,13 +19,138 @@ public class Optimizador {
     public Intermedio optimizarIntermedio() {
         while (hayCambios) {
             hayCambios = false;
-            diferidasAndbrancAndConstantes();
-            //eliminarEtiquetasNoAccesibles();
+            optimizar();
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
         return intermedio;
 
+    }
+
+    /**
+     * Método que se encarga de optimizar el código intermedio. Recorriendo todas las instrucciones, se buscarán las
+     * asignaciones diferidas, los saltos sobre saltos, las etiquetas inaccesibles y las operaciones constantes para
+     * optimizar el código.
+     */
+    private void optimizar() {
+        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
+        ArrayList<Variable> variables = intermedio.getTv();
+        ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
+        ArrayList<Variable> variablesAEliminar = new ArrayList<>();
+        TreeMap<String, Boolean> labels = new TreeMap<>();
+        ArrayList<Integer> indexEtiquetas = new ArrayList<>();
+        HashSet<String> variablesAnalizadas = new HashSet<>();
+
+        Instruccion instruccion;
+        // Recorrerá todas las instrucciones
+        boolean eliminado;
+        for (int i = 0; i < instrucciones.size(); i++) {
+            instruccion = instrucciones.get(i);
+
+            if (esAsignacionDiferida(instruccion, variablesAnalizadas)) {
+                // En caso de ser una asignación diferida, se procesa
+                eliminado = procesarAsignacionDiferida(i, instrucciones, variablesAnalizadas, instruccionesAEliminar, variablesAEliminar);
+                // Si la instrucción se va a eliminar, no cabe seguir comprobando esta misma instrucción
+                if (eliminado) {
+                    continue;
+                }
+
+            } else if (esOperacionConstante(instruccion)) {
+                // En caso de ser una operación constante, se procesa
+                i = procesarOperacionConstante(instrucciones, i, instruccion);
+            }
+
+            // Juntamos la comprobación de las etiquetas inaccesibles y de los saltos sobre saltos
+            switch (instruccion.getOperacion()) {
+                case ETIQUETA:
+                    // En caso de ser una etiqueta, se añade al árbol de etiquetas para comprobar si se le hace referencia
+                    indexEtiquetas.add(i);
+                    if (!labels.containsKey(instruccion.getDestino())) {
+                        labels.put(instruccion.getDestino(), false);
+                    }
+                    break;
+                case SALTO_COND:
+                case MENOR:
+                case MENOR_IGUAL:
+                case IGUAL:
+                case DIFERENTE:
+                case MAYOR:
+                case MAYOR_IGUAL:
+                case NO:
+                    procesarSaltoSobreSalto(instrucciones, i, instruccion);
+                case LLAMADA:
+                case SALTO_INCON:
+                case Y:
+                case O:
+                    // Indicar que la etiqueta esta siendo referenciada
+                    labels.put(instruccion.getDestino(), true);
+                    break;
+            }
+
+        }
+        // Eliminar etiquetas no accesibles
+        procesarEtiquetasInaccesibles(labels, indexEtiquetas, instrucciones, instruccionesAEliminar);
+
+        // Actualización del código intermedio y la tabla de variables si es necesario
+        actualizarCodigoYTv(instrucciones, instruccionesAEliminar, variables, variablesAEliminar);
+
+    }
+
+    /**
+     * Método que irá recorriendo cada instrucción del código intermedio en busca de código muerto,
+     * es decir, instrucciones o procedimientos que no se ejecutan nunca. En caso de encontrar una, se eliminará.
+     */
+    private void eliminarCodigoMuerto() {
+        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
+        ArrayList<Procedimiento> procedimientos = intermedio.getTp();
+        ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
+        ArrayList <Procedimiento> prodAEliminar = new ArrayList<>();
+
+        Instruccion instruccion;
+        // Recorrido de instrucciones
+        for (int i = 0; i < instrucciones.size(); i++) {
+            instruccion = instrucciones.get(i);
+            switch (instruccion.getOperacion()) {
+                case RETORNO:
+                case SALTO_INCON:
+
+                    // Si es un salto incondicional o un retorno, se eliminan las siguientes instrucciones hasta
+                    // encontrar una etiqueta
+                    for(int j = i + 1; j < instrucciones.size(); j++) {
+                        Instruccion aux = instrucciones.get(j);
+                        if (aux.getOperacion() == OperacionInst.ETIQUETA) {
+                            // Comprueba si la etiqueta es la misma que el salto incondicional. En tal caso, no es necesario
+                            // hacer uso del salto
+                            if (aux.getDestino().equals(instruccion.getDestino())) {
+                                instruccionesAEliminar.add(instruccion);
+                                i = j + 1;
+                            } else {
+                                i = j;
+                            }
+                            break;
+                        }
+                        instruccionesAEliminar.add(aux);
+                    }
+                    break;
+                case INICIALIZACION:
+                    i = eliminarFuncionesNoLlamadas(instrucciones, i, instruccion, instruccionesAEliminar, prodAEliminar);
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if (!instruccionesAEliminar.isEmpty()) {
+            // Eliminación de las instrucciones que ya no se usan
+            instrucciones.removeAll(instruccionesAEliminar);
+            if (prodAEliminar.isEmpty()) {
+                procedimientos.removeAll(prodAEliminar);
+                intermedio.setTp(procedimientos);
+            }
+
+            // Actualización de la lista de instrucciones
+            intermedio.setCodigo(instrucciones);
+        }
     }
 
     private void eliminarVariablesnoUsadas() {
@@ -61,404 +188,6 @@ public class Optimizador {
     }
 
     /**
-     * Método que se encarga de procesar las asignaciones diferidas y los saltos sobre saltos. Se juntan ambas optimizaciones para evitar
-     * dobles recorridos del código intermedio.
-     */
-    private void diferidasAndbrancAndConstantes() {
-        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-        ArrayList<Variable> variables = intermedio.getTv();
-        ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
-        ArrayList<Variable> variablesAEliminar = new ArrayList<>();
-        TreeMap<String, Boolean> labels = new TreeMap<>();
-        ArrayList<Integer> indexEtiquetas = new ArrayList<>();
-        HashSet<String> variablesAnalizadas = new HashSet<>();
-
-        Instruccion instruccion;
-        // Recorrerá todas las instrucciones
-        boolean eliminado = false;
-        for (int i = 0; i < instrucciones.size(); i++) {
-            eliminado = false;
-            instruccion = instrucciones.get(i);
-
-            if (esAsignacionDiferida(instruccion, variablesAnalizadas)) {
-                // En caso de ser una asignación diferida, se procesa
-                eliminado = procesarAsignacionDiferida(i, instrucciones, variablesAnalizadas, instruccionesAEliminar, variablesAEliminar);
-
-                // Si la instrucción se va a eliminar, no cabe seguir comprobando esta misma instrucción
-                if (eliminado) {
-                    continue;
-                }
-
-            } else if (esOperacionConstante(instruccion)) {
-                String operacion;
-                boolean condicionCumplida = false;
-                // Variable para comprobar más tarde si se trata de una operación lógica
-                boolean esLogica = false;
-                hayCambios = true;
-                // En caso de ser constante, se realizará la operación según el tipo de instrucción
-                switch (instruccion.getOperacion()) {
-                    case SUMA:
-                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) + Integer.parseInt(instruccion.getOperador2()));
-                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                        break;
-                    case RESTA:
-                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) - Integer.parseInt(instruccion.getOperador2()));
-                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                        break;
-                    case MULTIPLICACION:
-                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) * Integer.parseInt(instruccion.getOperador2()));
-                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                        break;
-                    case DIVISION:
-                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) / Integer.parseInt(instruccion.getOperador2()));
-                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                        break;
-                    case MODULO:
-                        operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) % Integer.parseInt(instruccion.getOperador2()));
-                        instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                        break;
-                    case IGUAL:
-                        esLogica = true;
-                        // Sirve tanto para ints como para chars
-                        condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
-                        break;
-                    case DIFERENTE:
-                        esLogica = true;
-                        // Sirve tanto para ints como para chars
-                        condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
-                        break;
-                    case MENOR:
-                        esLogica = true;
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) < Integer.parseInt(instruccion.getOperador2());
-                        break;
-                    case MENOR_IGUAL:
-                        esLogica = true;
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) <= Integer.parseInt(instruccion.getOperador2());
-                        break;
-                    case MAYOR:
-                        esLogica = true;
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) > Integer.parseInt(instruccion.getOperador2());
-                        break;
-                    case MAYOR_IGUAL:
-                        esLogica = true;
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) >= Integer.parseInt(instruccion.getOperador2());
-                        break;
-                    case SALTO_COND:
-                        esLogica = true;
-                        condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == 0;
-                        break;
-                }
-
-                // En caso de ser una operación lógica, se cambiará la instrucción por un salto incondicional en caso
-                // de que la condición se cumpla, o se eliminará la instrucción en caso contrario
-                if (esLogica) {
-                    if (condicionCumplida) {
-                        instrucciones.set(i, new Instruccion(OperacionInst.SALTO_INCON, null, null, instruccion.getDestino()));
-                    } else {
-                        instrucciones.remove(instruccion);
-                        i--;
-                    }
-                }
-
-            }
-
-            // Se comprueba si hay un salto a una etiqueta donde la siguiente instrucción es un salto incondicional
-            switch (instruccion.getOperacion()) {
-                case ETIQUETA:
-                    indexEtiquetas.add(i);
-                    labels.put(instruccion.getDestino(), false);
-                    break;
-                case SALTO_COND:
-                case MENOR:
-                case MENOR_IGUAL:
-                case IGUAL:
-                case DIFERENTE:
-                case MAYOR:
-                case MAYOR_IGUAL:
-                case NO:
-                    boolean encontrado = false;
-                    // Buscará la etiqueta a la que salta
-                    for (int j = i + 1; j + 1 < instrucciones.size() && !encontrado; j++) {
-                        if (instrucciones.get(j).getOperacion() == OperacionInst.ETIQUETA) {
-                            encontrado = true;
-                            // En caso de encontrarlo, comprobará que la siguiente instrucción sea un salto incondicional
-                            if(instrucciones.get(j).getDestino().equals(instruccion.getDestino())) {
-                                if (instrucciones.get(j + 1).getOperacion() == OperacionInst.SALTO_INCON) {
-                                    hayCambios = true;
-                                    // Si se cumple, se cambiará la etiqueta del salto condicional al destino del salto incondicional
-                                    instruccion.setDestino(instrucciones.get(j + 1).getDestino());
-                                }
-                            }
-                        }
-                    }
-                case LLAMADA:
-                case SALTO_INCON:
-                case Y:
-                case O:
-                    labels.put(instruccion.getDestino(), true);
-                    break;
-            }
-
-        }
-        // Comprueba si existe una etiqueta a la que no se accede
-        if (labels.containsValue(false)) {
-            for (Integer indexEtiqueta : indexEtiquetas) {
-                instruccion = instrucciones.get(indexEtiqueta);
-                if (!labels.get(instruccion.getDestino())) {
-                    hayCambios = true;
-                    instruccionesAEliminar.add(instruccion);
-                }
-            }
-        }
-
-        // Si se han eliminado instrucciones, se actualiza el código intermedio
-        if (!instruccionesAEliminar.isEmpty()) {
-            // Eliminación de las instrucciones y variables que ya no se usan
-            instrucciones.removeAll(instruccionesAEliminar);
-            variables.removeAll(variablesAEliminar);
-
-            // Actualización de la lista de instrucciones y variables
-            intermedio.setTv(variables);
-            intermedio.setCodigo(instrucciones);
-        }
-    }
-
-
-    /**
-     * Metodo que irá recorriendo todas las instrucciones del código intermedio en busca de
-     * operaciones con valores constantes, ya que estas se pueden realizar en tiempo de compilación.
-     * En caso de encontrar uno, se realizará la operación y se actualizará la instrucción
-     */
-    private void procesarOperacionConstante() {
-        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-
-        Instruccion instruccion;
-        // Recorrerá todas las instrucciones del código intermedio
-        for (int i = 0; i < instrucciones.size(); i++) {
-            instruccion = instrucciones.get(i);
-            String operacion;
-            // Si la operación no es constante, se salta a la siguiente
-            if (!esOperacionConstante(instruccion)) {
-                continue;
-            }
-
-            boolean condicionCumplida = false;
-            // Variable para comprobar más tarde si se trata de una operación lógica
-            boolean esLogica = false;
-            hayCambios = true;
-            // En caso de ser constante, se realizará la operación según el tipo de instrucción
-            switch (instruccion.getOperacion()) {
-                case SUMA:
-                    operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) + Integer.parseInt(instruccion.getOperador2()));
-                    instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                    break;
-                case RESTA:
-                    operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) - Integer.parseInt(instruccion.getOperador2()));
-                    instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                    break;
-                case MULTIPLICACION:
-                    operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) * Integer.parseInt(instruccion.getOperador2()));
-                    instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                    break;
-                case DIVISION:
-                    operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) / Integer.parseInt(instruccion.getOperador2()));
-                    instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                    break;
-                case MODULO:
-                    operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) % Integer.parseInt(instruccion.getOperador2()));
-                    instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
-                    break;
-                case IGUAL:
-                    esLogica = true;
-                    // Sirve tanto para ints como para chars
-                    condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
-                    break;
-                case DIFERENTE:
-                    esLogica = true;
-                    // Sirve tanto para ints como para chars
-                    condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
-                    break;
-                case MENOR:
-                    esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) < Integer.parseInt(instruccion.getOperador2());
-                    break;
-                case MENOR_IGUAL:
-                    esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) <= Integer.parseInt(instruccion.getOperador2());
-                    break;
-                case MAYOR:
-                    esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) > Integer.parseInt(instruccion.getOperador2());
-                    break;
-                case MAYOR_IGUAL:
-                    esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) >= Integer.parseInt(instruccion.getOperador2());
-                    break;
-                case SALTO_COND:
-                    esLogica = true;
-                    condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == 0;
-                    break;
-            }
-
-            // En caso de ser una operación lógica, se cambiará la instrucción por un salto incondicional en caso
-            // de que la condición se cumpla, o se eliminará la instrucción en caso contrario
-            if (esLogica) {
-                if (condicionCumplida) {
-                    instrucciones.set(i, new Instruccion(OperacionInst.SALTO_INCON, null, null, instruccion.getDestino()));
-                } else {
-                    instrucciones.remove(instruccion);
-                    i--;
-                }
-            }
-
-        }
-
-    }
-
-    /**
-     * Método que se encarga de eliminar las etiquetas que no son accesibles
-     */
-    private void eliminarEtiquetasNoAccesibles() {
-        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-        // Arbol de etiquetas que almacena el nombre de la etiqueta y si se le hace referencia alguna vez
-        TreeMap<String, Boolean> labels = new TreeMap<>();
-        ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
-        // Índice que guarda todas las posiciones de las etiquetas
-        ArrayList<Integer> indexEtiquetas = new ArrayList<>();
-
-        Instruccion instruccion;
-        // Recorrerá todas las instrucciones
-        for (int i = 0; i < instrucciones.size(); i++) {
-            instruccion = instrucciones.get(i);
-            switch (instruccion.getOperacion()) {
-                case ETIQUETA:
-                    indexEtiquetas.add(i);
-                    if (!labels.containsKey(instruccion.getDestino())) {
-                        labels.put(instruccion.getDestino(), false);
-                    }
-                    break;
-                case NO:
-                case Y:
-                case O:
-                case IGUAL:
-                case DIFERENTE:
-                case MENOR:
-                case MENOR_IGUAL:
-                case MAYOR:
-                case MAYOR_IGUAL:
-                case SALTO_INCON:
-                case SALTO_COND:
-                case LLAMADA:
-                    labels.put(instruccion.getDestino(), true);
-                    break;
-            }
-        }
-        // Comprueba si existe una etiqueta a la que no se accede
-        if (labels.containsValue(false)) {
-            for (Integer indexEtiqueta : indexEtiquetas) {
-                instruccion = instrucciones.get(indexEtiqueta);
-                if (!labels.get(instruccion.getDestino())) {
-                    hayCambios = true;
-                    instruccionesAEliminar.add(instruccion);
-                }
-            }
-        }
-
-        if (!instruccionesAEliminar.isEmpty()) {
-            // Eliminación de las instrucciones que ya no se usan
-            instrucciones.removeAll(instruccionesAEliminar);
-
-            // Actualización de la lista de instrucciones
-            intermedio.setCodigo(instrucciones);
-        }
-    }
-
-    /**
-     * Método que irá recorriendo cada instrucción del código intermedio en busca de código muerto,
-     * es decir, instrucciones o procedimientos que no se ejecutan nunca. En caso de encontrar una, se eliminará.
-     */
-    private void eliminarCodigoMuerto() {
-        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-        ArrayList<Procedimiento> procedimientos = intermedio.getTp();
-        ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
-        ArrayList <Procedimiento> prodAEliminar = new ArrayList<>();
-
-        Instruccion instruccion;
-        // Recorrido de instrucciones
-        for (int i = 0; i < instrucciones.size(); i++) {
-            instruccion = instrucciones.get(i);
-            switch (instruccion.getOperacion()) {
-                case RETORNO:
-                case SALTO_INCON:
-                    // Si es un salto incondicional o un retorno, se eliminan las siguientes instrucciones hasta
-                    // encontrar una etiqueta
-                    for(int j = i + 1; j < instrucciones.size(); j++) {
-                        Instruccion aux = instrucciones.get(j);
-                        if (aux.getOperacion() == OperacionInst.ETIQUETA) {
-                            // Comprueba si la etiqueta es la misma que el salto incondicional. En tal caso, no es necesario
-                            // hacer uso del salto
-                            if (aux.getDestino().equals(instruccion.getDestino())) {
-                                instruccionesAEliminar.add(instruccion);
-                                i = j + 1;
-                            } else {
-                                i = j;
-                            }
-                            break;
-                        }
-                        instruccionesAEliminar.add(aux);
-                    }
-                    break;
-                case INICIALIZACION:
-                    // Comprobará si la función está siendo llamada. En caso de que no sea así, no es útil
-                    // traducir la función
-                    boolean encontrado = false;
-                    for (Instruccion aux : instrucciones) {
-                        if (aux.getOperacion() == OperacionInst.LLAMADA && aux.getDestino().equals("e_"
-                                + instruccion.getDestino())) {
-                            encontrado = true;
-                            break;
-                        }
-                    }
-                    if (encontrado) {
-                        break;
-                    }
-                    for (Procedimiento proc : intermedio.getTp()) {
-                        if (proc.getId().equals(instruccion.getDestino())) {
-                            prodAEliminar.add(proc);
-                            break;
-                        }
-                    }
-
-                    // Elimina todas las instrucciones de la funcion
-                    for(int j = i - 1; j < instrucciones.size(); j++) {
-                        instruccion = instrucciones.get(j);
-                        if (instruccion.getOperacion() == OperacionInst.ETIQUETA &&
-                                instruccion.getDestino().contains("e_")){
-                            i = j;
-                            break;
-                        }
-                        instruccionesAEliminar.add(instruccion);
-                    }
-                    break;
-                default:
-                    break;
-            }
-        }
-
-        if (!instruccionesAEliminar.isEmpty()) {
-            // Eliminación de las instrucciones que ya no se usan
-            instrucciones.removeAll(instruccionesAEliminar);
-            if (prodAEliminar.isEmpty()) {
-                procedimientos.removeAll(prodAEliminar);
-                intermedio.setTp(procedimientos);
-            }
-
-            // Actualización de la lista de instrucciones
-            intermedio.setCodigo(instrucciones);
-        }
-    }
-
-    /**
      * Procesa las asignaciones diferidas. Primero, se comprueba en las siguientes instrucciones si se realiza una operación con el destino
      * de la asignación diferida. Eso quiere decir que se puede sustituir la variable temporal por su asignación diferida. En caso de encontrar otra
      * asignación de la misma variable temporal, se deja de buscar y se añade la variable a las analizadas.
@@ -493,10 +222,10 @@ public class Optimizador {
         }
         // Se comprueba que la asignación sea diferida
         if (!otraAsig) {
-            hayCambios = true;
             // Actualización de las instrucciones
             for (Instruccion aux: instruccionesAux) {
                 if (actualizarInstruccion(aux, instruccion)) {
+                    hayCambios = true;
                     eliminado = true;
                     instruccionesAEliminar.add(instruccion);
                     variablesAnalizadas.add(instruccion.getDestino());
@@ -507,6 +236,156 @@ public class Optimizador {
             variablesAnalizadas.add(instruccion.getDestino());
         }
         return eliminado;
+    }
+
+    /**
+     * Método que se encarga de procesar las operaciones constantes. En caso de ser una operación constante,
+     * se realizará la operación y se actualizará la instrucción con el resultado de la operación.
+     * @param instrucciones Lista de instrucciones
+     * @param i Índice de la instrucción a procesar
+     * @param instruccion Instrucción a procesar
+     * @return Índice de la instrucción a procesar actualizado
+     */
+    private int procesarOperacionConstante(ArrayList<Instruccion> instrucciones, int i, Instruccion instruccion) {
+        String operacion;
+        boolean condicionCumplida = false;
+        // Variable para comprobar más tarde si se trata de una operación lógica
+        boolean esLogica = false;
+        hayCambios = true;
+        // En caso de ser constante, se realizará la operación según el tipo de instrucción
+        switch (instruccion.getOperacion()) {
+            case SUMA:
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) + Integer.parseInt(instruccion.getOperador2()));
+                instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                break;
+            case RESTA:
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) - Integer.parseInt(instruccion.getOperador2()));
+                instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                break;
+            case MULTIPLICACION:
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) * Integer.parseInt(instruccion.getOperador2()));
+                instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                break;
+            case DIVISION:
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) / Integer.parseInt(instruccion.getOperador2()));
+                instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                break;
+            case MODULO:
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) % Integer.parseInt(instruccion.getOperador2()));
+                instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
+                break;
+            case IGUAL:
+                esLogica = true;
+                // Sirve tanto para ints como para chars
+                condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
+                break;
+            case DIFERENTE:
+                esLogica = true;
+                // Sirve tanto para ints como para chars
+                condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
+                break;
+            case MENOR:
+                esLogica = true;
+                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) < Integer.parseInt(instruccion.getOperador2());
+                break;
+            case MENOR_IGUAL:
+                esLogica = true;
+                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) <= Integer.parseInt(instruccion.getOperador2());
+                break;
+            case MAYOR:
+                esLogica = true;
+                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) > Integer.parseInt(instruccion.getOperador2());
+                break;
+            case MAYOR_IGUAL:
+                esLogica = true;
+                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) >= Integer.parseInt(instruccion.getOperador2());
+                break;
+            case SALTO_COND:
+                esLogica = true;
+                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == 0;
+                break;
+        }
+
+        // En caso de ser una operación lógica, se cambiará la instrucción por un salto incondicional en caso
+        // de que la condición se cumpla, o se eliminará la instrucción en caso contrario
+        if (esLogica) {
+            if (condicionCumplida) {
+                instrucciones.set(i, new Instruccion(OperacionInst.SALTO_INCON, null, null, instruccion.getDestino()));
+            } else {
+                instrucciones.remove(instruccion);
+                i--;
+            }
+        }
+        return i;
+
+    }
+
+    private void procesarSaltoSobreSalto(ArrayList<Instruccion> instrucciones, int i, Instruccion instruccion) {
+        // Comprobará si hay un salto sobre salto
+        boolean encontrado = false;
+        // Buscará la etiqueta a la que salta
+        for (int j = i + 1; j + 1 < instrucciones.size() && !encontrado; j++) {
+            if (instrucciones.get(j).getOperacion() == OperacionInst.ETIQUETA) {
+                encontrado = true;
+                // En caso de encontrarlo, comprobará que la siguiente instrucción sea un salto incondicional
+                if (instrucciones.get(j).getDestino().equals(instruccion.getDestino())) {
+                    if (instrucciones.get(j + 1).getOperacion() == OperacionInst.SALTO_INCON) {
+                        hayCambios = true;
+                        // Si se cumple, se cambiará la etiqueta del salto condicional al destino del salto incondicional
+                        instruccion.setDestino(instrucciones.get(j + 1).getDestino());
+                    }
+                }
+            }
+        }
+    }
+
+    private int eliminarFuncionesNoLlamadas(ArrayList <Instruccion> instrucciones, int i, Instruccion instruccion, ArrayList<Instruccion> instruccionesAEliminar, ArrayList<Procedimiento> prodAEliminar) {
+        // Comprobará si la función está siendo llamada. En caso de que no sea así, no es útil
+        // traducir la función
+        for (Instruccion aux : instrucciones) {
+            if (aux.getOperacion() == OperacionInst.LLAMADA && aux.getDestino().equals("e_"
+                    + instruccion.getDestino())) {
+                return i;
+            }
+        }
+        hayCambios = true;
+        for (Procedimiento proc : intermedio.getTp()) {
+            if (proc.getId().equals(instruccion.getDestino())) {
+                prodAEliminar.add(proc);
+                return i;
+            }
+        }
+
+        // Elimina todas las instrucciones de la funcion
+        for(int j = i - 1; j < instrucciones.size(); j++) {
+            instruccion = instrucciones.get(j);
+            if (instruccion.getOperacion() == OperacionInst.ETIQUETA &&
+                    instruccion.getDestino().contains("e_")){
+                i = j;
+                return i;
+            }
+            instruccionesAEliminar.add(instruccion);
+        }
+
+        return i;
+
+    }
+
+    /**
+     * Elimina las etiquetas a las que no se accede
+     */
+    private void procesarEtiquetasInaccesibles(TreeMap<String, Boolean> labels, ArrayList<Integer> indexEtiquetas, ArrayList<Instruccion> instrucciones, ArrayList<Instruccion> instruccionesAEliminar) {
+        // Comprueba si existe una etiqueta a la que no se accede
+        Instruccion instruccion;
+        if (labels.containsValue(false)) {
+            for (Integer indexEtiqueta : indexEtiquetas) {
+                instruccion = instrucciones.get(indexEtiqueta);
+                if (!labels.get(instruccion.getDestino())) {
+                    hayCambios = true;
+                    instruccionesAEliminar.add(instruccion);
+                }
+            }
+        }
     }
 
     /**
@@ -551,6 +430,26 @@ public class Optimizador {
         }
 
         return false;
+    }
+
+    /**
+     * Actualiza el código intermedio y la tabla de variables en caso de haber cambios
+     * @param instrucciones Lista de instrucciones
+     * @param instruccionesAEliminar Lista de instrucciones a eliminar
+     * @param variables Lista de variables
+     * @param variablesAEliminar Lista de variables a eliminar
+     */
+    private void actualizarCodigoYTv(ArrayList<Instruccion> instrucciones, ArrayList<Instruccion> instruccionesAEliminar, ArrayList<Variable> variables, ArrayList<Variable> variablesAEliminar) {
+        // Si se han eliminado instrucciones, se actualiza el código intermedio
+        if (!instruccionesAEliminar.isEmpty() || !variablesAEliminar.isEmpty()) {
+            // Eliminación de las instrucciones y variables que ya no se usan
+            instrucciones.removeAll(instruccionesAEliminar);
+            variables.removeAll(variablesAEliminar);
+
+            // Actualización de la lista de instrucciones y variables
+            intermedio.setTv(variables);
+            intermedio.setCodigo(instrucciones);
+        }
     }
 
     // Método auxiliar para verificar si los operandos son iguales
