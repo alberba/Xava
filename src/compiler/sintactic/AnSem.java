@@ -19,6 +19,10 @@ public class AnSem {
      * @return Tipo de la expresión resultante
      */
     public EnumType gestExp(Exp exp) {
+        // Caso de negación: E -> NO E
+        if (exp.getValue() == null) {
+            return gestExp(exp.getExp());
+        }
         // Check del value
         EnumType tipo = gestValue(exp.getValue());
         if (tipo == null) {

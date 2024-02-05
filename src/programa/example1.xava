@@ -3,4 +3,8 @@ principal {
     ent b := 2;
     a := a + a;
     b := a * 17;
+    bool c := verdadero;
+    imprimir(c);
+    c := no no no c;
+    imprimir(c);
 }

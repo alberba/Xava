@@ -113,7 +113,7 @@ public class Ensamblador {
                 codigo.add("\tBNE\t" + instruccion.getDestino());
                 break;
             case NO:
-                ensambladorNo(instruccion);
+                codigo.add("\tNOT.B\t" + instruccion.getDestino());
                 break;
             case INDEXADO:
                 ensambladorIndexado(instruccion);
@@ -321,17 +321,6 @@ public class Ensamblador {
         }
         codigo.add("\tCMP.B\t#-1, D0");
         codigo.add("\tBEQ\t" + instruccion.getDestino());
-    }
-
-    /**
-     * Función encargada de traduci la instrucción del NOT a ensamblador
-     *
-     * @param instruccion Instrucción a traducir
-     */
-    private void ensambladorNo(Instruccion instruccion) {
-        codigo.add("\tMOVE.B\t" + instruccion.getDestino() + ", D0");
-        codigo.add("\tNOT.B\tD0");
-        codigo.add("\tMOVE.B\tD0, " + instruccion.getDestino());
     }
 
     /**

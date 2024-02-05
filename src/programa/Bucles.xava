@@ -12,15 +12,15 @@ funcion ent dowhile(ent contador){
     ent a := contador;
     ent result := 0;
 
-    hacer{
+    hacer {
         result := a + result;
         a:= a - 1;
-    }mientras(a != 0);
+    } mientras(a != 0);
 
     devuelve result;
 }
 
-funcion ent for(ent contador){
+funcion ent for(ent contador) {
     ent result := 0;
     ent a := 0;
     para (a <= contador; a := a + 1;) {

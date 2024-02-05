@@ -1838,7 +1838,7 @@ class CUP$Parser$actions {
 		int val_bolleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int val_bolright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Val_Bol val_bol = (Val_Bol)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = new Value(val_bol, val_bolleft, val_bolright);                      
+		 RESULT = new Value(val_bol, val_bolleft, val_bolright);
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("VALUE",34, ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
