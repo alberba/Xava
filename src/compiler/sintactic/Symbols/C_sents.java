@@ -5,7 +5,7 @@ public class C_sents extends SimboloBase {
 
         private Sent sent;
         private C_sent c_sent;
-        private C_sents c_sents;
+        private final C_sents c_sents;
 
         public C_sents(C_sent c_sent, C_sents c_sents, int linea, int columna) {
             super(linea,columna);
@@ -19,17 +19,17 @@ public class C_sents extends SimboloBase {
             this.c_sents = c_sents;
         }
 
-    public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit, String retorno) {
+    public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit) {
         if(labelFinal != null){
             if (c_sent != null) {
-                c_sent.generarIntermedio(intermedio, labelFinal, labelInit, retorno);
+                c_sent.generarIntermedio(intermedio, labelFinal, labelInit);
             }
         }
         if (sent != null) {
-            sent.generarIntermedio(intermedio);
+            sent.generarIntermedio(intermedio, labelFinal, labelInit);
         }
         if(c_sents != null) {
-            c_sents.generarIntermedio(intermedio, labelFinal, labelInit, retorno);
+            c_sents.generarIntermedio(intermedio, labelFinal, labelInit);
         }
     }
 

@@ -16,12 +16,12 @@ public class Sent extends SimboloBase {
         this.inst = inst;
     }
 
-    public void generarIntermedio(Intermedio intermedio) {
+    public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit) {
         if(decl != null){
             decl.generarIntermedio(intermedio);
         }
         if(inst != null){
-            inst.generarIntermedio(intermedio);
+            inst.generarIntermedio(intermedio, labelFinal, labelInit);
         }
     }
 

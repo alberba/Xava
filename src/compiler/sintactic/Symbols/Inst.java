@@ -48,7 +48,7 @@ public class Inst extends SimboloBase {
      *  Método que se encarga de crear las etiquetas e instrucciones qué servirán para crear su versión en compilador
      * @param intermedio Objeto de la clase Intermedio que contiene las instrucciones y variables que se van a utilizar
      */
-    public void generarIntermedio(Intermedio intermedio) {
+    public void generarIntermedio(Intermedio intermedio, String labelF, String labelI) {
         // Comprobar si tenemos una estructura if, for, while o do-while
         if (c_sents != null) {
             switch (type) {
@@ -58,13 +58,14 @@ public class Inst extends SimboloBase {
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, eFalse));
                     if (contCond != null) { // Si hay un else
                         String labelFinal = intermedio.nuevaEtiqueta();
-                        c_sents.generarIntermedio(intermedio, labelFinal, null, null);
+                        c_sents.generarIntermedio(intermedio, labelF, labelI);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eFalse));
-                        contCond.generarIntermedio(intermedio, labelFinal);
+                        contCond.generarIntermedio(intermedio, labelFinal, labelI, labelF);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal));
                     } else {
-                        c_sents.generarIntermedio(intermedio, eFalse, null, null);
+                        String eFinal = labelF != null ? labelF : eFalse;
+                        c_sents.generarIntermedio(intermedio, eFinal, labelI);
                         intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eFalse));
                     }
                     break;
@@ -74,7 +75,7 @@ public class Inst extends SimboloBase {
                     exp.generarIntermedio(intermedio);
                     String labelFinal = intermedio.nuevaEtiqueta();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelFinal));
-                    c_sents.generarIntermedio(intermedio, labelFinal, labelInit, null);
+                    c_sents.generarIntermedio(intermedio, labelFinal, labelInit);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit));
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal));
                     break;
@@ -84,8 +85,10 @@ public class Inst extends SimboloBase {
                     exp.generarIntermedio(intermedio);
                     String labelFinal_p = intermedio.nuevaEtiqueta();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelFinal_p));
-                    c_sents.generarIntermedio(intermedio, labelFinal_p, labelInit_p, null);
-                    inst.generarIntermedio(intermedio);
+                    String labelInc = intermedio.nuevaEtiqueta();
+                    c_sents.generarIntermedio(intermedio, labelFinal_p, labelInc);
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelInc));
+                    inst.generarIntermedio(intermedio, null, null);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit_p));
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFinal_p));
                     break;
@@ -93,7 +96,7 @@ public class Inst extends SimboloBase {
                     String labelInit_hm = intermedio.nuevaEtiqueta();
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelInit_hm));
                     String labelFinal_hm = intermedio.nuevaEtiqueta();
-                    c_sents.generarIntermedio(intermedio, labelFinal_hm, labelInit_hm, null);
+                    c_sents.generarIntermedio(intermedio, labelFinal_hm, labelInit_hm);
                     exp.generarIntermedio(intermedio);
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelFinal_hm));
                     intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit_hm));

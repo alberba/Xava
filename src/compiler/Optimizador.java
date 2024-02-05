@@ -421,6 +421,10 @@ public class Optimizador {
      */
     private boolean esOperacionConstante(Instruccion instruccion) {
         try {
+            if (instruccion.getOperacion() == OperacionInst.ASIG || instruccion.getOperacion() == OperacionInst.INDEXADO
+                || instruccion.getOperacion() == OperacionInst.ASIGNADO) {
+                return false;
+            }
             // Si los operadores son int, es una operación constante
             Integer.parseInt(instruccion.getOperador1());
             if (instruccion.getOperacion() != OperacionInst.SALTO_COND && instruccion.getOperacion() != OperacionInst.NO) {

@@ -6,6 +6,21 @@ funcion ent pow(ent b, ent e);
 
 principal {
     ent base := leerEnt();
+    ent i := 0;
+    mientras (i < 10) {
+        imprimir(i);
+        i := i + 1;
+        si (i = 5) {
+            romper;
+        }
+    }
+    ent j := 0;
+    para(j<10; j := j + 1;) {
+        si (j % 2 = 0) {
+            continuar;
+        }
+        imprimir(j);
+    }
     ent exponent := leerEnt();
     imprimir(pow(base, exponent));
 }

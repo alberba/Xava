@@ -5,8 +5,8 @@ import compiler.Intermedio.Intermedio;
 import compiler.Intermedio.OperacionInst;
 
 public class C_sent extends SimboloBase{
-    private String type;
-    private RetProc retProc;
+    private final String type;
+    private final RetProc retProc;
 
     public C_sent(String type, RetProc retProc, int linea, int columna) {
         super(linea,columna);
@@ -14,13 +14,17 @@ public class C_sent extends SimboloBase{
         this.retProc = retProc;
     }
 
-    public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit, String retorno) {
+    public void generarIntermedio(Intermedio intermedio, String labelFinal, String labelInit) {
         switch(type) {
             case "Romper":
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
+                if (labelFinal != null) {
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
+                }
                 break;
             case "Continuar":
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit));
+                if (labelInit != null) {
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelInit));
+                }
                 break;
             case"ret_proc":
                 retProc.generarIntermedio(intermedio);

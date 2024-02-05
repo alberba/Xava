@@ -16,6 +16,8 @@ public class Ensamblador {
     Intermedio intermedio;
     TSimbolos ts;
     private final ArrayList<String> codigo;
+    // Flags para saber si se necesitan las subrutinas de imprimir, leer entero, leer booleano y leer caracter
+    boolean [] flagsSubrutinas = {false, false, false, false};
 
     public Ensamblador(Intermedio intermedio, TSimbolos ts) {
 
@@ -29,13 +31,14 @@ public class Ensamblador {
 
         codigo.add("\t\tORG\t$1000");
         declararVariables();
-        generarSubrutinas();
+
         codigo.add("");
         codigo.add("START:");
         for(Instruccion instruccion: intermedio.getCodigo()){
             instruccionAEnsamblador(instruccion);
         }
         codigo.add("\t\tSIMHALT");
+        generarSubrutinas();
         codigo.add("\t\tEND\tSTART");
 
     }
@@ -149,17 +152,21 @@ public class Ensamblador {
                 codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", -(A7)");
                 break;
             case IMPRIMIR:
+                flagsSubrutinas[0] = true;
                 ensambladorImprimir(instruccion);
                 break;
             case ENTRADA_ENT:
+                flagsSubrutinas[1] = true;
                 codigo.add("\tJSR LEERENT\t");
                 codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
             case ENTRADA_BOOL:
+                flagsSubrutinas[2] = true;
                 codigo.add("\tJSR LEERBOOL\t");
                 codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
             case ENTRADA_CAR:
+                flagsSubrutinas[3] = true;
                 codigo.add("\tJSR LEERCAR\t");
                 codigo.add("\tMOVE.W\tD1, " + instruccion.getDestino());
                 break;
@@ -463,93 +470,102 @@ public class Ensamblador {
     }
 
     /**
-     * Función encargada de generar las subrutinas necesarias del ensamblador
+     * Función encargada de generar las subrutinas necesarias del ensamblador. Solo se generan las subrutinas que se
+     * vayan a utilizar en el programa
      */
     private void generarSubrutinas() {
         codigo.add("*-----------------------------------------------------------");
         codigo.add("* SUBRUTINAS");
         codigo.add("*-----------------------------------------------------------");
         codigo.add("");
-        codigo.add("IMPRIMIRENT:");
-        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L\tD0"); // Limpiar D0
-        codigo.add("\tEXT.L\tD1"); // Limpiar D1
-        codigo.add("\tMOVE.W\t#3, D0"); // Indicar la tarea a realizar
-        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
-        codigo.add("\tLEA\t.AUX, A1");
-        codigo.add("\tMOVE.W\t#13, D0");
-        codigo.add("\tTRAP\t#15");
-        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
-        codigo.add("\tRTS");
-        codigo.add(".AUX\tDC.B\t' ', 0");
-        codigo.add("");
-        codigo.add("*-----------------------------------------------------------");
-        codigo.add("IMPRIMIRBOOL:");
-        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L\tD0"); // Limpiar D0
-        codigo.add("\tMOVE.W\tD0, A1");
-        codigo.add("\tCMP.B\t#0, D1"); // Mirar si es verdadero o falso
-        codigo.add("\tBEQ\t.ESFALSO");
-        codigo.add("\tLEA\t.VERDADERO, A1"); // Guardar contenido a imprimir
-        codigo.add("\tBRA\t.IMPRIMIR");
-        codigo.add(".ESFALSO\tLEA\t.FALSO, A1");
-        codigo.add(".IMPRIMIR");
-        codigo.add("\tMOVE.W\t#13, D0");
-        codigo.add("\tTRAP\t#15");
-        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
-        codigo.add("\tRTS");
-        codigo.add(".FALSO\tDC.B\t'falso', 0");
-        codigo.add(".VERDADERO\tDC.B\t'verdadero', 0");
-        codigo.add("");
-        codigo.add("*-----------------------------------------------------------");
-        codigo.add("IMPRIMIRCAR:");
-        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L\tD0"); // Limpiar D0
-        codigo.add("\tMOVE.W\t#6, D0"); // Indicar la tarea a realizar
-        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
-        codigo.add("\tLEA\t.AUX, A1"); // Recuperar el valor de D0
-        codigo.add("\tMOVE.W\t#13, D0");
-        codigo.add("\tTRAP\t#15");
-        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
-        codigo.add("\tRTS");
-        codigo.add(".AUX\tDC.B\t' ', 0");
-        codigo.add("");
-        codigo.add("*-----------------------------------------------------------");
-        codigo.add("LEERENT:");
-        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L\tD0"); // Limpiar D0
-        codigo.add("\tMOVE.W\t#4, D0"); // Indicar la tarea a realizar
-        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
-        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
-        codigo.add("\tRTS");
-        codigo.add("");
-        codigo.add("*-----------------------------------------------------------");
-        codigo.add("LEERCAR:");
-        codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
-        codigo.add("\tCLR.L\tD0"); // Limpiar D0
-        codigo.add("\tMOVE.W\t#5, D0"); // Indicar la tarea a realizar
-        codigo.add("\tTRAP\t#15"); // Llama subrutina trap
-        codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
-        codigo.add("\tRTS");
-        codigo.add("");
-        codigo.add("*-----------------------------------------------------------");
-        codigo.add("LEERBOOL:");
-        codigo.add("\tJSR\tLEERCAR");
-        codigo.add("\tCMP.B\t#'v', D1");
-        codigo.add("\tBEQ\t.VERDADERO");
-        codigo.add("\tCMP.B\t#'V', D1");
-        codigo.add("\tBEQ\t.VERDADERO");
-        codigo.add("\tCMP.B\t#'f', D1");
-        codigo.add("\tBEQ\t.FALSO");
-        codigo.add("\tCMP.B\t#'F', D1");
-        codigo.add("\tBEQ\t.FALSO");
-        codigo.add("\tBRA\tLEERBOOL"); // Si no se encuentra un carácter válido, se vuelve a pedir una entrada
-        codigo.add(".VERDADERO\tMOVE.B\t#-1, D1");
-        codigo.add("\tBRA\t.FINBOOL");
-        codigo.add(".FALSO\tMOVE.B\t#0, D1");
-        codigo.add(".FINBOOl");
-        codigo.add("\tRTS");
-        codigo.add("*-----------------------------------------------------------");
+        if (flagsSubrutinas[0]) {
+            codigo.add("IMPRIMIRENT:");
+            codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+            codigo.add("\tCLR.L\tD0"); // Limpiar D0
+            codigo.add("\tEXT.L\tD1"); // Limpiar D1
+            codigo.add("\tMOVE.W\t#3, D0"); // Indicar la tarea a realizar
+            codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+            codigo.add("\tLEA\t.AUX, A1");
+            codigo.add("\tMOVE.W\t#13, D0");
+            codigo.add("\tTRAP\t#15");
+            codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+            codigo.add("\tRTS");
+            codigo.add(".AUX\tDC.B\t' ', 0");
+            codigo.add("");
+            codigo.add("*-----------------------------------------------------------");
+            codigo.add("IMPRIMIRBOOL:");
+            codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+            codigo.add("\tCLR.L\tD0"); // Limpiar D0
+            codigo.add("\tMOVE.W\tD0, A1");
+            codigo.add("\tCMP.B\t#0, D1"); // Mirar si es verdadero o falso
+            codigo.add("\tBEQ\t.ESFALSO");
+            codigo.add("\tLEA\t.VERDADERO, A1"); // Guardar contenido a imprimir
+            codigo.add("\tBRA\t.IMPRIMIR");
+            codigo.add(".ESFALSO\tLEA\t.FALSO, A1");
+            codigo.add(".IMPRIMIR");
+            codigo.add("\tMOVE.W\t#13, D0");
+            codigo.add("\tTRAP\t#15");
+            codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+            codigo.add("\tRTS");
+            codigo.add(".FALSO\tDC.B\t'falso', 0");
+            codigo.add(".VERDADERO\tDC.B\t'verdadero', 0");
+            codigo.add("");
+            codigo.add("*-----------------------------------------------------------");
+            codigo.add("IMPRIMIRCAR:");
+            codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+            codigo.add("\tCLR.L\tD0"); // Limpiar D0
+            codigo.add("\tMOVE.W\t#6, D0"); // Indicar la tarea a realizar
+            codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+            codigo.add("\tLEA\t.AUX, A1"); // Recuperar el valor de D0
+            codigo.add("\tMOVE.W\t#13, D0");
+            codigo.add("\tTRAP\t#15");
+            codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+            codigo.add("\tRTS");
+            codigo.add(".AUX\tDC.B\t' ', 0");
+            codigo.add("");
+            codigo.add("*-----------------------------------------------------------");
+        }
+        if (flagsSubrutinas[1]) {
+            codigo.add("LEERENT:");
+            codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+            codigo.add("\tCLR.L\tD0"); // Limpiar D0
+            codigo.add("\tMOVE.W\t#4, D0"); // Indicar la tarea a realizar
+            codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+            codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+            codigo.add("\tRTS");
+            codigo.add("");
+            codigo.add("*-----------------------------------------------------------");
+        }
+        if(flagsSubrutinas[2]) {
+            codigo.add("LEERCAR:");
+            codigo.add("\tMOVE.W\tD0, -(A7)"); // Guardar el valor de D0
+            codigo.add("\tCLR.L\tD0"); // Limpiar D0
+            codigo.add("\tMOVE.W\t#5, D0"); // Indicar la tarea a realizar
+            codigo.add("\tTRAP\t#15"); // Llama subrutina trap
+            codigo.add("\tMOVE.W\t(A7)+, D0"); // Recuperar el valor de D0
+            codigo.add("\tRTS");
+            codigo.add("");
+            codigo.add("*-----------------------------------------------------------");
+        }
+        if(flagsSubrutinas[3]) {
+            codigo.add("LEERBOOL:");
+            codigo.add("\tJSR\tLEERCAR");
+            codigo.add("\tCMP.B\t#'v', D1");
+            codigo.add("\tBEQ\t.VERDADERO");
+            codigo.add("\tCMP.B\t#'V', D1");
+            codigo.add("\tBEQ\t.VERDADERO");
+            codigo.add("\tCMP.B\t#'f', D1");
+            codigo.add("\tBEQ\t.FALSO");
+            codigo.add("\tCMP.B\t#'F', D1");
+            codigo.add("\tBEQ\t.FALSO");
+            codigo.add("\tBRA\tLEERBOOL"); // Si no se encuentra un carácter válido, se vuelve a pedir una entrada
+            codigo.add(".VERDADERO\tMOVE.B\t#-1, D1");
+            codigo.add("\tBRA\t.FINBOOL");
+            codigo.add(".FALSO\tMOVE.B\t#0, D1");
+            codigo.add(".FINBOOl");
+            codigo.add("\tRTS");
+            codigo.add("*-----------------------------------------------------------");
+        }
     }
 
     /**
@@ -582,8 +598,13 @@ public class Ensamblador {
 
     // Solo funciona con números
     private int getValor(String operador) {
-        operador = operador.replace("#", "0"); // No sé si funciona replace con "" pero con 0 va bien
-        return Integer.parseInt(operador);
+        if (operador.contains("#") && esNum(operador.substring(1))) {
+            operador = operador.replace("#", "0"); // No sé si funciona replace con "" pero con 0 va bien
+            return Integer.parseInt(operador);
+        } else {
+            return -1;
+        }
+
     }
 
     @Override

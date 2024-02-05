@@ -71,6 +71,14 @@ public class Intermedio {
             if (tp.isEmpty()) { // Si tp está empty, se está declarando en el ámbito 0, por lo que es global
                 v = new Variable(id + "$0g", tipo, longitud, false);
             } else { // En caso contrario, se busca en el procedimiento actual
+                // Comprobar si la variable es global
+                for (Variable variable : tv) {
+                    if (variable.getId().equals(id + "$0g")) {
+                        return variable;
+                    } else if (!variable.getId().contains("$0g")) {
+                        break;
+                    }
+                }
                 // Se obtiene el procedimiento actual de la tabla
                 Procedimiento proc = tp.get(nProdActual);
                 // Se guardan las cantidades para recorrer los arrays posteriormente

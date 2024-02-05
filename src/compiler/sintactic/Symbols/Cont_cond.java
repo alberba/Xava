@@ -23,23 +23,25 @@ public class Cont_cond extends SimboloBase {
 
     /**
      * Genera la contracondición del if (else if y else), muy similar a la generación de código del if
-     * @param intermedio
-     * @param labelFinal
+     * @param intermedio Objeto de la clase Intermedio que contiene las instrucciones y variables que se van a utilizar
+     * @param labelFinalIf Etiqueta que indica el final del if
      */
-    public void generarIntermedio(Intermedio intermedio, String labelFinal) {
+    public void generarIntermedio(Intermedio intermedio, String labelFinalIf, String labelFinalExt, String labelIniExt) {
         if (exp != null) {
             exp.generarIntermedio(intermedio);
             // Se trata de un else if
             String labelFalse = intermedio.nuevaEtiqueta();
             intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_COND, intermedio.getUltimaVariable().getId(), null, labelFalse));
-            c_sents.generarIntermedio(intermedio, labelFinal, labelFinal, null);
+            String efinal = labelFinalExt != null ? labelFinalExt : labelFinalIf;
+            c_sents.generarIntermedio(intermedio, efinal, labelIniExt);
             if (cont_cond != null) { // Se mira si hay más else ifs
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinal));
+                intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, labelFinalIf));
                 intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, labelFalse));
-                cont_cond.generarIntermedio(intermedio, labelFinal);
+                cont_cond.generarIntermedio(intermedio, labelFinalIf, labelFinalExt, labelIniExt);
             }
         } else { // Se trata de un else
-            c_sents.generarIntermedio(intermedio, labelFinal, labelFinal, null);
+            String efinal = labelFinalExt != null ? labelFinalExt : labelFinalIf;
+            c_sents.generarIntermedio(intermedio, efinal, labelIniExt);
         }
     }
     }
