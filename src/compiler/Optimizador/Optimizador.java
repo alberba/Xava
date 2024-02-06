@@ -18,7 +18,6 @@ public class Optimizador {
 
     public Optimizador(Intermedio intermedio) {
         this.intermedio = intermedio;
-        this.expDisponible = new AnExpDisponible();
     }
 
     public Intermedio optimizarIntermedio() {
@@ -28,7 +27,7 @@ public class Optimizador {
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
-        //expDisponibles();
+        expDisponibles2();
         return intermedio;
 
     }
@@ -494,33 +493,10 @@ public class Optimizador {
     }
 
 
-    /**
-     * Método que se encarga de comprobar si una instrucción es una asignación para expresiones disponibles
-     * @param instruccion Instrucción a comprobar
-     * @return true si es una asignación, false en caso contrario
-     */
-    private boolean esAsig(Instruccion instruccion) {
-        return switch (instruccion.getOperacion()) {
-            case SUMA, RESTA, MODULO, MULTIPLICACION, DIVISION -> true;
-            default -> false;
-        };
-    }
-
-    /**
-     * Método que se encarga de comprobar si una instrucción es una asignación para expresiones disponibles
-     */
-    private void expDisponibles() {
-        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-        for (Instruccion instruccion : instrucciones) {
-            if (esAsig(instruccion)) {
-                String id = expDisponible.getExpDisponible(instruccion);
-                if (!id.equals("$")) {
-                    instruccion.setOperacion(OperacionInst.ASIG);
-                    instruccion.setOperador1(id);
-                }
-                expDisponible.removeExpDisponible(instruccion.getDestino());
-            }
-        }
-        this.expDisponible.Clear();
+    private void expDisponibles2(){
+        this.expDisponible = new AnExpDisponible(intermedio);
+        expDisponible.Fase1();
+        expDisponible.Fase2();
+        System.out.println("Matadme por favor");
     }
 }

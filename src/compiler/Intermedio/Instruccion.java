@@ -1,5 +1,7 @@
 package compiler.Intermedio;
 
+import java.util.Objects;
+
 public class Instruccion {
 
     private OperacionInst operacion;
@@ -115,4 +117,24 @@ public class Instruccion {
     }
 
     public void setOperacion(OperacionInst op){this.operacion = op;}
+
+    @Override
+    public boolean equals(Object o) {
+        Instruccion that = (Instruccion) o;
+        // Verificar si operador1 y operador2 son null
+        if (operador1 == null && that.operador1 != null) return false;
+        if (operador2 == null && that.operador2 != null) return false;
+        // Verificar si operador1 y operador2 son iguales
+        if (operador1 != null ? !operador1.equals(that.operador1) : false) return false;
+        if (operador2 != null ? !operador2.equals(that.operador2) : false) return false;
+        // Continuar con las otras comparaciones
+        return operacion.equals(that.operacion) &&
+                destino.equals(that.destino);
+    }
+
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(operacion, operador1, operador2, destino);
+    }
 }

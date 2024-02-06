@@ -1,55 +1,76 @@
 package compiler.Optimizador.ExpresionesDisponibles;
 
 import compiler.Intermedio.Instruccion;
+import compiler.Intermedio.Intermedio;
 import compiler.Intermedio.OperacionInst;
 
 import java.util.ArrayList;
 
 public class AnExpDisponible {
-    ArrayList<Instruccion> expDisponibles ;
-    public AnExpDisponible(){
-        expDisponibles = new ArrayList<>();
+    TND tnd;
+    ArrayList<NodoExpDisponible> lista;
+    Intermedio intermedio;
+    public AnExpDisponible(Intermedio intermedio){
+        this.intermedio = intermedio;
+        this.lista = new ArrayList<>();
+        tnd = new TND(intermedio);
+        tnd.ConstruirTND();
     }
-    //Busca si se ha actualizado alguna variable guardada, si es asi, esa variable se elimina
-    public void removeExpDisponible(String id){
-        for(Instruccion instruccion : expDisponibles){
-            if((instruccion.getOperador1() != null && instruccion.getOperador1().equals(id)) || (instruccion.getOperador2() != null && instruccion.getOperador2().equals(id))){
-                expDisponibles.remove(instruccion);
-                break;
-            }
-        }
-    }
-    //Devuelve el id de una variable si contiene la expresión deseada
-    public String getExpDisponible(Instruccion instruccion){
-        for(Instruccion instruccion2 : expDisponibles){
-            if(existeExp(instruccion,instruccion2)){
-                return instruccion2.getDestino();
-            }
-        }
-        expDisponibles.add(instruccion);
-        return "$";
-    }
-    //Obtiene si la expresion de una es equivalente a la expresion de la otra
-    public boolean existeExp(Instruccion instruccion1, Instruccion instruccion2){
-        if(instruccion1.getOperacion() == instruccion2.getOperacion()) {
-            String idI1O1 = instruccion1.getOperador1();
-            String idI2O1 = instruccion2.getOperador1();
-            String idI1O2 = instruccion1.getOperador2();
-            String idI2O2 = instruccion2.getOperador2();
-            boolean Convertible = instruccion1.getOperacion() == OperacionInst.SUMA || instruccion1.getOperacion() == OperacionInst.MULTIPLICACION;
-            if(idI1O2.equals(idI2O2) || idI1O1.equals(idI2O1) || idI1O1.equals(idI2O2) || idI1O2.equals(idI2O1)){
-                if(Convertible){
-                    return true;
-                } else //noinspection RedundantIfStatement
-                    if (simetricos) {
-                    return true;
+
+    public void Fase1(){
+        ArrayList<Bloque> bloques = tnd.getTND();
+        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
+        //Añado dos para E y S, aunque no se usen para evitar errores futuros
+        lista.add(new NodoExpDisponible());
+        lista.add(new NodoExpDisponible());
+        for(int i = 2; i < bloques.size(); i++) {
+            NodoExpDisponible nodo = new NodoExpDisponible();
+            lista.add(nodo);
+            // i pertenece a TND(b).ii TND(b).if
+            for(int j = bloques.get(i).getLineaI(); j <= bloques.get(i).getLineaFi(); j++){
+                Instruccion s = instrucciones.get(j);
+                if (esAsig(s)) {
+                    nodo.AddG(instrucciones.get(j));
+                    nodo.QuitG(instrucciones.get(j).getDestino());
                 }
             }
         }
-        return false;
     }
 
-    public void Clear(){
-        this.expDisponibles = new ArrayList<>();
+    public void Fase2(){
+        ArrayList<Bloque> bloques = tnd.getTND();
+        ArrayList<Bloque> PND = (ArrayList<Bloque>) bloques.clone();
+        while (!PND.isEmpty()) {
+            Bloque b = PND.get(0);
+            PND.remove(b);
+            NodoExpDisponible nodo1 = lista.get(tnd.getPos(b));
+            for(String nombre : tnd.getBloque(b.getId()).getPred()) {
+                Bloque p = tnd.getBloque(nombre);
+                NodoExpDisponible nodo2 = lista.get(tnd.getPos(p));
+                nodo1.InterseccionIn(nodo2.getOut());
+            }
+            ArrayList<Instruccion> Itemp = new ArrayList<>(nodo1.getIn());
+            Itemp.removeAll(nodo1.getK());
+            ArrayList<Instruccion> Gtemp = new ArrayList<>(nodo1.getG());
+            Gtemp.addAll(Itemp);
+            nodo1.setOut(Gtemp);
+            // s pertenece a TND(b).succ
+            for (String nombre : tnd.getBloque(b.getId()).getSucc()) {
+                PND.add(tnd.getBloque(nombre));
+            }
+        }
     }
+
+    /**
+     * Método que se encarga de comprobar si una instrucción es una asignación para expresiones disponibles
+     * @param instruccion Instrucción a comprobar
+     * @return true si es una asignación, false en caso contrario
+     */
+    private boolean esAsig(Instruccion instruccion) {
+        return switch (instruccion.getOperacion()) {
+            case SUMA, RESTA, MODULO, MULTIPLICACION, DIVISION -> true;
+            default -> false;
+        };
+    }
+
 }
