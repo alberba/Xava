@@ -3,7 +3,7 @@ package compiler.Main;
 import compiler.Ensamblador.Ensamblador;
 import compiler.ErrorC;
 import compiler.Intermedio.Intermedio;
-import compiler.Optimizador;
+import compiler.Optimizador.Optimizador;
 import compiler.grammar.Parser;
 import compiler.grammar.Scanner;
 import java_cup.runtime.ComplexSymbolFactory;

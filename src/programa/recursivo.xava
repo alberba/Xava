@@ -1,0 +1,20 @@
+funcion ent whileRecursivo(ent contador, ent r);
+
+principal{
+    ent contador := 5;
+    ent resultado := 0;
+    imprimir(whileRecursivo(contador, 0));
+}
+
+funcion ent whileRecursivo(ent contador, ent r){
+    ent a := contador;
+    ent result := r;
+
+    si(contador = 0){
+        devuelve result;
+    }sino{
+        devuelve whileRecursivo((a - 1) , (result + 1));
+    }
+
+    devuelve result;
+}

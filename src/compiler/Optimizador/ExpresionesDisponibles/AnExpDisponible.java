@@ -36,7 +36,7 @@ public class AnExpDisponible {
             String idI2O1 = instruccion2.getOperador1() != null ? instruccion2.getOperador1() : "";
             String idI1O2 = instruccion1.getOperador2() != null ? instruccion1.getOperador2() : "";
             String idI2O2 = instruccion2.getOperador2() != null ? instruccion2.getOperador2() : "";
-            boolean Convertible = instruccion1.getOperacion() == OperacionInst.SUMA || instruccion1.getOperacion() == OperacionInst.RESTA;
+            boolean Convertible = instruccion1.getOperacion() == OperacionInst.SUMA || instruccion1.getOperacion() == OperacionInst.MULTIPLICACION;
             if(idI1O2.equals(idI2O2) || idI1O1.equals(idI2O1) || idI1O1.equals(idI2O2) || idI1O2.equals(idI2O1)){
                 if(Convertible){
                     return true;

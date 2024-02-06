@@ -22,11 +22,11 @@ public class Optimizador {
     public Intermedio optimizarIntermedio() {
         while (hayCambios) {
             hayCambios = false;
-            ExpDisponibles();
-            //optimizar();
-            //eliminarCodigoMuerto();
+            optimizar();
+            eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
+        ExpDisponibles();
         return intermedio;
 
     }
@@ -479,12 +479,9 @@ public class Optimizador {
 
     private boolean esAsig(Instruccion instruccion){
         switch (instruccion.getOperacion()){
-            case ASIG:
             case SUMA:
             case RESTA:
             case MODULO:
-            case ASIGNADO:
-            case INDEXADO:
             case MULTIPLICACION:
             case DIVISION:
                 return true;

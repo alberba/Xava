@@ -15,6 +15,7 @@ funcion ent dowhile(ent contador){
     hacer {
         result := a + result;
         a:= a - 1;
+        imprimir(result);
     } mientras(a != 0);
 
     devuelve result;
