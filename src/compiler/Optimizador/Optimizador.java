@@ -26,7 +26,7 @@ public class Optimizador {
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
-        ExpDisponibles();
+        expDisponibles();
         return intermedio;
 
     }
@@ -478,18 +478,13 @@ public class Optimizador {
      * ****************************************************************************************************************/
 
     private boolean esAsig(Instruccion instruccion){
-        switch (instruccion.getOperacion()){
-            case SUMA:
-            case RESTA:
-            case MODULO:
-            case MULTIPLICACION:
-            case DIVISION:
-                return true;
-        }
-        return false;
+        return switch (instruccion.getOperacion()) {
+            case SUMA, RESTA, MODULO, MULTIPLICACION, DIVISION -> true;
+            default -> false;
+        };
     }
     //Realiza expDisponibles
-    private void ExpDisponibles(){
+    private void expDisponibles(){
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
         for (Instruccion instruccion : instrucciones){
             if(esAsig(instruccion)){

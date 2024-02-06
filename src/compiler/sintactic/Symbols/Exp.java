@@ -13,84 +13,84 @@ public class Exp extends SimboloBase {
 
     private final Value value;
     private final Op op;
-    private final Exp exp;
+    private Exp exp1;
+    private Exp exp2;
+    private boolean esNot;
 
-    public Exp(Value value, Op op, Exp exp, int linea, int columna) {
+    public Exp(Value value, Op op, Exp exp2, int linea, int columna) {
         super(linea, columna);
         this.value = value;
         this.op = op;
-        this.exp = exp;
+        this.exp2 = exp2;
+    }
+
+    public Exp(Exp exp1, Op op, Exp exp2, int linea, int columna) {
+        super(linea, columna);
+        this.value = null;
+        this.op = op;
+        this.exp1 = exp1;
+        this.exp2 = exp2;
     }
 
     public Exp(Value value, int linea, int columna) {
         super(linea, columna);
         this.value = value;
         this.op = null;
-        this.exp = null;
+        this.exp1 = null;
     }
 
-    public Exp(Exp exp, int linea, int columna) {
+    public Exp(Exp exp1, int linea, int columna, boolean esNot) {
         super(linea, columna);
         this.value = null;
         this.op = null;
-        this.exp = exp;
+        this.exp1 = exp1;
+        this.esNot = esNot;
     }
-
-    public Value getValue() {
-        return value;
-    }
-
-
-    public Op getOp() {
-        return op;
-    }
-
-
-    public Exp getExp() {
-        return exp;
-    }
-
 
     /**
      * Método que crea las etiquetas e instrucciones necesarias para la ejecución
      */
     public void generarIntermedio(Intermedio intermedio) {
-        if (op != null) {
-            // Se trata de una operación, por lo que se debe generar el intermedio de la expresión
-            ArrayList<Object> listaObjetos = new ArrayList<>();
-
-            // Este bucle recorre todas las expresiones y las guarda en un arraylist. Esto nos servirá después para
-            // hacer uso de las jerarquias de operaciones
-            for(Exp exp = this; exp != null; exp = exp.getExp()) {
-                if (Objects.equals(exp.getValue().getTipo(), "Exp")) {
-                    // Se trata de una operación en paréntesis, el cual tiene prioridad 1 en la jerarquia de operaciones
-
-                    // Se genera el intermedio de la expresión
-                    exp.getValue().getExp().generarIntermedio(intermedio);
-                    listaObjetos.add(intermedio.getUltimaVariable());
-
-                } else {
-                    listaObjetos.add(exp.getValue());
-                }
-
-                if(exp.getOp() == null) {
-                    // Si encuentra un value, sale del ciclo, ya que no habrá más expresiones que analizar
-                    break;
-                }
-                listaObjetos.add(exp.getOp());
-
-            }
+        ArrayList<Object> listaObjetos = new ArrayList<>();
+        obtenerlistaObjetos(this, intermedio, listaObjetos);
+        if (listaObjetos.size() > 1) {
             generarIntermedioArit(listaObjetos, intermedio);
             generarIntermedioLogic(listaObjetos, intermedio);
+        }
+
+    }
+
+    public static void obtenerlistaObjetos(Exp exp, Intermedio intermedio, ArrayList<Object> listaObjetos) {
+        if (exp.getOp() != null) {
+            Value value = exp.getValue();
+            if (value != null) {
+                if (Objects.equals(value.getTipo(), "Exp")) {
+                    value.getExp().generarIntermedio(intermedio);
+                    listaObjetos.add(intermedio.getUltimaVariable());
+                } else {
+                    listaObjetos.add(value);
+                }
+            } else {
+                obtenerlistaObjetos(exp.getExp1(), intermedio, listaObjetos);
+            }
+            listaObjetos.add(exp.getOp());
+            obtenerlistaObjetos(exp.getExp2(), intermedio, listaObjetos);
         } else {
+            Value value = exp.getValue();
             if (value != null) {
                 // Se trata de una expresión simple, por lo que se debe generar el intermedio de la expresión
                 value.generarIntermedio(intermedio);
+                listaObjetos.add(intermedio.getUltimaVariable());
             } else {
                 // Si no tiene value ni op, se trata de la negación de una expresión
-                assert exp != null;
-                exp.generarIntermedio(intermedio);
-                intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, null, null, intermedio.getUltimaVariable().getId()));
+                assert exp.getExp1() != null;
+                if (exp.isEsNot()) {
+                    exp.getExp1().generarIntermedio(intermedio);
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, null, null, intermedio.getUltimaVariable().getId()));
+                    listaObjetos.add(intermedio.getUltimaVariable());
+                } else {
+                    obtenerlistaObjetos(exp.getExp1(), intermedio, listaObjetos);
+                }
             }
         }
 
@@ -258,44 +258,6 @@ public class Exp extends SimboloBase {
         intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, efalse)); // efalse: skip
     }
 
-    /*private void generarIntermedioLogic(ArrayList<Object> listaObjeto, Intermedio intermedio) {
-        Variable[] variables;
-        OperacionInst op = null;
-
-        while(listaObjeto.size() > 1){
-            // Se obtienen las variables de la operación más hacia la izquierda
-            variables = obtenerVariablesOperacion(1, listaObjeto, intermedio);
-
-            Variable temp = intermedio.añadirVariable(null, EnumType.BOOLEANO, null);
-            // Comprobación de la operación
-            switch ((Op) listaObjeto.get(1)) {
-                case IGUAL -> op = OperacionInst.IGUAL;
-                case IGUALNT -> op = OperacionInst.DIFERENTE;
-                case MAI -> op = OperacionInst.MAYOR_IGUAL;
-                case MEI -> op = OperacionInst.MENOR_IGUAL;
-                case MAQ -> op = OperacionInst.MAYOR;
-                case MEQ -> op = OperacionInst.MENOR;
-            }
-
-            // Se añade la instrucción
-            String etrue = intermedio.nuevaEtiqueta();
-            intermedio.añadirInstruccion(new Instruccion(op, variables[0].getId(), variables[1].getId(), etrue)); // if a op b goto etrue
-            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, temp.getId())); // tn = 0
-            String efalse = intermedio.nuevaEtiqueta();
-            intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, efalse)); // goto efalse
-            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, etrue)); // etrue: skip
-            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, temp.getId())); // tn= -1
-            intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, efalse)); // efalse: skip
-
-            // Se sustituye la operación por la variable temporal
-            listaObjeto.remove(2);
-            listaObjeto.remove(1);
-            listaObjeto.remove(0);
-
-            listaObjeto.add(0, intermedio.getUltimaVariable());
-        }
-    }*/
-
     /**
      * Se obtienen las dos variables de una operación x op y, siendo x e y las variables
      * @param index Índice del operador de la operación
@@ -315,7 +277,6 @@ public class Exp extends SimboloBase {
         } else {
             variables[0] = (Variable) listaObjeto.get(index - 1);
         }
-
         // Var 2
         if (listaObjeto.get(index + 1) instanceof Value aux) {
             // Transformamos el valor en una variable
@@ -328,4 +289,25 @@ public class Exp extends SimboloBase {
         return variables.clone();
     }
 
+    public Value getValue() {
+        return value;
+    }
+
+
+    public Op getOp() {
+        return op;
+    }
+
+
+    public Exp getExp1() {
+        return exp1;
+    }
+
+    public Exp getExp2() {
+        return exp2;
+    }
+
+    public boolean isEsNot() {
+        return esNot;
+    }
 }

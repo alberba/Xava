@@ -112,8 +112,12 @@ non terminal    Type            TYPE;
 non terminal    D_asig          DASIGNACION;
 non terminal    Lid             LID;
 non terminal    Exp             E;
+non terminal    Exp             ECOMP;
+non terminal    Exp             EARI;
 non terminal    Entrada         ENTRADA;
-non terminal    Op              OP;
+non terminal    Op              OPARI;
+non terminal    Op              OPLOG;
+non terminal    Op              OPCOMP;
 non terminal    Value           VALUE;
 non terminal    Val_Bol         VAL_BOL;
 non terminal    ArrayG          ARRAY;
@@ -449,28 +453,42 @@ ENTRADA         ::= LEERBOOL
                     :}
                 ;
 
-E               ::= VALUE:value OP:op E:exp                                                         {: RESULT = new Exp(value, op, exp, valueleft, valueright);                      :}
-                |   VALUE:value                                                                     {: RESULT = new Exp(value, valueleft, valueright);                               :}
-                |   NO E:exp
+
+E               ::= ECOMP:ecomp OPLOG:op E:exp
                 {:
-                    if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
-                        // MANEJO DE ERRORES SEMANTICOS
-                        // La expresión debe ser de tipo booleano
-                        ErrorC.añadirError(new ErrorC("La expresión debe ser de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
-                    }
-                    RESULT = new Exp(exp, expleft, expright);
+                    RESULT = new Exp(ecomp, op, exp, ecompleft, ecompright);
+                :}
+                |   ECOMP:ecomp                                                                     {: RESULT = new Exp(ecomp, ecompleft, ecompright, false);                              :}
+                |   NO VALUE:value
+                {:
+                    RESULT = new Exp(value, valueleft, valueright);
                 :}
                 ;
 
-OP              ::= Y                                                                               {: RESULT = Op.Y;                                                               :}
+ECOMP           ::= EARI:eAri OPCOMP:op ECOMP:ecomp
+                {:
+                    RESULT = new Exp(eAri, op, ecomp, eArileft, eAriright);
+                :}
+                |   EARI:eAri                                                                       {: RESULT = new Exp(eAri, eArileft, eAriright, false);                                 :}
+                ;
+
+EARI            ::= VALUE:value OPARI:op EARI:exp                                                   {: RESULT = new Exp(value, op, exp, valueleft, valueright);                     :}
+                |   VALUE:value                                                                     {: RESULT = new Exp(value, valueleft, valueright);                              :}
+                ;
+
+OPLOG           ::= Y                                                                               {: RESULT = Op.Y;                                                               :}
                 |   O                                                                               {: RESULT = Op.O;                                                               :}
-                |   IGUAL                                                                           {: RESULT = Op.IGUAL;                                                           :}
+                ;
+
+OPCOMP          ::= IGUAL                                                                           {: RESULT = Op.IGUAL;                                                           :}
                 |   IGUALNT                                                                         {: RESULT = Op.IGUALNT;                                                         :}
                 |   MAQ                                                                             {: RESULT = Op.MAQ;                                                             :}
                 |   MEQ                                                                             {: RESULT = Op.MEQ;                                                             :}
                 |   MAI                                                                             {: RESULT = Op.MAI;                                                             :}
                 |   MEI                                                                             {: RESULT = Op.MEI;                                                             :}
-                |   SUMA                                                                            {: RESULT = Op.SUMA;                                                            :}
+                ;
+
+OPARI           ::= SUMA                                                                            {: RESULT = Op.SUMA;                                                            :}
                 |   RESTA                                                                           {: RESULT = Op.RESTA;                                                           :}
                 |   MULT                                                                            {: RESULT = Op.MULT;                                                            :}
                 |   DIV                                                                             {: RESULT = Op.DIV;                                                             :}

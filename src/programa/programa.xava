@@ -75,7 +75,7 @@ funcion ent pow(ent b, ent e) {
     /* test
             Jorge multilinea jijijaja
             test 2 */
-    mientras((absE > 0) y (resultado > 0)) {
+    mientras(absE > 0 y resultado > 0) {
         ## Jorge jijijaja
         /* test
                 Jorge multilinea jijijaja

@@ -1,10 +1,9 @@
 package compiler.sintactic;
 
+import compiler.ErrorC;
 import compiler.sintactic.Symbols.*;
 
 import java.util.ArrayList;
-
-import compiler.ErrorC;
 
 public class AnSem {
     private final TSimbolos ts;
@@ -19,12 +18,22 @@ public class AnSem {
      * @return Tipo de la expresión resultante
      */
     public EnumType gestExp(Exp exp) {
+        EnumType tipo;
         // Caso de negación: E -> NO E
-        if (exp.getValue() == null) {
-            return gestExp(exp.getExp());
+        if (exp.isEsNot()) {
+            return gestExp(exp.getExp1());
         }
-        // Check del value
-        EnumType tipo = gestValue(exp.getValue());
+        if (exp.getValue() != null) {
+            if (exp.getOp() == null) {
+                return gestValue(exp.getValue());
+            } else {
+                // Check del value
+                tipo = gestValue(exp.getValue());
+            }
+        } else {
+            // Check de la expresión
+            tipo = gestExp(exp.getExp1());
+        }
         if (tipo == null) {
             return null;
         }
@@ -32,20 +41,20 @@ public class AnSem {
         Op op = exp.getOp();
         if (op != null) {
             // Comprobación de operadores según el tipo de dato
-            switch (tipo.name()) {
-                case "ENTERO":
+            switch (tipo) {
+                case ENTERO:
                     if (op.equals(Op.Y) || op.equals(Op.O)) {
                         ErrorC.añadirError(new ErrorC("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
                     }
                     break;
-                case "CARACTER":
+                case CARACTER:
                     if (!op.equals(Op.IGUAL) && !op.equals(Op.IGUALNT)) {
                         ErrorC.añadirError(new ErrorC("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
                     }
                     break;
-                case "BOOLEANO":
+                case BOOLEANO:
                     if (!op.equals(Op.IGUAL) && !op.equals(Op.IGUALNT) && !op.equals(Op.Y) && !op.equals(Op.O)) {
                         ErrorC.añadirError(new ErrorC("Operación no válida para el tipo de dato", exp.getLinea(), Fase.SEMÁNTICO));
                         return null;
@@ -56,7 +65,7 @@ public class AnSem {
                     return null;
             }
             // El tipo de ambos operandos ha de ser el mismo
-            if (tipo != gestExp(exp.getExp())) {
+            if (tipo != gestExp(exp.getExp2())) {
                 ErrorC.añadirError(new ErrorC("Los tipos de los operandos no coinciden", exp.getLinea(), Fase.SEMÁNTICO));
                 return null;
             } else {
@@ -72,6 +81,7 @@ public class AnSem {
             return tipo;
         }
     }
+
 
     /**
      * Comprueba que el Value sea correcto y devuelve el tipo de la expresión
