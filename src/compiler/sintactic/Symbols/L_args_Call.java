@@ -54,7 +54,4 @@ public class L_args_Call extends SimboloBase {
         return l_args_call;
     }
 
-    public void setL_args_call(L_args_Call l_args_call) {
-        this.l_args_call = l_args_call;
-    }
 }

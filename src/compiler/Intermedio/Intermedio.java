@@ -1,6 +1,9 @@
 package compiler.Intermedio;
 
-import compiler.sintactic.Symbols.*;
+import compiler.sintactic.Symbols.ArrayG;
+import compiler.sintactic.Symbols.EnumType;
+import compiler.sintactic.Symbols.L_Dim;
+import compiler.sintactic.Symbols.L_array;
 import compiler.sintactic.TSimbolos;
 
 import java.util.ArrayList;
