@@ -149,8 +149,8 @@ public class AnSem {
             return;
         }
         if (eType != eType2) {
-            if (exp.getValue().getCall_fn() != null) {
-                ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getValue().getCall_fn().getLinea(), Fase.SEMÁNTICO));
+            if (exp.getExp1().getExp1().getValue().getCall_fn() != null) {
+                ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getExp1().getExp1().getValue().getCall_fn().getLinea(), Fase.SEMÁNTICO));
             } else {
                 ErrorC.añadirError(new ErrorC("Se intentó asignar un valor de tipo " + eType2.name() + " a una variable de tipo " + eType.name(), exp.getLinea(), Fase.SEMÁNTICO));
             }
@@ -175,12 +175,13 @@ public class AnSem {
                 int i = 0;
                 for (L_array l_arr = array.getlArray(); l_arr != null; l_arr = l_arr.getlArray()) {
                     // Si una de las indexaciones se realiza con un literal
-                    if (l_arr.getExp().getValue().getTipo().equals("Ent")) {
+                    Value value = l_arr.getExp().getExp1().getExp1().getValue();
+                    if (value.getTipo().equals("Ent")) {
                         // Podemos comprobar en tiempo de compilación si es correcto
-                        if (Integer.parseInt(l_arr.getExp().getValue().getValue()) >= symbol.getDimensiones().get(i)) {
+                        if (Integer.parseInt(value.getValue()) >= symbol.getDimensiones().get(i)) {
                             ErrorC.añadirError(new ErrorC("El índice del array se encuentra fuera del rango de elementos", l_arr.getExp().getLinea(), Fase.SEMÁNTICO));
                         }
-                        if (Integer.parseInt(l_arr.getExp().getValue().getValue()) < 0) {
+                        if (Integer.parseInt(value.getValue()) < 0) {
                             ErrorC.añadirError(new ErrorC("La indexación presenta un valor negativo", l_arr.getExp().getLinea(), Fase.SEMÁNTICO));
                         }
                     }
@@ -260,20 +261,13 @@ public class AnSem {
         // Se comprueba que el tipo de los parámetros sea el correcto para cada uno de los argumentos
         L_args_Call aux = args_call.getL_args_call();
         ArrayList<Symbol> parametros = ts.getParametros(id);
-        boolean error = false;
-
-        for (int i = ts.getNumParametros(id) - 1; i >= 0; i--) { // Por algún motivo parece que se guardan al revés los parámetros
-            if (gestValue(aux.getValue()) != parametros.get(i).getTipoReturn()) {
-                error = true;
+        for (int i = ts.getNumParametros(id) - 1; i >= 0; i--) { // OJO: Los parámetros se guardan al revés
+            if (gestExp(aux.getExp()) != parametros.get(i).getTipoReturn()) {
+                ErrorC.añadirError(new ErrorC("El valor correspondiente al parámetro " + parametros.get(i).getName() + " no coincide con el esperado", args_call.getLinea(), Fase.SEMÁNTICO));
             }
             // Siguiente argumento
             aux = aux.getL_args_call();
         }
-
-        if (error) { // Se hace de esta forma para no poner un error por cada parámetro incorrecto
-            ErrorC.añadirError(new ErrorC("El tipo de alguno de los parámetros no coincide con el tipo de la función", args_call.getLinea(), Fase.SEMÁNTICO));
-        }
-
     }
 
 }

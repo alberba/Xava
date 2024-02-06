@@ -47,10 +47,6 @@ public class Symbol {
         return tipoReturn;
     }
 
-    public boolean isConstant() {
-        return esConst;
-    }
-
 
     @SuppressWarnings("EqualsWhichDoesntCheckParameterClass")
     @Override

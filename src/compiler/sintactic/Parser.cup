@@ -236,8 +236,8 @@ L_ARGS_CAP      ::= STYPE:stype ID:id COMA L_ARGS_CAP:l_args_cap                
                 |   STYPE:stype ID:id                                                               {: RESULT = new L_args_Cap(stype, id, stypeleft, styperight);                   :}
                 ;
 
-L_ARGS_CALL     ::= VALUE:value                                                                     {: RESULT = new L_args_Call(value, valueleft, valueright);                               :}
-                |   VALUE:value COMA L_ARGS_CALL:l_args_call                                        {: RESULT = new L_args_Call(value, l_args_call, valueleft, valueright);                  :}
+L_ARGS_CALL     ::= E:exp                                                                           {: RESULT = new L_args_Call(exp, expleft, expright);                               :}
+                |   E:exp COMA L_ARGS_CALL:l_args_call                                              {: RESULT = new L_args_Call(exp, l_args_call, expleft, expright);                  :}
                 ;
 
 FSENTS          ::= SENTS:sents RET_PROC:ret_proc                                                   {: RESULT = new FSents(sents, ret_proc, sentsleft, sentsright);                 :}
@@ -456,23 +456,61 @@ ENTRADA         ::= LEERBOOL
 
 E               ::= ECOMP:ecomp OPLOG:op E:exp
                 {:
+                    if (ansem.gestExp(ecomp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se puede hacer uso de operadores lógicos con valores booleanos
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    if (ansem.gestExp(ecomp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se puede hacer uso de operadores lógicos con valores booleanos
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
                     RESULT = new Exp(ecomp, op, exp, ecompleft, ecompright);
                 :}
                 |   ECOMP:ecomp                                                                     {: RESULT = new Exp(ecomp, ecompleft, ecompright, false);                              :}
-                |   NO VALUE:value
+                |   NO E:exp
                 {:
-                    RESULT = new Exp(value, valueleft, valueright);
+                    if (ansem.gestExp(exp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se puede negar un booleano
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    RESULT = new Exp(exp, expleft, expright, true);
                 :}
                 ;
 
-ECOMP           ::= EARI:eAri OPCOMP:op ECOMP:ecomp
+ECOMP           ::= EARI:eAri OPCOMP:op EARI:eAri2
                 {:
-                    RESULT = new Exp(eAri, op, ecomp, eArileft, eAriright);
+                    if (ansem.gestExp(eAri) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", eAri.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    if (ansem.gestExp(eAri2) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", eAri2.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    RESULT = new Exp(eAri, op, eAri2, eArileft, eAriright);
                 :}
                 |   EARI:eAri                                                                       {: RESULT = new Exp(eAri, eArileft, eAriright, false);                                 :}
                 ;
 
-EARI            ::= VALUE:value OPARI:op EARI:exp                                                   {: RESULT = new Exp(value, op, exp, valueleft, valueright);                     :}
+EARI            ::= VALUE:value OPARI:op EARI:exp
+                {:
+                    if (ansem.gestValue(value) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una valor de tipo entero", value.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    if (ansem.gestExp(exp) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    RESULT = new Exp(value, op, exp, valueleft, valueright);
+                :}
                 |   VALUE:value                                                                     {: RESULT = new Exp(value, valueleft, valueright);                              :}
                 ;
 

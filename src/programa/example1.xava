@@ -5,6 +5,6 @@ principal {
     b := a * 17;
     bool c := verdadero;
     imprimir(c);
-    c := no no no c;
+    c := no (no (no c));
     imprimir(c);
 }

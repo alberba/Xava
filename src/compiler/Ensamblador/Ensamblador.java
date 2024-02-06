@@ -16,6 +16,7 @@ public class Ensamblador {
     Intermedio intermedio;
     TSimbolos ts;
     private final ArrayList<String> codigo;
+    private final ArrayList<String> instParams = new ArrayList<>();
     // Flags para saber si se necesitan las subrutinas de imprimir, leer entero, leer booleano y leer caracter
     boolean [] flagsSubrutinas = {false, false, false, false};
 
@@ -145,7 +146,7 @@ public class Ensamblador {
                 codigo.add("\tRTS");
                 break;
             case PARAMETRO_SIMPLE:
-                codigo.add("\tMOVE.W\t" + instruccion.getDestino() + ", -(A7)");
+                instParams.add("\tMOVE.W\t" + instruccion.getDestino() + ", -(A7)");
                 break;
             case IMPRIMIR:
                 flagsSubrutinas[0] = true;
@@ -382,7 +383,7 @@ public class Ensamblador {
             codigo.add("\tMOVE.W\t(A7)+, D4"); // Guarda temporalmente el valor de retorno
         }
         for (int i = parametros.size() - 1; i >= 0; i--) {
-            codigo.add("\tMOVE.W\t(A7)+, " + parametros.get(i).getId()); // Reserva espacio para los parámetros
+            codigo.add("\tMOVE.W\t(A7)+, " + parametros.get(i).getId()); // Se coge el valor de los parámetros
         }
 
         if (proc.getTipo() != EnumType.VACIO) {
@@ -399,14 +400,30 @@ public class Ensamblador {
      * @param instruccion Instrucción a traducir
      */
     private void ensambladorLlamada(Instruccion instruccion) {
+        Procedimiento procActual = intermedio.getProcedimiento(intermedio.getTp().get(intermedio.getnProdActual()).getId());
+        // Se actualiza nProdActual
         String nombreFuncion = instruccion.getDestino();
         nombreFuncion = nombreFuncion.split("_")[1]; // Se obtiene el nombre a partir de la etiqueta ("e_nombre")
+        intermedio.setNprodActual(nombreFuncion);
         Procedimiento proc = intermedio.getProcedimiento(nombreFuncion);
+
+        // Se guardan en la pila las variables locales (en caso de recursividad, se podrían perder los valores de estas)
+        for (Variable var: procActual.getDeclaraciones()) {
+            if (var.getTipo() == EnumType.BOOLEANO) {
+                codigo.add("\tMOVE.B\t" + var.getId() + ", -(A7)");
+            } else {
+                codigo.add("\tMOVE.W\t" + var.getId() + ", -(A7)");
+            }
+        }
+
+        codigo.addAll(instParams);
+        instParams.clear();
 
         // Si hay retorno, se reserva un hueco en la pila para él
         if (proc.getTipo() != EnumType.VACIO) {
             codigo.add("\tSUBA.L\t#2, A7");
         }
+
         codigo.add("\tJSR\t" + instruccion.getDestino());
 
         // Recuperar los valores de retorno, si es que hay
@@ -418,11 +435,16 @@ public class Ensamblador {
                 codigo.add("\tMOVE.W\tD6, " + instruccion.getOperador1());
             }
         }
-
-        // Recuperamos espacio de la pila descartando los valores ocupados por los parámetros
-        for(int i = 0; i < proc.getNumParametros(); i++) {
-            codigo.add("\tADDA.L\t#2, A7");
+        codigo.add("\tADDA.L\t#2, A7"); // Limpiar la pila
+        // Recuperar los valores de las variables locales
+        for (int i = procActual.getDeclaraciones().size() - 1; i >= 0; i--) {
+            if (procActual.getDeclaraciones().get(i).getTipo() == EnumType.BOOLEANO) {
+                codigo.add("\tMOVE.B\t(A7)+, " + procActual.getDeclaraciones().get(i).getId());
+            } else {
+                codigo.add("\tMOVE.W\t(A7)+, " + procActual.getDeclaraciones().get(i).getId());
+            }
         }
+
     }
 
     /**

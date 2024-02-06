@@ -32,15 +32,16 @@ public class AnExpDisponible {
     //Obtiene si la expresion de una es equivalente a la expresion de la otra
     public boolean existeExp(Instruccion instruccion1, Instruccion instruccion2){
         if(instruccion1.getOperacion() == instruccion2.getOperacion()) {
-            String idI1O1 = instruccion1.getOperador1() != null ? instruccion1.getOperador1() : "";
-            String idI2O1 = instruccion2.getOperador1() != null ? instruccion2.getOperador1() : "";
-            String idI1O2 = instruccion1.getOperador2() != null ? instruccion1.getOperador2() : "";
-            String idI2O2 = instruccion2.getOperador2() != null ? instruccion2.getOperador2() : "";
+            String idI1O1 = instruccion1.getOperador1();
+            String idI2O1 = instruccion2.getOperador1();
+            String idI1O2 = instruccion1.getOperador2();
+            String idI2O2 = instruccion2.getOperador2();
             boolean Convertible = instruccion1.getOperacion() == OperacionInst.SUMA || instruccion1.getOperacion() == OperacionInst.MULTIPLICACION;
             if(idI1O2.equals(idI2O2) || idI1O1.equals(idI2O1) || idI1O1.equals(idI2O2) || idI1O2.equals(idI2O1)){
                 if(Convertible){
                     return true;
-                } else if (idI1O2.equals(idI2O2) && idI1O1.equals(idI2O1)) {
+                } else //noinspection RedundantIfStatement
+                    if (simetricos) {
                     return true;
                 }
             }

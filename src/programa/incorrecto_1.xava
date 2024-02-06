@@ -3,6 +3,8 @@ funcion ent alt_plus(ent a, bool b);
 principal {
     ent result1, result2 := 0;
     bool result := verdadero;
+    ## Error: expresión incorrecta
+    bool jorge := (4 < (result < 5));
     
     ## ERROR: No se le puede asignar un int a una variable booleana
     result := alt_plus(result1, verdadero);

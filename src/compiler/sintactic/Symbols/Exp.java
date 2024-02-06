@@ -59,7 +59,7 @@ public class Exp extends SimboloBase {
         }
 
     }
-
+    
     public static void obtenerlistaObjetos(Exp exp, Intermedio intermedio, ArrayList<Object> listaObjetos) {
         if (exp.getOp() != null) {
             Value value = exp.getValue();
@@ -80,13 +80,21 @@ public class Exp extends SimboloBase {
             if (value != null) {
                 // Se trata de una expresión simple, por lo que se debe generar el intermedio de la expresión
                 value.generarIntermedio(intermedio);
+
                 listaObjetos.add(intermedio.getUltimaVariable());
             } else {
                 // Si no tiene value ni op, se trata de la negación de una expresión
                 assert exp.getExp1() != null;
                 if (exp.isEsNot()) {
                     exp.getExp1().generarIntermedio(intermedio);
-                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, null, null, intermedio.getUltimaVariable().getId()));
+                    String eTrue = intermedio.nuevaEtiqueta();
+                    String eFin = intermedio.nuevaEtiqueta();
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.NO, intermedio.getUltimaVariable().getId(), null, eTrue));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "0", null, intermedio.getUltimaVariable().getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.SALTO_INCON, null, null, eFin));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eTrue));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ASIG, "-1", null, intermedio.getUltimaVariable().getId()));
+                    intermedio.añadirInstruccion(new Instruccion(OperacionInst.ETIQUETA, null, null, eFin));
                     listaObjetos.add(intermedio.getUltimaVariable());
                 } else {
                     obtenerlistaObjetos(exp.getExp1(), intermedio, listaObjetos);

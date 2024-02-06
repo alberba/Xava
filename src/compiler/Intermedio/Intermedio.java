@@ -216,6 +216,10 @@ public class Intermedio {
         return null;
     }
 
+    public int getnProdActual() {
+        return nProdActual;
+    }
+
     /**
      * Actualiza el apuntador al procedimiento actual
      * @param id Identificador del procedimiento

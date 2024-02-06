@@ -2,6 +2,8 @@ package compiler.Optimizador;
 
 import compiler.Intermedio.*;
 import compiler.Optimizador.ExpresionesDisponibles.AnExpDisponible;
+import compiler.sintactic.Symbol;
+import compiler.sintactic.TipoElemento;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -26,7 +28,7 @@ public class Optimizador {
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
-        expDisponibles();
+        //expDisponibles();
         return intermedio;
 
     }
@@ -176,8 +178,17 @@ public class Optimizador {
         }
         // Recorrido de variables no presentes en ninguna instrucción (no utilizadas)
         for (Variable variable : variables) {
+
             if (!variablesAnalizadas.contains(variable.getId())) {
-                variablesAEliminar.add(variable);
+                Symbol symbol = intermedio.getTs().getSymbol(variable.getId().split("\\$")[0]);
+                if (symbol != null) {
+                    if (!symbol.getTipoElemento().equals(TipoElemento.PARAMETRO)) {
+                        variablesAEliminar.add(variable);
+                    }
+
+                } else {
+                    variablesAEliminar.add(variable);
+                }
             }
         }
 
@@ -343,6 +354,16 @@ public class Optimizador {
         }
     }
 
+    /**
+     * En caso de encontrar la inicialización de una función, comprobará si está siendo llamada. En caso de que no sea así,
+     * no es útil traducir la función, por lo que se eliminará.
+     * @param instrucciones Lista de instrucciones
+     * @param i Índice de la instrucción a comprobar
+     * @param instruccion Instrucción a comprobar
+     * @param instruccionesAEliminar Lista de instrucciones a eliminar
+     * @param prodAEliminar Lista de procedimientos a eliminar
+     * @return Índice de la instrucción a comprobar actualizado
+     */
     private int eliminarFuncionesNoLlamadas(ArrayList <Instruccion> instrucciones, int i, Instruccion instruccion, ArrayList<Instruccion> instruccionesAEliminar, ArrayList<Procedimiento> prodAEliminar) {
         // Comprobará si la función está siendo llamada. En caso de que no sea así, no es útil
         // traducir la función
@@ -473,23 +494,27 @@ public class Optimizador {
     }
 
 
-    /*******************************************************************************************************************
-     * *****************************************************************************************************************
-     * ****************************************************************************************************************/
-
-    private boolean esAsig(Instruccion instruccion){
+    /**
+     * Método que se encarga de comprobar si una instrucción es una asignación para expresiones disponibles
+     * @param instruccion Instrucción a comprobar
+     * @return true si es una asignación, false en caso contrario
+     */
+    private boolean esAsig(Instruccion instruccion) {
         return switch (instruccion.getOperacion()) {
             case SUMA, RESTA, MODULO, MULTIPLICACION, DIVISION -> true;
             default -> false;
         };
     }
-    //Realiza expDisponibles
-    private void expDisponibles(){
+
+    /**
+     * Método que se encarga de comprobar si una instrucción es una asignación para expresiones disponibles
+     */
+    private void expDisponibles() {
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
-        for (Instruccion instruccion : instrucciones){
-            if(esAsig(instruccion)){
+        for (Instruccion instruccion : instrucciones) {
+            if (esAsig(instruccion)) {
                 String id = expDisponible.getExpDisponible(instruccion);
-                if(!id.equals("$")){
+                if (!id.equals("$")) {
                     instruccion.setOperacion(OperacionInst.ASIG);
                     instruccion.setOperador1(id);
                 }
