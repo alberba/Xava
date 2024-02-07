@@ -128,8 +128,7 @@ public class Intermedio {
      * @return Procedimiento agregado
      */
     public Procedimiento añadirProcedimiento(String id, EnumType tipo) {
-        String etiquetaFuncion = "e_" + id;
-        Procedimiento proc = new Procedimiento(id, tipo, etiquetaFuncion);
+        Procedimiento proc = new Procedimiento(id, tipo, "e_" + id);
         tp.add(proc);
         return proc;
     }

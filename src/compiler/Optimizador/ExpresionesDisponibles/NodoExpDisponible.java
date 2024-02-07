@@ -31,7 +31,7 @@ public class NodoExpDisponible {
             hayCambios = false;
             for(int j = i;j < G.size(); j++){
                 Expresion expresion = G.get(j);
-                if(expresion.getInstruccion().getOperador1().equals(id) || expresion.getInstruccion().getOperador2().equals(id)){
+                if(expresion.getInstruccion().getOperando1().equals(id) || expresion.getInstruccion().getOperando2().equals(id)){
                     G.remove(expresion);
                     K.add(expresion);
                     hayCambios = true;
@@ -66,10 +66,10 @@ public class NodoExpDisponible {
      */
     public boolean existeExp(Instruccion instruccion1, Instruccion instruccion2){
         if(instruccion1.getOperacion() == instruccion2.getOperacion()) {
-            String idI1O1 = instruccion1.getOperador1();
-            String idI2O1 = instruccion2.getOperador1();
-            String idI1O2 = instruccion1.getOperador2();
-            String idI2O2 = instruccion2.getOperador2();
+            String idI1O1 = instruccion1.getOperando1();
+            String idI2O1 = instruccion2.getOperando1();
+            String idI1O2 = instruccion1.getOperando2();
+            String idI2O2 = instruccion2.getOperando2();
             boolean Convertible = instruccion1.getOperacion() == OperacionInst.SUMA || instruccion1.getOperacion() == OperacionInst.MULTIPLICACION;
             boolean simetricos = idI1O2.equals(idI2O2) && idI1O1.equals(idI2O1);
             if(simetricos || idI1O1.equals(idI2O2) && idI1O2.equals(idI2O1)){

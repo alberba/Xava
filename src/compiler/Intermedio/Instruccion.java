@@ -5,14 +5,14 @@ import java.util.Objects;
 public class Instruccion {
 
     private OperacionInst operacion;
-    private String operador1;
-    private String operador2;
+    private String operando1;
+    private String operando2;
     private String destino;
 
-    public Instruccion(OperacionInst operacion, String operador1, String operador2, String destino) {
+    public Instruccion(OperacionInst operacion, String op1, String op2, String destino) {
         this.operacion = operacion;
-        this.operador1 = operador1;
-        this.operador2 = operador2;
+        this.operando1 = op1;
+        this.operando2 = op2;
         this.destino = destino;
     }
 
@@ -20,50 +20,50 @@ public class Instruccion {
     public String toString() {
         switch (operacion) {
             case SUMA:
-                return destino + " = " + operador1 + " + " + operador2;
+                return destino + " = " + operando1 + " + " + operando2;
             case RESTA:
-                return destino + " = " + operador1 + " - " + operador2;
+                return destino + " = " + operando1 + " - " + operando2;
             case MULTIPLICACION:
-                return destino + " = " + operador1 + " * " + operador2;
+                return destino + " = " + operando1 + " * " + operando2;
             case DIVISION:
-                return destino + " = " + operador1 + " / " + operador2;
+                return destino + " = " + operando1 + " / " + operando2;
             case MODULO:
-                return destino + " = " + operador1 + " % " + operador2;
+                return destino + " = " + operando1 + " % " + operando2;
             case IGUAL:
-                return "if " + operador1 + " = " + operador2 + " goto " + destino;
+                return "if " + operando1 + " = " + operando2 + " goto " + destino;
             case DIFERENTE:
-                return "if " + operador1 + " != " + operador2 + " goto " + destino;
+                return "if " + operando1 + " != " + operando2 + " goto " + destino;
             case MENOR:
-                return "if " + operador1 + " < " + operador2 + " goto " + destino;
+                return "if " + operando1 + " < " + operando2 + " goto " + destino;
             case MENOR_IGUAL:
-                return "if " + operador1 + " <= " + operador2 + " goto " + destino;
+                return "if " + operando1 + " <= " + operando2 + " goto " + destino;
             case MAYOR:
-                return "if " + operador1 + " > " + operador2 + " goto " + destino;
+                return "if " + operando1 + " > " + operando2 + " goto " + destino;
             case MAYOR_IGUAL:
-                return "if " + operador1 + " >= " + operador2 + " goto " + destino;
+                return "if " + operando1 + " >= " + operando2 + " goto " + destino;
             case Y:
-                return "if " + operador1 + " and " + operador2 + " goto " + destino;
+                return "if " + operando1 + " and " + operando2 + " goto " + destino;
             case O:
-                return "if " + operador1 + " or " + operador2 + " goto " + destino;
+                return "if " + operando1 + " or " + operando2 + " goto " + destino;
             case NO:
-                return "if not " + operador1 + " goto " + destino;
+                return "if not " + operando1 + " goto " + destino;
             case ASIG:
-                return destino + " = " + operador1;
+                return destino + " = " + operando1;
             case INDEXADO:
-                return destino + " = " + operador1 + "[" + operador2 + "]";
+                return destino + " = " + operando1 + "[" + operando2 + "]";
             case ASIGNADO:
-                return destino + "[" + operador2 + "] = " + operador1;
+                return destino + "[" + operando2 + "] = " + operando1;
             case ETIQUETA:
                 return destino + ": skip";
             case SALTO_INCON:
                 return "goto " + destino;
             case SALTO_COND:
-                return "if " + operador1 + " = 0 goto " + destino;
+                return "if " + operando1 + " = 0 goto " + destino;
             case INICIALIZACION:
                 return "pmb " + destino;
             case LLAMADA:
-                if (operador1 != null) {
-                    return "call " + destino + ", " + operador1;
+                if (operando1 != null) {
+                    return "call " + destino + ", " + operando1;
                 } else {
                     return "call " + destino;
                 }
@@ -92,24 +92,24 @@ public class Instruccion {
         return operacion;
     }
 
-    public String getOperador1() {
-        return operador1;
+    public String getOperando1() {
+        return operando1;
     }
 
-    public String getOperador2() {
-        return operador2;
+    public String getOperando2() {
+        return operando2;
     }
 
     public String getDestino() {
         return destino;
     }
 
-    public void setOperador1(String operador1) {
-        this.operador1 = operador1;
+    public void setOperando1(String operador1) {
+        this.operando1 = operador1;
     }
 
-    public void setOperador2(String operador2) {
-        this.operador2 = operador2;
+    public void setOperando2(String operador2) {
+        this.operando2 = operador2;
     }
 
     public void setDestino(String destino) {
@@ -122,11 +122,11 @@ public class Instruccion {
     public boolean equals(Object o) {
         Instruccion that = (Instruccion) o;
         // Verificar si operador1 y operador2 son null
-        if (operador1 == null && that.operador1 != null) return false;
-        if (operador2 == null && that.operador2 != null) return false;
+        if (operando1 == null && that.operando1 != null) return false;
+        if (operando2 == null && that.operando2 != null) return false;
         // Verificar si operador1 y operador2 son iguales
-        if (operador1 != null ? !operador1.equals(that.operador1) : false) return false;
-        if (operador2 != null ? !operador2.equals(that.operador2) : false) return false;
+        if (operando1 != null && !operando1.equals(that.operando1)) return false;
+        if (operando2 != null && !operando2.equals(that.operando2)) return false;
         // Continuar con las otras comparaciones
         return operacion.equals(that.operacion) &&
                 destino.equals(that.destino);
@@ -135,6 +135,6 @@ public class Instruccion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(operacion, operador1, operador2, destino);
+        return Objects.hash(operacion, operando1, operando2, destino);
     }
 }

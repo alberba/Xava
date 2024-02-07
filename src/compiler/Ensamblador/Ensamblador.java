@@ -111,13 +111,13 @@ public class Ensamblador {
                 ensambladorComp(instruccion, instruccion.getOperacion().toString());
                 break;
             case Y:
-                codigo.add("\tMOVE.B\t" + instruccion.getOperador2() + ", D0");
-                codigo.add("\tAND.B\t" + instruccion.getOperador1() + ", D0");
+                codigo.add("\tMOVE.B\t" + instruccion.getOperando2() + ", D0");
+                codigo.add("\tAND.B\t" + instruccion.getOperando1() + ", D0");
                 codigo.add("\tBNE\t" + instruccion.getDestino());
                 break;
             case O:
-                codigo.add("\tMOVE.B\t" + instruccion.getOperador2() + ", D0");
-                codigo.add("\tOR.B\t" + instruccion.getOperador1() + ", D0");
+                codigo.add("\tMOVE.B\t" + instruccion.getOperando2() + ", D0");
+                codigo.add("\tOR.B\t" + instruccion.getOperando1() + ", D0");
                 codigo.add("\tBNE\t" + instruccion.getDestino());
                 break;
             case NO:
@@ -194,7 +194,7 @@ public class Ensamblador {
      * @param instruccion Instrucción a traducir
      */
     private void ensambladorAsig(Instruccion instruccion) {
-        String var1 = convertirOperador(instruccion.getOperador1());
+        String var1 = convertirOperador(instruccion.getOperando1());
         if (intermedio.buscarVariable(instruccion.getDestino()).getTipo() == EnumType.BOOLEANO) {
             codigo.add("\tMOVE.B\t" + var1 + ", " + instruccion.getDestino());
         } else {
@@ -210,9 +210,9 @@ public class Ensamblador {
      */
     private void ensambladorSumaResta(Instruccion instruccion, String Op) {
 
-        String var1 = convertirOperador(instruccion.getOperador1());
+        String var1 = convertirOperador(instruccion.getOperando1());
         codigo.add("\tMOVE.W\t" + var1 + ", D0");
-        String var2 = convertirOperador(instruccion.getOperador2());
+        String var2 = convertirOperador(instruccion.getOperando2());
         codigo.add("\t" + Op + ".W\t" + var2 + ", D0");
         codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
 
@@ -233,8 +233,8 @@ public class Ensamblador {
             }
         }
         // En caso contrario, se opera normalmente
-        String var1 = convertirOperador(instruccion.getOperador1());
-        String var2 = convertirOperador(instruccion.getOperador2());
+        String var1 = convertirOperador(instruccion.getOperando1());
+        String var2 = convertirOperador(instruccion.getOperando2());
         codigo.add("\tMOVE.W\t" + var1 + ", D0");
         codigo.add("\tMOVE.W\t" + var2 + ", D1");
         codigo.add("\tEXT.L\tD1");
@@ -253,15 +253,15 @@ public class Ensamblador {
      * @return Verdadero en caso de que se pueda optimizar, falso en caso contrario
      */
     private boolean optMultDiv(Instruccion instruccion, String op) {
-        String var1 = convertirOperador(instruccion.getOperador1());
-        String var2 = convertirOperador(instruccion.getOperador2());
+        String var1 = convertirOperador(instruccion.getOperando1());
+        String var2 = convertirOperador(instruccion.getOperando2());
         // Si var1 es 0 o var 2 es 0 y es una multiplicación (para evitar división entre 0), se optimiza haciendo un clear
         if (getValor(var1) == 0 || getValor(var2) == 0 && op.equals("MULS")) {
             codigo.add("\tCLR.W\t" + instruccion.getDestino());
             return true;
         }
         // Si var2 es múltiplo de 2
-        if (esPotenciaDeDos(instruccion.getOperador2())) {
+        if (esPotenciaDeDos(instruccion.getOperando2())) {
             // Se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var1 + ", D0");
@@ -273,7 +273,7 @@ public class Ensamblador {
                 codigo.add("\tMOVE.W\tD0, " + instruccion.getDestino());
             }
             return true;
-        } else if (esPotenciaDeDos(instruccion.getOperador1())) { // Si no lo es, pero var1 sí
+        } else if (esPotenciaDeDos(instruccion.getOperando1())) { // Si no lo es, pero var1 sí
             // Tan solo se puede optimizar la multiplicación
             if (op.equals("MULS")) {
                 codigo.add("\tMOVE.W\t" + var2 + ", D0");
@@ -302,9 +302,9 @@ public class Ensamblador {
      * @param op Operación a realizar (IGUAL, DIFERENTE, MENOR, MENOR_IGUAL, MAYOR, MAYOR_IGUAL)
      */
     private void ensambladorComp(Instruccion instruccion, String op) {
-        String var1 = convertirOperador(instruccion.getOperador1());
+        String var1 = convertirOperador(instruccion.getOperando1());
         codigo.add("\tMOVE.W\t" + var1 + ", D0");
-        String var2 = convertirOperador(instruccion.getOperador2());
+        String var2 = convertirOperador(instruccion.getOperando2());
         codigo.add("\tCMP.W\t" + var2 + ", D0");
         switch (op) {
             case "IGUAL":
@@ -338,9 +338,9 @@ public class Ensamblador {
      */
     private void ensambladorIndexado(Instruccion instruccion) {
 
-        String var2 = convertirOperador(instruccion.getOperador2());
+        String var2 = convertirOperador(instruccion.getOperando2());
         codigo.add("\tMOVE.W\t" + var2 + ", D0");
-        codigo.add("\tLEA\t" + instruccion.getOperador1() + ", A0");
+        codigo.add("\tLEA\t" + instruccion.getOperando1() + ", A0");
         // Se le suma
         codigo.add("\tMOVE.W\t(A0, D0.W), " + convertirOperador(instruccion.getDestino()));
 
@@ -355,9 +355,9 @@ public class Ensamblador {
     private void ensambladorAsignado(Instruccion instruccion) {
 
         // Se obtiene el valor a asignar (No hace comprobar si es un literal o una variable, ya que se asume que es una variable)
-        codigo.add("\tMOVE.W\t" + convertirOperador(instruccion.getOperador2()) + ", D0");
+        codigo.add("\tMOVE.W\t" + convertirOperador(instruccion.getOperando2()) + ", D0");
         codigo.add("\tLEA\t" + instruccion.getDestino() + ", A0");
-        codigo.add("\tMOVE.W\t" + convertirOperador(instruccion.getOperador1()) + ", (A0, D0.W)");
+        codigo.add("\tMOVE.W\t" + convertirOperador(instruccion.getOperando1()) + ", (A0, D0.W)");
 
     }
 
@@ -368,7 +368,7 @@ public class Ensamblador {
      */
     private void ensambladorSCond(Instruccion instruccion) {
 
-        String var1 = convertirOperador(instruccion.getOperador1());
+        String var1 = convertirOperador(instruccion.getOperando1());
         codigo.add("\tMOVE.B\t" + var1 + ", D0");
         codigo.add("\tCMP.B\t#0, D0");
         codigo.add("\tBEQ\t" + instruccion.getDestino());
@@ -437,9 +437,9 @@ public class Ensamblador {
         if (proc.getTipo() != EnumType.VACIO) {
             codigo.add("\tMOVE.W\t(A7)+, D6"); // Recuperar el valor de retorno
             if (proc.getTipo() == EnumType.BOOLEANO) {
-                codigo.add("\tMOVE.B\tD6, " + instruccion.getOperador1());
+                codigo.add("\tMOVE.B\tD6, " + instruccion.getOperando1());
             } else {
-                codigo.add("\tMOVE.W\tD6, " + instruccion.getOperador1());
+                codigo.add("\tMOVE.W\tD6, " + instruccion.getOperando1());
             }
         }
         codigo.add("\tADDA.L\t#2, A7"); // Limpiar la pila

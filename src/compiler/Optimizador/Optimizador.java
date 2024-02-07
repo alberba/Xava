@@ -174,11 +174,11 @@ public class Optimizador {
             if (!variablesAnalizadas.contains(instruccion.getDestino())) {
                 variablesAnalizadas.add(instruccion.getDestino());
             }
-            if (!variablesAnalizadas.contains(instruccion.getOperador1())) {
-                variablesAnalizadas.add(instruccion.getOperador1());
+            if (!variablesAnalizadas.contains(instruccion.getOperando1())) {
+                variablesAnalizadas.add(instruccion.getOperando1());
             }
-            if (!variablesAnalizadas.contains(instruccion.getOperador2())) {
-                variablesAnalizadas.add(instruccion.getOperador2());
+            if (!variablesAnalizadas.contains(instruccion.getOperando2())) {
+                variablesAnalizadas.add(instruccion.getOperando2());
             }
         }
         // Recorrido de variables no presentes en ninguna instrucción (no utilizadas)
@@ -227,7 +227,7 @@ public class Optimizador {
         for (int j = i + 1; j < instrucciones.size() && !otraAsig; j++) {
             Instruccion aux = instrucciones.get(j);
             // Si el operando 1 o 2 es igual al destino de la instrucción actual, se añade a la lista de instrucciones a analizar
-            if (esOperandoIgual(aux.getOperador1(), instruccion.getDestino()) || (esOperandoIgual(aux.getOperador2(), instruccion.getDestino()) && aux.getOperacion() == OperacionInst.ASIG)){
+            if (esOperandoIgual(aux.getOperando1(), instruccion.getDestino()) || (esOperandoIgual(aux.getOperando2(), instruccion.getDestino()) && aux.getOperacion() == OperacionInst.ASIG)){
                 instruccionesAux.add(aux);
             } else if (esOperandoIgual(aux.getDestino(), instruccion.getDestino())) {
                 // Si el destino coincide, se comprueba que no sea por un return
@@ -275,54 +275,54 @@ public class Optimizador {
         // En caso de ser constante, se realizará la operación según el tipo de instrucción
         switch (instruccion.getOperacion()) {
             case SUMA:
-                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) + Integer.parseInt(instruccion.getOperador2()));
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperando1()) + Integer.parseInt(instruccion.getOperando2()));
                 instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
                 break;
             case RESTA:
-                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) - Integer.parseInt(instruccion.getOperador2()));
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperando1()) - Integer.parseInt(instruccion.getOperando2()));
                 instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
                 break;
             case MULTIPLICACION:
-                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) * Integer.parseInt(instruccion.getOperador2()));
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperando1()) * Integer.parseInt(instruccion.getOperando2()));
                 instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
                 break;
             case DIVISION:
-                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) / Integer.parseInt(instruccion.getOperador2()));
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperando1()) / Integer.parseInt(instruccion.getOperando2()));
                 instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
                 break;
             case MODULO:
-                operacion = String.valueOf(Integer.parseInt(instruccion.getOperador1()) % Integer.parseInt(instruccion.getOperador2()));
+                operacion = String.valueOf(Integer.parseInt(instruccion.getOperando1()) % Integer.parseInt(instruccion.getOperando2()));
                 instrucciones.set(i, new Instruccion(OperacionInst.ASIG, operacion, null, instruccion.getDestino()));
                 break;
             case IGUAL:
                 esLogica = true;
                 // Sirve tanto para ints como para chars
-                condicionCumplida = instruccion.getOperador1().equals(instruccion.getOperador2());
+                condicionCumplida = instruccion.getOperando1().equals(instruccion.getOperando2());
                 break;
             case DIFERENTE:
                 esLogica = true;
                 // Sirve tanto para ints como para chars
-                condicionCumplida = !instruccion.getOperador1().equals(instruccion.getOperador2());
+                condicionCumplida = !instruccion.getOperando1().equals(instruccion.getOperando2());
                 break;
             case MENOR:
                 esLogica = true;
-                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) < Integer.parseInt(instruccion.getOperador2());
+                condicionCumplida = Integer.parseInt(instruccion.getOperando1()) < Integer.parseInt(instruccion.getOperando2());
                 break;
             case MENOR_IGUAL:
                 esLogica = true;
-                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) <= Integer.parseInt(instruccion.getOperador2());
+                condicionCumplida = Integer.parseInt(instruccion.getOperando1()) <= Integer.parseInt(instruccion.getOperando2());
                 break;
             case MAYOR:
                 esLogica = true;
-                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) > Integer.parseInt(instruccion.getOperador2());
+                condicionCumplida = Integer.parseInt(instruccion.getOperando1()) > Integer.parseInt(instruccion.getOperando2());
                 break;
             case MAYOR_IGUAL:
                 esLogica = true;
-                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) >= Integer.parseInt(instruccion.getOperador2());
+                condicionCumplida = Integer.parseInt(instruccion.getOperando1()) >= Integer.parseInt(instruccion.getOperando2());
                 break;
             case SALTO_COND:
                 esLogica = true;
-                condicionCumplida = Integer.parseInt(instruccion.getOperador1()) == 0;
+                condicionCumplida = Integer.parseInt(instruccion.getOperando1()) == 0;
                 break;
         }
 
@@ -430,42 +430,42 @@ public class Optimizador {
                 return false;
             }
             // Si los operadores son int, es una operación constante
-            Integer.parseInt(instruccion.getOperador1());
+            Integer.parseInt(instruccion.getOperando1());
             if (instruccion.getOperacion() != OperacionInst.SALTO_COND && instruccion.getOperacion() != OperacionInst.NO) {
-                Integer.parseInt(instruccion.getOperador2());
+                Integer.parseInt(instruccion.getOperando2());
             }
             return true;
         } catch (NumberFormatException | NullPointerException e) {
             // Si los operadores son char, es una operación constante
-            return instruccion.getOperador1() != null && instruccion.getOperador1().length() == 1 && // length == 1 implica char constante
+            return instruccion.getOperando1() != null && instruccion.getOperando1().length() == 1 && // length == 1 implica char constante
                     ((instruccion.getOperacion() == OperacionInst.IGUAL || instruccion.getOperacion() == OperacionInst.DIFERENTE) &&
-                            (instruccion.getOperador2() != null && instruccion.getOperador2().length() == 1)); // o el segundo operador es char constante también
+                            (instruccion.getOperando2() != null && instruccion.getOperando2().length() == 1)); // o el segundo operador es char constante también
         }
     }
 
     // Método refactorizado para actualizar la instrucción
     private boolean actualizarInstruccion(Instruccion aux, Instruccion asigDiferida) {
 
-        if (esOperandoIgual(aux.getOperador1(), asigDiferida.getDestino())) {
-            if (aux.getOperador2() == null && aux.getOperacion() == OperacionInst.ASIG) {
+        if (esOperandoIgual(aux.getOperando1(), asigDiferida.getDestino())) {
+            if (aux.getOperando2() == null && aux.getOperacion() == OperacionInst.ASIG) {
                 aux.setOperacion(asigDiferida.getOperacion());
-                aux.setOperador1(asigDiferida.getOperador1());
-                aux.setOperador2(asigDiferida.getOperador2());
+                aux.setOperando1(asigDiferida.getOperando1());
+                aux.setOperando2(asigDiferida.getOperando2());
                 return true;
             } else if (asigDiferida.getOperacion() == OperacionInst.ASIG) {
-                aux.setOperador1(asigDiferida.getOperador1());
+                aux.setOperando1(asigDiferida.getOperando1());
                 return true;
             }
         }
-        if (esOperandoIgual(aux.getOperador2(), asigDiferida.getDestino())) {
+        if (esOperandoIgual(aux.getOperando2(), asigDiferida.getDestino())) {
             if (asigDiferida.getOperacion() == OperacionInst.ASIG) {
-                aux.setOperador2(asigDiferida.getOperador1());
+                aux.setOperando2(asigDiferida.getOperando1());
                 return true;
             }
         }
         if (esOperandoIgual(aux.getDestino(), asigDiferida.getDestino())) {
             if (asigDiferida.getOperacion() == OperacionInst.ASIG) {
-                aux.setDestino(asigDiferida.getOperador1());
+                aux.setDestino(asigDiferida.getOperando1());
                 return true;
             }
         }

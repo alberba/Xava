@@ -84,8 +84,8 @@ public class AnExpDisponible {
                         if(instruccion != null){
                             //Si existe cambiamos la instrucción por una asignación a esa variable
                             instruccion1.setOperacion(OperacionInst.ASIG);
-                            instruccion1.setOperador2(null);
-                            instruccion1.setOperador1(instruccion.getDestino());
+                            instruccion1.setOperando2(null);
+                            instruccion1.setOperando1(instruccion.getDestino());
                         }
                     }
                 }

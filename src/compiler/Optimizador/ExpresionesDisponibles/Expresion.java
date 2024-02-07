@@ -23,11 +23,11 @@ public class Expresion {
         if (!(o instanceof Expresion)) return false;
         Instruccion that = ((Expresion) o).getInstruccion();
         // Verificar si operador1 y operador2 son null
-        if (instruccion.getOperador1() == null && that.getOperador1() != null) return false;
-        if (instruccion.getOperador2() == null && that.getOperador2() != null) return false;
+        if (instruccion.getOperando1() == null && that.getOperando1() != null) return false;
+        if (instruccion.getOperando2() == null && that.getOperando2() != null) return false;
         // Verificar si operador1 y operador2 son iguales
-        if (instruccion.getOperador1() != null ? !instruccion.getOperador1().equals(that.getOperador1()) : false) return false;
-        if (instruccion.getOperador2() != null ? !instruccion.getOperador2().equals(that.getOperador2()) : false) return false;
+        if (instruccion.getOperando1() != null ? !instruccion.getOperando1().equals(that.getOperando1()) : false) return false;
+        if (instruccion.getOperando2() != null ? !instruccion.getOperando2().equals(that.getOperando2()) : false) return false;
         // Continuar con las otras comparaciones
         return instruccion.getOperacion().equals(that.getOperacion());
     }
@@ -35,6 +35,6 @@ public class Expresion {
 
     @Override
     public int hashCode() {
-        return Objects.hash(instruccion.getOperacion(), instruccion.getOperador1(), instruccion.getOperador2());
+        return Objects.hash(instruccion.getOperacion(), instruccion.getOperando1(), instruccion.getOperando2());
     }
 }
