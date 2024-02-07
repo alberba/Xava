@@ -40,23 +40,47 @@ public class AnExpDisponible {
     public void Fase2(){
         ArrayList<Bloque> bloques = tnd.getTND();
         ArrayList<Bloque> PND = (ArrayList<Bloque>) bloques.clone();
+        //Quitamos E y S
+        PND.remove(0);
+        PND.remove(1);
+        //Lista de analizados
+        ArrayList<Bloque> analizados = new ArrayList<>();
+        //Boolean que mira si ha habido cambios en la última ronda
+        boolean hayCambios = true;
         while (!PND.isEmpty()) {
+            if (analizados.size() == (bloques.size() - 2) && !hayCambios) {
+                break;
+            }
             Bloque b = PND.get(0);
             PND.remove(b);
+            hayCambios = false;
             NodoExpDisponible nodo1 = lista.get(tnd.getPos(b));
             for(String nombre : tnd.getBloque(b.getId()).getPred()) {
                 Bloque p = tnd.getBloque(nombre);
                 NodoExpDisponible nodo2 = lista.get(tnd.getPos(p));
+                int aux = nodo1.getIn().size();
                 nodo1.InterseccionIn(nodo2.getOut());
+                if (aux != nodo1.getIn().size()) {
+                    //Ponemos cambios a true
+                    hayCambios = true;
+                }
             }
             ArrayList<Expresion> Itemp = new ArrayList<>(nodo1.getIn());
             Itemp.removeAll(nodo1.getK());
             ArrayList<Expresion> Gtemp = new ArrayList<>(nodo1.getG());
             Gtemp.addAll(Itemp);
+            int aux = nodo1.getOut().size();
             nodo1.setOut(Gtemp);
+            if (aux != nodo1.getOut().size()) {
+                //Ponemos cambios a true
+                hayCambios = true;
+            }
             // s pertenece a TND(b).succ
             for (String nombre : tnd.getBloque(b.getId()).getSucc()) {
-                PND.add(tnd.getBloque(nombre));
+                Bloque bloque = tnd.getBloque(nombre);
+                if (!PND.contains(bloque) && !bloque.getId().equals("S")) {
+                    PND.add(tnd.getBloque(nombre));
+                }
             }
         }
     }

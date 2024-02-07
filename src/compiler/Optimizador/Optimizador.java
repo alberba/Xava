@@ -29,7 +29,7 @@ public class Optimizador {
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
-        expDisponibles2();
+        expDisponibles();
         return intermedio;
 
     }
@@ -515,7 +515,7 @@ public class Optimizador {
     }
 
 
-    private void expDisponibles2() {
+    private void expDisponibles() {
         expDisponible.Fase1();
         expDisponible.Fase2();
         expDisponible.UsoExpDisponibles();

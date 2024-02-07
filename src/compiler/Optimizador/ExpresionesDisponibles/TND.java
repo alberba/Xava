@@ -58,45 +58,78 @@ public class TND {
                     TE.add(instrucciones.get(i).getDestino());
                     contador++;
                 } else {
-                    //Si no tiene en su final una etiqueta
-                    Bloque bloque = TND.get(contador);
-                    //Significa que acabó en esta linea
-                    bloque.setLineaFi(i);
-                    //Creamos el nuevo bloque, con su inicio siendo la siguiente linea
-                    TND.add(new Bloque(i + 1,0,"B"+contador));
-                    //Comoprobamos si es un salto incondicional
-                    if (!instrucciones.get(i).getOperacion().equals(OperacionInst.SALTO_INCON)) {
-                        //Si no lo es, el siguiente bloque es su sucesor
-                        bloque.AddSucc("B" + contador);
-                        TND.get( TND.size() - 1).AddPred("B" + (contador - 1));
+                    if((instrucciones.get(i).getOperacion() != OperacionInst.SALTO_INCON) && (instrucciones.get(i + 1).getOperacion() == OperacionInst.SALTO_INCON)){
+                            //Si no tiene en su final una etiqueta
+                            Bloque bloque = TND.get(contador);
+                            //Significa que acabó en esta linea
+                            bloque.setLineaFi(i + 1);
+                            //Creamos el nuevo bloque, con su inicio siendo la siguiente linea
+                            TND.add(new Bloque(i + 2,0,"B"+contador));
+                            // Comprobamos si el siguiente bloque tiene etiqueta o no
+                            if (instrucciones.get(i + 2).getOperacion().equals(OperacionInst.ETIQUETA)) {
+                                TE.add(instrucciones.get(i + 2).getDestino());
+                                //La instrucción siguiente ya ha sido procesada
+                                i += 2;
+                            }else {
+                                TE.add("");
+                                i++;
+                            }
+                            //Guardamos que el bloque acababa en salto
+                            Saltos.add(contador);
+                            Saltos.add(contador);
+                            contador++;
+                    }else {
+                        //Si no tiene en su final una etiqueta
+                        Bloque bloque = TND.get(contador);
+                        //Significa que acabó en esta linea
+                        bloque.setLineaFi(i);
+                        //Creamos el nuevo bloque, con su inicio siendo la siguiente linea
+                        TND.add(new Bloque(i + 1, 0, "B" + contador));
+                        //Comoprobamos si es un salto incondicional
+                        if (!instrucciones.get(i).getOperacion().equals(OperacionInst.SALTO_INCON)) {
+                            //Si no lo es, el siguiente bloque es su sucesor
+                            bloque.AddSucc("B" + contador);
+                            TND.get(TND.size() - 1).AddPred("B" + (contador - 1));
+                        }
+                        // Comprobamos si el siguiente bloque tiene etiqueta o no
+                        if (instrucciones.get(i + 1).getOperacion().equals(OperacionInst.ETIQUETA)) {
+                            TE.add(instrucciones.get(i + 1).getDestino());
+                            //La instrucción siguiente ya ha sido procesada
+                            i++;
+                        } else {
+                            TE.add("");
+                        }
+                        //Guardamos que el bloque acababa en salto
+                        Saltos.add(contador);
+                        contador++;
                     }
-                    // Comprobamos si el siguiente bloque tiene etiqueta o no
-                    if (instrucciones.get(i + 1).getOperacion().equals(OperacionInst.ETIQUETA)) {
-                        TE.add(instrucciones.get(i + 1).getDestino());
-                    }else {TE.add("");}
-                    //Guardamos que el bloque acababa en salto
-                    Saltos.add(contador);
-                    i++;
-                    contador++;
                 }
             }
         }
         //últimos detalles necesarios tras el bucle
         TND.get(TND.size() - 1).setLineaFi(instrucciones.size() - 1);
         TND.get(0).AddSucc("B1");
+        TND.get(2).AddPred("E");
         TND.get(1).AddPred("B"+(contador - 1));
-
+        TND.get(contador).AddSucc("S");
+        int ant = -1;
         //Bucle para agregar los predecesores y sucesores de los saltos
         for(Integer i : Saltos){
             Bloque salto = TND.get(i);
-            Bloque bloque = getBloqueEtiqueta(instrucciones.get(salto.getLineaFi()).getDestino());
+            Bloque bloque;
+            if(ant == i){
+                bloque = getBloqueEtiqueta(instrucciones.get(salto.getLineaFi() - 1).getDestino());
+            }else {
+                bloque = getBloqueEtiqueta(instrucciones.get(salto.getLineaFi()).getDestino());
+            }
             bloque.AddPred(salto.getId());
             salto.AddSucc(bloque.getId());
+            ant = i;
         }
     }
     public boolean StopLider(Instruccion instruccion){
         return switch(instruccion.getOperacion()){
-            case IGUAL, DIFERENTE, MENOR, MENOR_IGUAL, MAYOR, MAYOR_IGUAL, Y, O, NO, ETIQUETA-> true;
+            case IGUAL, DIFERENTE, MENOR, MENOR_IGUAL, MAYOR, MAYOR_IGUAL, Y, O, NO, SALTO_COND, SALTO_INCON ,ETIQUETA-> true;
             case null, default -> false;
         };
     }
