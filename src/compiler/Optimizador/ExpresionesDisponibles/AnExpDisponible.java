@@ -49,9 +49,9 @@ public class AnExpDisponible {
                 NodoExpDisponible nodo2 = lista.get(tnd.getPos(p));
                 nodo1.InterseccionIn(nodo2.getOut());
             }
-            ArrayList<Instruccion> Itemp = new ArrayList<>(nodo1.getIn());
+            ArrayList<Expresion> Itemp = new ArrayList<>(nodo1.getIn());
             Itemp.removeAll(nodo1.getK());
-            ArrayList<Instruccion> Gtemp = new ArrayList<>(nodo1.getG());
+            ArrayList<Expresion> Gtemp = new ArrayList<>(nodo1.getG());
             Gtemp.addAll(Itemp);
             nodo1.setOut(Gtemp);
             // s pertenece a TND(b).succ
@@ -62,8 +62,8 @@ public class AnExpDisponible {
     }
 
     /**
-    * Método para reemplezar las asignaciones de las que sabemos hay una expresión disponible
-    * */
+     * Método para reemplezar las asignaciones de las que sabemos hay una expresión disponible
+     * */
     public void UsoExpDisponibles(){
         // Obtenemos las instrucciones antes de empezar
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();

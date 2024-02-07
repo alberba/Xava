@@ -5,7 +5,7 @@ principal{
     imprimir(probar(contador));
 }
 
-funcion ent do_while(ent contador){
+funcion ent probar(ent contador){
     ent a := contador * 4;
     ent b := contador - 4;
     ent result := contador * 4;

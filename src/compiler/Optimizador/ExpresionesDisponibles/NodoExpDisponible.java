@@ -6,10 +6,10 @@ import compiler.Intermedio.OperacionInst;
 import java.util.ArrayList;
 
 public class NodoExpDisponible {
-    ArrayList <Instruccion> G;
-    ArrayList <Instruccion> K;
-    ArrayList <Instruccion> In;
-    ArrayList <Instruccion> Out;
+    ArrayList <Expresion> G;
+    ArrayList <Expresion> K;
+    ArrayList <Expresion> In;
+    ArrayList <Expresion> Out;
 
     public NodoExpDisponible() {
         this.G = new ArrayList<>();
@@ -19,7 +19,10 @@ public class NodoExpDisponible {
     }
 
     public void AddG(Instruccion instruccion){
-        this.G.add(instruccion);
+        Expresion expresion = new Expresion(instruccion);
+        if(!G.contains(expresion)) {
+            this.G.add(new Expresion(instruccion));
+        }
     }
     public void QuitG(String id){
         boolean hayCambios = true;
@@ -27,10 +30,10 @@ public class NodoExpDisponible {
         while(hayCambios){
             hayCambios = false;
             for(int j = i;j < G.size(); j++){
-                Instruccion instruccion = G.get(j);
-                if(instruccion.getOperador1().equals(id) || instruccion.getOperador2().equals(id)){
-                    G.remove(instruccion);
-                    K.add(instruccion);
+                Expresion expresion = G.get(j);
+                if(expresion.getInstruccion().getOperador1().equals(id) || expresion.getInstruccion().getOperador2().equals(id)){
+                    G.remove(expresion);
+                    K.add(expresion);
                     hayCambios = true;
                     i = j - 1;
                     break;
@@ -44,9 +47,12 @@ public class NodoExpDisponible {
      * @return Instruccion o null
      * */
     public Instruccion getExp(Instruccion instruccion){
-        for(Instruccion instruccion1 : G){
-            if(existeExp(instruccion, instruccion1)){
-                return instruccion;
+        for(Expresion expresion : G){
+            Instruccion instruccion1 = expresion.getInstruccion();
+            if(!instruccion1.equals(instruccion)) {
+                if (existeExp(instruccion, instruccion1)) {
+                    return instruccion1;
+                }
             }
         }
         return null;
@@ -82,39 +88,39 @@ public class NodoExpDisponible {
     /**
      * Hace que se guarde la instersección del conjunto In con el conjunto pasado por parametro
      * */
-    public void InterseccionIn(ArrayList<Instruccion> lista){
+    public void InterseccionIn(ArrayList<Expresion> lista){
         this.In.retainAll(lista);
     }
 
-    public ArrayList<Instruccion> getIn() {
+    public ArrayList<Expresion> getIn() {
         return In;
     }
 
-    public void setIn(ArrayList<Instruccion> in) {
+    public void setIn(ArrayList<Expresion> in) {
         In = in;
     }
 
-    public ArrayList<Instruccion> getOut() {
+    public ArrayList<Expresion> getOut() {
         return Out;
     }
 
-    public void setOut(ArrayList<Instruccion> out) {
+    public void setOut(ArrayList<Expresion> out) {
         Out = out;
     }
 
-    public ArrayList<Instruccion> getG() {
+    public ArrayList<Expresion> getG() {
         return G;
     }
 
-    public void setG(ArrayList<Instruccion> g) {
+    public void setG(ArrayList<Expresion> g) {
         G = g;
     }
 
-    public ArrayList<Instruccion> getK() {
+    public ArrayList<Expresion> getK() {
         return K;
     }
 
-    public void setK(ArrayList<Instruccion> k) {
+    public void setK(ArrayList<Expresion> k) {
         K = k;
     }
 }

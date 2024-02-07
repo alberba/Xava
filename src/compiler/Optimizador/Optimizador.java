@@ -421,7 +421,7 @@ public class Optimizador {
     private boolean esOperacionConstante(Instruccion instruccion) {
         try {
             if (instruccion.getOperacion() == OperacionInst.ASIG || instruccion.getOperacion() == OperacionInst.INDEXADO
-                || instruccion.getOperacion() == OperacionInst.ASIGNADO) {
+                    || instruccion.getOperacion() == OperacionInst.ASIGNADO) {
                 return false;
             }
             // Si los operadores son int, es una operación constante
