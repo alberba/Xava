@@ -96,9 +96,6 @@ public class NodoExpDisponible {
         return In;
     }
 
-    public void setIn(ArrayList<Expresion> in) {
-        In = in;
-    }
 
     public ArrayList<Expresion> getOut() {
         return Out;
@@ -112,15 +109,8 @@ public class NodoExpDisponible {
         return G;
     }
 
-    public void setG(ArrayList<Expresion> g) {
-        G = g;
-    }
-
     public ArrayList<Expresion> getK() {
         return K;
     }
 
-    public void setK(ArrayList<Expresion> k) {
-        K = k;
-    }
 }
