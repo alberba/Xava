@@ -16,6 +16,9 @@ public class AnExpDisponible {
         tnd = new TND(intermedio);
     }
 
+    /**
+     * Obtención de las Gs y Ks
+     */
     public void Fase1(){
         tnd.ConstruirTND();
         ArrayList<Bloque> bloques = tnd.getTND();
@@ -23,6 +26,7 @@ public class AnExpDisponible {
         //Añado dos para E y S, aunque no se usen para evitar errores futuros
         lista.add(new NodoExpDisponible());
         lista.add(new NodoExpDisponible());
+        // Bucle que recorre los bloques
         for(int i = 2; i < bloques.size(); i++) {
             NodoExpDisponible nodo = new NodoExpDisponible();
             lista.add(nodo);
@@ -37,6 +41,9 @@ public class AnExpDisponible {
         }
     }
 
+    /**
+     * Obtención de las In y Out
+     */
     public void Fase2(){
         ArrayList<Bloque> bloques = tnd.getTND();
         ArrayList<Bloque> PND = (ArrayList<Bloque>) bloques.clone();

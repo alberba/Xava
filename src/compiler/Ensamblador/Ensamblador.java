@@ -21,11 +21,9 @@ public class Ensamblador {
     boolean [] flagsSubrutinas = {false, false, false, false};
 
     public Ensamblador(Intermedio intermedio, TSimbolos ts) {
-
         this.ts = ts;
         this.intermedio = intermedio;
         codigo = new ArrayList<>();
-
     }
 
     public void generarEnsamblador() {

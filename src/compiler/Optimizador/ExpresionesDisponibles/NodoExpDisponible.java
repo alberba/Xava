@@ -24,7 +24,12 @@ public class NodoExpDisponible {
             this.G.add(new Expresion(instruccion));
         }
     }
-    public void QuitG(String id){
+
+    /**
+     * A partir de un id, elimina de G todas las expresiones en las que aparece
+     * @param id
+     */
+    public void QuitG(String id) {
         boolean hayCambios = true;
         int i = 0;
         while(hayCambios){
