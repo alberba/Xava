@@ -1673,15 +1673,10 @@ class CUP$Parser$actions {
 		int eAri2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp eAri2 = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-                    if (ansem.gestExp(eAri) != EnumType.ENTERO) {
+                    if ((ansem.gestExp(eAri) != EnumType.ENTERO || ansem.gestExp(eAri2) != EnumType.ENTERO) && (op != Op.IGUAL && op != Op.IGUALNT)) {
                         // MANEJO DE ERRORES SEMANTICOS
                         // Solo se pueden comparar enteros
                         ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", eAri.getLinea(), Fase.SEMÁNTICO));
-                    }
-                    if (ansem.gestExp(eAri2) != EnumType.ENTERO) {
-                        // MANEJO DE ERRORES SEMANTICOS
-                        // Solo se pueden comparar enteros
-                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", eAri2.getLinea(), Fase.SEMÁNTICO));
                     }
                     RESULT = new Exp(eAri, op, eAri2, eArileft, eAriright);
                 

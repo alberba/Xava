@@ -6,6 +6,7 @@ import compiler.sintactic.Symbol;
 import compiler.sintactic.TipoElemento;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.TreeMap;
 
@@ -109,8 +110,8 @@ public class Optimizador {
     private void eliminarCodigoMuerto() {
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
         ArrayList<Procedimiento> procedimientos = intermedio.getTp();
-        ArrayList<Instruccion> instruccionesAEliminar = new ArrayList<>();
         ArrayList <Procedimiento> prodAEliminar = new ArrayList<>();
+        ArrayList<Integer> instruccionesAEliminar = new ArrayList<>();
 
         Instruccion instruccion;
         // Recorrido de instrucciones
@@ -119,23 +120,22 @@ public class Optimizador {
             switch (instruccion.getOperacion()) {
                 case RETORNO:
                 case SALTO_INCON:
-
                     // Si es un salto incondicional o un retorno, se eliminan las siguientes instrucciones hasta
                     // encontrar una etiqueta
-                    for(int j = i + 1; j < instrucciones.size(); j++) {
+                    for (int j = i + 1; j < instrucciones.size(); j++) {
                         Instruccion aux = instrucciones.get(j);
                         if (aux.getOperacion() == OperacionInst.ETIQUETA) {
                             // Comprueba si la etiqueta es la misma que el salto incondicional. En tal caso, no es necesario
                             // hacer uso del salto
                             if (aux.getDestino().equals(instruccion.getDestino())) {
-                                instruccionesAEliminar.add(instruccion);
+                                instruccionesAEliminar.add(i);
                                 i = j + 1;
                             } else {
                                 i = j;
                             }
                             break;
                         }
-                        instruccionesAEliminar.add(aux);
+                        instruccionesAEliminar.add(j);
                     }
                     break;
                 case INICIALIZACION:
@@ -148,7 +148,12 @@ public class Optimizador {
 
         if (!instruccionesAEliminar.isEmpty()) {
             // Eliminación de las instrucciones que ya no se usan
-            instrucciones.removeAll(instruccionesAEliminar);
+            instruccionesAEliminar.sort(Integer::compareTo);
+            Collections.reverse(instruccionesAEliminar);
+
+            for (Integer instruccionAEliminar : instruccionesAEliminar) {
+                instrucciones.remove((int) instruccionAEliminar);
+            }
             if (prodAEliminar.isEmpty()) {
                 procedimientos.removeAll(prodAEliminar);
                 intermedio.setTp(procedimientos);
@@ -222,7 +227,7 @@ public class Optimizador {
         for (int j = i + 1; j < instrucciones.size() && !otraAsig; j++) {
             Instruccion aux = instrucciones.get(j);
             // Si el operando 1 o 2 es igual al destino de la instrucción actual, se añade a la lista de instrucciones a analizar
-            if (esOperandoIgual(aux.getOperador1(), instruccion.getDestino()) || esOperandoIgual(aux.getOperador2(), instruccion.getDestino())) {
+            if (esOperandoIgual(aux.getOperador1(), instruccion.getDestino()) || (esOperandoIgual(aux.getOperador2(), instruccion.getDestino()) && aux.getOperacion() == OperacionInst.ASIG)){
                 instruccionesAux.add(aux);
             } else if (esOperandoIgual(aux.getDestino(), instruccion.getDestino())) {
                 // Si el destino coincide, se comprueba que no sea por un return
@@ -364,7 +369,7 @@ public class Optimizador {
      * @param prodAEliminar Lista de procedimientos a eliminar
      * @return Índice de la instrucción a comprobar actualizado
      */
-    private int eliminarFuncionesNoLlamadas(ArrayList <Instruccion> instrucciones, int i, Instruccion instruccion, ArrayList<Instruccion> instruccionesAEliminar, ArrayList<Procedimiento> prodAEliminar) {
+    private int eliminarFuncionesNoLlamadas(ArrayList <Instruccion> instrucciones, int i, Instruccion instruccion, ArrayList<Integer> instruccionesAEliminar, ArrayList<Procedimiento> prodAEliminar) {
         // Comprobará si la función está siendo llamada. En caso de que no sea así, no es útil
         // traducir la función
         for (Instruccion aux : instrucciones) {
@@ -389,7 +394,7 @@ public class Optimizador {
                 i = j;
                 return i;
             }
-            instruccionesAEliminar.add(instruccion);
+            instruccionesAEliminar.add(j);
         }
 
         return i;
@@ -442,16 +447,27 @@ public class Optimizador {
     private boolean actualizarInstruccion(Instruccion aux, Instruccion asigDiferida) {
 
         if (esOperandoIgual(aux.getOperador1(), asigDiferida.getDestino())) {
-            aux.setOperador1(asigDiferida.getOperador1());
-            return true;
+            if (aux.getOperador2() == null && aux.getOperacion() == OperacionInst.ASIG) {
+                aux.setOperacion(asigDiferida.getOperacion());
+                aux.setOperador1(asigDiferida.getOperador1());
+                aux.setOperador2(asigDiferida.getOperador2());
+                return true;
+            } else if (asigDiferida.getOperacion() == OperacionInst.ASIG) {
+                aux.setOperador1(asigDiferida.getOperador1());
+                return true;
+            }
         }
         if (esOperandoIgual(aux.getOperador2(), asigDiferida.getDestino())) {
-            aux.setOperador2(asigDiferida.getOperador1());
-            return true;
+            if (asigDiferida.getOperacion() == OperacionInst.ASIG) {
+                aux.setOperador2(asigDiferida.getOperador1());
+                return true;
+            }
         }
         if (esOperandoIgual(aux.getDestino(), asigDiferida.getDestino())) {
-            aux.setDestino(asigDiferida.getOperador1());
-            return true;
+            if (asigDiferida.getOperacion() == OperacionInst.ASIG) {
+                aux.setDestino(asigDiferida.getOperador1());
+                return true;
+            }
         }
 
         return false;
@@ -489,12 +505,17 @@ public class Optimizador {
      * @return true si es una asignación diferida, false en caso contrario
      */
     private boolean esAsignacionDiferida(Instruccion instruccion, HashSet<String> variablesAnalizadas) {
-        return !variablesAnalizadas.contains(instruccion.getDestino()) && instruccion.getOperacion() == OperacionInst.ASIG
+        boolean buenaOperacion = false;
+        switch (instruccion.getOperacion()) {
+            case ASIG, SUMA, RESTA, MULTIPLICACION, DIVISION, MODULO -> buenaOperacion = true;
+
+        }
+        return !variablesAnalizadas.contains(instruccion.getDestino()) && buenaOperacion
                 && intermedio.buscarVariable(instruccion.getDestino()).isEsTemp();
     }
 
 
-    private void expDisponibles2(){
+    private void expDisponibles2() {
         expDisponible.Fase1();
         expDisponible.Fase2();
         expDisponible.UsoExpDisponibles();

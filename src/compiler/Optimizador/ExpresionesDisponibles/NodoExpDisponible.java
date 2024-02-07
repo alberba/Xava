@@ -35,7 +35,7 @@ public class NodoExpDisponible {
                     G.remove(expresion);
                     K.add(expresion);
                     hayCambios = true;
-                    i = j - 1;
+                    i = j;
                     break;
                 }
             }

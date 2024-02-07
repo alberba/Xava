@@ -22,7 +22,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         java.util.Scanner sc = new java.util.Scanner(System.in);
-        System.out.println("Introduzca el nombre del archivo a compilar: ");
+        System.out.println("Introduzca el nombre del archivo a compilar (sin incluir la extensión): ");
 
         String archivo = sc.nextLine();
         String rutaArchivo = conseguirPath(archivo);
@@ -115,7 +115,9 @@ public class Main {
 
     public static String conseguirPath(String rutaArchivo) {
         String rutaActual = System.getProperty("user.dir");
-        System.out.println(rutaActual);
+        if (!rutaArchivo.contains(".xava")) {
+            rutaArchivo += ".xava";
+        }
 
         if (rutaArchivo.startsWith(".\\")) {
             rutaArchivo = rutaArchivo.substring(1);

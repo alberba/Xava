@@ -1,15 +1,16 @@
 package compiler.Optimizador.ExpresionesDisponibles;
 
-import java.util.ArrayList;
-
 import compiler.Intermedio.Instruccion;
 import compiler.Intermedio.Intermedio;
 import compiler.Intermedio.OperacionInst;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 public class TND {
-    private ArrayList <Bloque> TND;
-    private ArrayList <String> TE;
-    private Intermedio intermedio;
+    private final ArrayList <Bloque> TND;
+    private final ArrayList <String> TE;
+    private final Intermedio intermedio;
     public TND(Intermedio intermedio){
         TND = new ArrayList<>();
         TE = new ArrayList<>();
@@ -17,7 +18,7 @@ public class TND {
     }
 
     //Algoritmo que construye la TND
-    public void ConstruirTND(){
+    public void ConstruirTND() {
         // Inicializamos con bloque entrada y salida
         TND.add(new Bloque(-1,-1, "E"));
         TE.add("");
@@ -29,22 +30,22 @@ public class TND {
         // Contador de bloques
         int contador = 2;
         //Lista para revisar los saltos de los bloques
-        ArrayList <Bloque> Saltos = new ArrayList<>();
+        ArrayList <Integer> Saltos = new ArrayList<>();
 
         // Inicializamos el primer bloque
         TND.add(new Bloque(0,-1,"B1"));
         // Comprobamos si tiene etiqueta o no
-        if(instrucciones.get(0).getOperacion().equals(OperacionInst.ETIQUETA)){
+        if (instrucciones.get(0).getOperacion().equals(OperacionInst.ETIQUETA)) {
             // Cualquier bloque sin etiqueta se guardará como una etiqueta vacía ya que esto facilitará el acceso a la TE
             TE.add(instrucciones.get(0).getDestino());
-        }else {TE.add("");}
+        } else { TE.add(""); }
 
         // Bucle que recorre instruccion a instruccion
-        for(int i = 1; i < instrucciones.size(); i++) {
+        for (int i = 1; i < instrucciones.size(); i++) {
             // Comprobamos si debería acabar el bloque
-            if(StopLider(instrucciones.get(i))){
+            if (StopLider(instrucciones.get(i))) {
                 // Si el final es una etiqueta
-                if(instrucciones.get(i).getOperacion().equals(OperacionInst.ETIQUETA)){
+                if (instrucciones.get(i).getOperacion().equals(OperacionInst.ETIQUETA)) {
                     //Guardamos como que la línea anterior fue el final
                     Bloque bloque = TND.get(contador);
                     bloque.setLineaFi(i - 1);
@@ -64,17 +65,17 @@ public class TND {
                     //Creamos el nuevo bloque, con su inicio siendo la siguiente linea
                     TND.add(new Bloque(i + 1,0,"B"+contador));
                     //Comoprobamos si es un salto incondicional
-                    if(!instrucciones.get(i).getOperacion().equals(OperacionInst.SALTO_INCON)){
+                    if (!instrucciones.get(i).getOperacion().equals(OperacionInst.SALTO_INCON)) {
                         //Si no lo es, el siguiente bloque es su sucesor
                         bloque.AddSucc("B" + contador);
                         TND.get( TND.size() - 1).AddPred("B" + (contador - 1));
                     }
                     // Comprobamos si el siguiente bloque tiene etiqueta o no
-                    if(instrucciones.get(i + 1).getOperacion().equals(OperacionInst.ETIQUETA)){
+                    if (instrucciones.get(i + 1).getOperacion().equals(OperacionInst.ETIQUETA)) {
                         TE.add(instrucciones.get(i + 1).getDestino());
                     }else {TE.add("");}
                     //Guardamos que el bloque acababa en salto
-                    Saltos.add(bloque);
+                    Saltos.add(contador);
                     i++;
                     contador++;
                 }
@@ -86,7 +87,8 @@ public class TND {
         TND.get(1).AddPred("B"+(contador - 1));
 
         //Bucle para agregar los predecesores y sucesores de los saltos
-        for(Bloque salto : Saltos){
+        for(Integer i : Saltos){
+            Bloque salto = TND.get(i);
             Bloque bloque = getBloqueEtiqueta(instrucciones.get(salto.getLineaFi()).getDestino());
             bloque.AddPred(salto.getId());
             salto.AddSucc(bloque.getId());
@@ -99,30 +101,35 @@ public class TND {
         };
     }
 
-    public Bloque getBloqueEtiqueta(String etiqueta){
-        int i = 0;
-        for(; i < TE.size(); i++){
-            if(etiqueta.equals(TE.get(i))){
-                return TND.get(i + 2);
+    public Bloque getBloqueEtiqueta(String etiqueta) {
+        for (int i = 0; i < TE.size(); i++) {
+            if (etiqueta.equals(TE.get(i))) {
+                return TND.get(i);
             }
         }
         return null;
     }
 
-    //Obtener un bloque concreto
-    public Bloque getBloque(String id){
-        if(id == "E"){
+    // Obtener un bloque concreto
+    public Bloque getBloque(String id) {
+        if (Objects.equals(id, "E")) {
             return TND.get(0);
-        } else if (id == "S") {
+        } else if (Objects.equals(id, "S")) {
             return TND.get(1);
-        }else{
+        } else {
             String numeroStr = id.substring(1); // Extraer todos los caracteres después del primer carácter
             return TND.get(Integer.parseInt(numeroStr) + 1);
         }
     }
 
-    public int getPos(Bloque bloque){
-        return TND.indexOf(bloque);
+    public int getPos(Bloque bloque) {
+        if (bloque.getId().equals("E")) {
+            return 0;
+        } else if (bloque.getId().equals("S")) {
+            return 1;
+        }
+        String numeroStr = bloque.getId().substring(1);
+        return Integer.parseInt(numeroStr) + 1;
     }
 
     public ArrayList<Bloque> getTND() {
