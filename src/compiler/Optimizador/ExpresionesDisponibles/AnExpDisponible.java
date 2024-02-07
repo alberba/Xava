@@ -52,10 +52,14 @@ public class AnExpDisponible {
                 break;
             }
             Bloque b = PND.get(0);
+            // Añadimos el bloque a analizados si no lo está todavía
+            if (!analizados.contains(b)) {
+                analizados.add(b);
+            }
             PND.remove(b);
             hayCambios = false;
             NodoExpDisponible nodo1 = lista.get(tnd.getPos(b));
-            for(String nombre : tnd.getBloque(b.getId()).getPred()) {
+            for (String nombre : tnd.getBloque(b.getId()).getPred()) {
                 Bloque p = tnd.getBloque(nombre);
                 NodoExpDisponible nodo2 = lista.get(tnd.getPos(p));
                 int aux = nodo1.getIn().size();
@@ -105,7 +109,7 @@ public class AnExpDisponible {
                     if(esAsig(instruccion1)) {
                         //Comprobamos si existe alguna variable con la misma expresión
                         Instruccion instruccion = lista.get(i).getExp(instruccion1);
-                        if(instruccion != null){
+                        if (instruccion != null) {
                             //Si existe cambiamos la instrucción por una asignación a esa variable
                             instruccion1.setOperacion(OperacionInst.ASIG);
                             instruccion1.setOperando2(null);
