@@ -22,7 +22,7 @@ public class Main {
     public static void main(String[] args) throws Exception {
 
         java.util.Scanner sc = new java.util.Scanner(System.in);
-        System.out.println("Introduzca el nombre del archivo a compilar (sin incluir la extensión): ");
+        System.out.println("Introduzca el nombre del archivo a compilar: ");
 
         String archivo = sc.nextLine();
         String rutaArchivo = conseguirPath(archivo);

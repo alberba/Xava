@@ -36,7 +36,7 @@ public class Intermedio {
         this.ts = tsimbolos;
     }
 
-    public String nuevaEtiqueta(){
+    public String nuevaEtiqueta() {
         contadorEtiquetas++;
         return "e" + contadorEtiquetas;
     }
