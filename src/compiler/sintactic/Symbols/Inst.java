@@ -16,7 +16,6 @@ public class Inst extends SimboloBase {
     private String id;
     private Cont_cond contCond;
     private Call_fn call_fn;
-    //private AnSem anSem;
 
     /**
      * Constructor para ifs, fors y whiles

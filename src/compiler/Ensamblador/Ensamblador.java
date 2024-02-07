@@ -44,6 +44,9 @@ public class Ensamblador {
 
     }
 
+    /**
+     * Método encargado de declarar todas las variables en ensamblador
+     */
     public void declararVariables() {
         codigo.add("*-----------------------------------------------------------");
         codigo.add("* VARIABLES Y CONSTANTES");
@@ -75,6 +78,10 @@ public class Ensamblador {
 
     }
 
+    /**
+     * Función encargada de traducir las instrucciones intermedias a ensamblador
+     * @param instruccion Instrucción a traducir
+     */
     public void instruccionAEnsamblador(Instruccion instruccion) {
         switch(instruccion.getOperacion()) {
             case ASIG:

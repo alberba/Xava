@@ -59,7 +59,13 @@ public class Exp extends SimboloBase {
         }
 
     }
-    
+
+    /**
+     * Método que obtiene una lista de objetos que contiene la operación general
+     * @param exp Expresión a analizar
+     * @param intermedio Objeto de la clase Intermedio para gestionar 3@ direcciones
+     * @param listaObjetos Lista de objetos que contiene la operación general
+     */
     public static void obtenerlistaObjetos(Exp exp, Intermedio intermedio, ArrayList<Object> listaObjetos) {
         if (exp.getOp() != null) {
             Value value = exp.getValue();

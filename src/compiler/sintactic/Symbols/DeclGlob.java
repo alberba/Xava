@@ -2,8 +2,8 @@ package compiler.sintactic.Symbols;
 
 import compiler.Intermedio.Intermedio;
 public class DeclGlob extends SimboloBase {
-    private DeclsF declsF;
-    private Decls decls;
+    private final DeclsF declsF;
+    private final Decls decls;
 
     public DeclGlob(DeclsF declsF, Decls decls, int linea, int columna) {
         super(linea,columna);

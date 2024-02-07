@@ -4,7 +4,5 @@ public enum TipoElemento {
     FUNCION,
     VARIABLE,
     PARAMETRO,
-    CONSTANTE,
     ARRAY,
-    CAMPO,
 }

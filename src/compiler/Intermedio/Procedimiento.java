@@ -10,19 +10,11 @@ public class Procedimiento {
     // Tipo que devuelve
     private EnumType tipo;
     // Parametros de la funcion
-    private ArrayList<Variable> parametros;
+    private final ArrayList<Variable> parametros;
     // Declaraciones que tiene dentro
-    private ArrayList<Variable> declaraciones;
+    private final ArrayList<Variable> declaraciones;
 
     private String etiqueta;
-
-    public Procedimiento(String id, EnumType tipo, ArrayList<Variable> parametros, ArrayList<Variable> declaraciones, String etiqueta) {
-        this.id = id;
-        this.tipo = tipo;
-        this.parametros = parametros;
-        this.declaraciones = declaraciones;
-        this.etiqueta = etiqueta;
-    }
 
     public Procedimiento(String id, EnumType tipo, String etiqueta) {
         this.id = id;
@@ -78,14 +70,6 @@ public class Procedimiento {
 
     public void setTipo(EnumType tipo) {
         this.tipo = tipo;
-    }
-
-    public void setParametros(ArrayList<Variable> parametros) {
-        this.parametros = parametros;
-    }
-
-    public void setDeclaraciones(ArrayList<Variable> declaraciones) {
-        this.declaraciones = declaraciones;
     }
 
     public String getEtiqueta() {

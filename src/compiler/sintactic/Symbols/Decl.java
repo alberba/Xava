@@ -1,7 +1,7 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.Variable;
 import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.Variable;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,6 @@ public class Decl extends SimboloBase {
 
     private final Type type;
     private Lid lid;
-
     private String id;
     private L_Dim l_dim;
     private D_asig d_asignacion;
@@ -45,10 +44,5 @@ public class Decl extends SimboloBase {
         }
 
     }
-
-    public Lid getLid() {
-        return this.lid;
-    }
-
 
 }

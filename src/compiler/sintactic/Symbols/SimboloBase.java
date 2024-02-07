@@ -1,9 +1,7 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.Intermedio;
-
 public class SimboloBase {
-    private int linea;
+    private final int linea;
     private int columna;
     public SimboloBase(int linea, int columna){
         this.linea = linea;

@@ -29,10 +29,4 @@ public class Lid extends SimboloBase {
         return lid;
     }
 
-    public void setLid(Lid lid) {
-        this.lid = lid;
-    }
-
-    // generarIntermedio se hace en Decl
-
 }

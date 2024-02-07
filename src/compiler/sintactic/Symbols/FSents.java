@@ -3,7 +3,7 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Intermedio;
 public class FSents extends SimboloBase {
 
-    private Sents sents;
+    private final Sents sents;
     private RetProc retProc;
 
     public FSents(Sents sents, RetProc retProc, int linea, int columna) {
@@ -17,20 +17,8 @@ public class FSents extends SimboloBase {
         this.sents = sents;
     }
 
-    public Sents getSents() {
-        return sents;
-    }
-
-    public void setSents(Sents sents) {
-        this.sents = sents;
-    }
-
     public RetProc getRetProc() {
         return retProc;
-    }
-
-    public void setRetProc(RetProc retProc) {
-        this.retProc = retProc;
     }
 
     public void generarIntermedio(Intermedio intermedio) {

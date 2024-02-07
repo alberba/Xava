@@ -1,14 +1,10 @@
 package compiler.sintactic.Symbols;
 
-import java.util.ArrayList;
-
-import compiler.sintactic.Symbol;
-import compiler.sintactic.TipoElemento;
 import compiler.Intermedio.Intermedio;
 
 public class Args_Cap extends SimboloBase {
 
-    private L_args_Cap l_args_cap;
+    private final L_args_Cap l_args_cap;
 
     public Args_Cap(L_args_Cap l_args_cap, int linea, int columna) {
         super(linea,columna);
@@ -19,9 +15,6 @@ public class Args_Cap extends SimboloBase {
         return l_args_cap;
     }
 
-    public void setL_args_cap(L_args_Cap l_args_cap) {
-        this.l_args_cap = l_args_cap;
-    }
 
     public void generarIntermedio(Intermedio intermedio) {
         if (l_args_cap != null) {

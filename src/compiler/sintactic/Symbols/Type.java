@@ -2,8 +2,8 @@ package compiler.sintactic.Symbols;
 
 public class Type extends SimboloBase {
 
-    private boolean constante;
-    private EnumType stype;
+    private final boolean constante;
+    private final EnumType stype;
 
     public Type(boolean constante, EnumType stype, int linea, int columna) {
         super(linea,columna);

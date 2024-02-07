@@ -25,6 +25,11 @@ public class TSimbolos {
         this.tsimbolos.add(new ArrayList<>());
     }
 
+    /**
+     * Método encargado de meter un símbolo en la tabla de símbolos
+     * @param symbol Símbolo a meter
+     * @return true si se ha podido meter, false si ya hay un símbolo con el mismo nombre
+     */
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean ponerSymbol(Symbol symbol) {
         // Al tratarse de una función, comprobaremos si ha sido declarado previamente
@@ -126,8 +131,13 @@ public class TSimbolos {
         return null;
     }
 
-    // Busca el símbolo correspondiente al ID, primero a nivel local y si no se encuentra, se pasa a buscar a nivel
-    // global
+
+    /**
+     * Busca el símbolo correspondiente al ID, primero a nivel local y si no se encuentra,
+     * se pasa a buscar a nivel global
+     * @param id ID del símbolo
+     * @return Símbolo si se encuentra, null si no
+     */
     public Symbol getSymbol(String id) {
         // Buscamos el símbolo en el nivel actual y lo almacenamos en una variable temporal
         Symbol simbolo = this.busquedaSymbolAmbito(this.nActual, id);
@@ -142,6 +152,11 @@ public class TSimbolos {
         return this.busquedaSymbolAmbito(0, id);
     }
 
+    /**
+     * Método utilizado para buscar el simbolo de una función a partir de su id
+     * @param id id de la función
+     * @return Símbolo de la función si se encuentra, null si no
+     */
     public Symbol getFuncion(String id) {
 
         // Iterar en todos los elementos del ambito global
@@ -156,6 +171,11 @@ public class TSimbolos {
         return null;
     }
 
+    /**
+     * Método utilizado para obtener los parámetros de una función
+     * @param idFunc id de la función
+     * @return Lista de parámetros de la función
+     */
     public ArrayList<Symbol> getParametros(String idFunc) {
         int ambitoFuncion = getAmbitoFuncion(idFunc);
 
@@ -183,6 +203,10 @@ public class TSimbolos {
         return parametros == null ? 0 : parametros.size();
     }
 
+    /**
+     * Método utilizado para obtener el tipo de retorno de la función actual
+     * @return Tipo de retorno de la función
+     */
     public EnumType getTypeFuncionActual() {
         // Se utiliza el ámbito - 1 como offset para obtener la declaración de la función
         return tsimbolos.get(0).get(indiceDeclFunciones + (nActual - 1)).getTipoReturn();
@@ -195,6 +219,7 @@ public class TSimbolos {
      */
     private int getAmbitoFuncion(String idFunc) {
 
+        // Si es la función principal, se devuelve el último ámbito
         if (Objects.equals(idFunc, "main")) {
             return tsimbolos.size() - 1;
         }

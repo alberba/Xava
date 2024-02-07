@@ -1,11 +1,9 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.Intermedio;
-
 public class L_array extends SimboloBase {
 
     private Exp exp;
-    private L_array lArray;
+    private final L_array lArray;
 
     public L_array(Exp exp, L_array lArray, int linea, int columna) {
         super(linea, columna);
@@ -25,8 +23,5 @@ public class L_array extends SimboloBase {
         return lArray;
     }
 
-    public void setlArray(L_array lArray) {
-        this.lArray = lArray;
-    }
 
 }

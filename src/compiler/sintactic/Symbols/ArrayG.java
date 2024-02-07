@@ -25,7 +25,6 @@ public class ArrayG extends SimboloBase {
         return lArray;
     }
 
-
     public int getDimension() {
         return dimension;
     }

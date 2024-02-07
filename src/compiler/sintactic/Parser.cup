@@ -89,8 +89,8 @@ non terminal    Sents           SENTS;
 non terminal    Sent            SENT;
 non terminal    DeclsF          DECLSF;
 non terminal    DeclF           DECLF;
-non terminal    Args_Declf      ARGS_DECLF;
-non terminal    L_args_Declf    L_ARGS_DECLF;
+non terminal                    ARGS_DECLF;
+non terminal                    L_ARGS_DECLF;
 non terminal    Decls           DECLS;
 non terminal    Decl            DECL;
 non terminal    L_Dim           L_DIM;
@@ -139,7 +139,7 @@ DECLSF          ::= DECLF:declf DECLSF:declsf                                   
                 |                                                                                   {: :}
                 ;
 
-DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
+DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF P_COMA
                     {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
@@ -150,13 +150,13 @@ DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
                             // La función no puede llamarse Main
                             ErrorC.añadirError(new ErrorC("No se puede crear una función llamada principal", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new DeclF(eType, id, args_declf, eTypeleft, eTyperight);
+                        RESULT = new DeclF(eType, id, eTypeleft, eTyperight);
                     :}
                 ;
 
 ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C
                     {:
-                        RESULT = new Args_Declf(args, args.getLinea(), args.getColumna());
+
                     :}
                 |   PAR_A PAR_C                                                                     {: :}
                 ;
@@ -167,7 +167,6 @@ L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new L_args_Declf(stype, id, args, stypeleft, styperight);
                     :}
                 |   STYPE:stype ID:id
                     {:
@@ -176,7 +175,6 @@ L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new L_args_Declf(stype, id, stypeleft, styperight);
                     :}
                 ;
 
@@ -205,7 +203,7 @@ CAP             ::= ETYPE:etype ID:id ARGS_CAP:args_cap
                         } catch (IndexOutOfBoundsException e){
                             // El error se manejará posteriormente
                         }
-                        RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
+                        RESULT = new Cap(id, args_cap, etypeleft, etyperight);
                     :}
                 ;
 

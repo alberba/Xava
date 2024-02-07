@@ -2,8 +2,8 @@ package compiler.sintactic.Symbols;
 
 import compiler.Intermedio.Intermedio;
 public class Funciones extends SimboloBase {
-    private FuncionG f;
-    private Funciones sig;
+    private final FuncionG f;
+    private final Funciones sig;
 
     public Funciones(FuncionG f, Funciones sig, int linea, int columna) {
         super(linea,columna);
@@ -12,10 +12,10 @@ public class Funciones extends SimboloBase {
     }
 
     public void generarIntermedio(Intermedio intermedio) {
-            f.generarIntermedio(intermedio);
-            if (sig != null) {
-                sig.generarIntermedio(intermedio);
-            }
+        f.generarIntermedio(intermedio);
+        if (sig != null) {
+            sig.generarIntermedio(intermedio);
+        }
     }
 
 }

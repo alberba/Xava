@@ -14,7 +14,7 @@ public class Optimizador {
 
     private final Intermedio intermedio;
     private boolean hayCambios = true;
-    private AnExpDisponible expDisponible;
+    private final AnExpDisponible expDisponible;
 
     public Optimizador(Intermedio intermedio) {
         this.intermedio = intermedio;
@@ -28,7 +28,7 @@ public class Optimizador {
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
-        //expDisponibles2();
+        expDisponibles2();
         return intermedio;
 
     }

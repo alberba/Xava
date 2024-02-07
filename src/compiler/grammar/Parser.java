@@ -669,9 +669,6 @@ class CUP$Parser$actions {
 		int idleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).left;
 		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
-		int args_declfleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
-		int args_declfright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		Args_Declf args_declf = (Args_Declf)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
@@ -682,7 +679,7 @@ class CUP$Parser$actions {
                             // La función no puede llamarse Main
                             ErrorC.añadirError(new ErrorC("No se puede crear una función llamada principal", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new DeclF(eType, id, args_declf, eTypeleft, eTyperight);
+                        RESULT = new DeclF(eType, id, eTypeleft, eTyperight);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("DECLF",18, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-5)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -691,12 +688,12 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 7: // ARGS_DECLF ::= PAR_A L_ARGS_DECLF PAR_C 
             {
-              Args_Declf RESULT =null;
+              Object RESULT =null;
 		int argsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int argsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
-		L_args_Declf args = (L_args_Declf)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
+		Object args = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
 		
-                        RESULT = new Args_Declf(args, args.getLinea(), args.getColumna());
+
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("ARGS_DECLF",19, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -705,7 +702,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 8: // ARGS_DECLF ::= PAR_A PAR_C 
             {
-              Args_Declf RESULT =null;
+              Object RESULT =null;
 		 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("ARGS_DECLF",19, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -714,7 +711,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 9: // L_ARGS_DECLF ::= STYPE ID COMA L_ARGS_DECLF 
             {
-              L_args_Declf RESULT =null;
+              Object RESULT =null;
 		int stypeleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).left;
 		int styperight = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)).right;
 		EnumType stype = (EnumType)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-3)).value;
@@ -723,13 +720,12 @@ class CUP$Parser$actions {
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-2)).value;
 		int argsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int argsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
-		L_args_Declf args = (L_args_Declf)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
+		Object args = (Object)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new L_args_Declf(stype, id, args, stypeleft, styperight);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("L_ARGS_DECLF",20, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-3)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -738,7 +734,7 @@ class CUP$Parser$actions {
           /*. . . . . . . . . . . . . . . . . . . .*/
           case 10: // L_ARGS_DECLF ::= STYPE ID 
             {
-              L_args_Declf RESULT =null;
+              Object RESULT =null;
 		int stypeleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int styperight = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		EnumType stype = (EnumType)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
@@ -751,7 +747,6 @@ class CUP$Parser$actions {
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
                         }
-                        RESULT = new L_args_Declf(stype, id, stypeleft, styperight);
                     
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("L_ARGS_DECLF",20, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
@@ -839,16 +834,14 @@ class CUP$Parser$actions {
 		int args_capleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int args_capright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Args_Cap args_cap = (Args_Cap)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-
+		
                         try {
                             tSimbolos.updatenActual(id);
                         } catch (IndexOutOfBoundsException e){
-                            // MANEJO DE ERRORES SEMANTICOS
-                            // No se puede acceder a la función
+                            // El error se manejará posteriormente
                         }
-
-                        RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
-
+                        RESULT = new Cap(id, args_cap, etypeleft, etyperight);
+                    
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("CAP",6, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

@@ -42,11 +42,13 @@ public class Main {
             System.exit(1);
         }
 
+        // Lexico
         long startTime = System.nanoTime();
         Scanner scanner = new Scanner(programa);
         long endTime = System.nanoTime();
         System.out.println("Scanner time: " + (endTime - startTime) / 1000000 + "ms");
 
+        // Semántico
         Parser parser = null;
         try {
             SymbolFactory sf = new ComplexSymbolFactory();
@@ -73,6 +75,7 @@ public class Main {
             guardarTokens(scanner.tokens, rutaArchivo);
         }
 
+        // Intermedio
         Intermedio intermedio = new Intermedio(parser.getTSimbolos());
         try{
             startTime = System.nanoTime();
@@ -86,6 +89,7 @@ public class Main {
             System.exit(0);
         }
 
+        // Ensamblador sin mejorar
         startTime = System.nanoTime();
         Ensamblador ensamblador = new Ensamblador(intermedio, parser.getTSimbolos());
         ensamblador.generarEnsamblador();

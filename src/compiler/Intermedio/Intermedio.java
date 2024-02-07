@@ -121,6 +121,12 @@ public class Intermedio {
         return v;
     }
 
+    /**
+     * Añade un procedimiento a la tabla de procedimientos y lo devuelve
+     * @param id Identificador del procedimiento
+     * @param tipo Tipo del procedimiento
+     * @return Procedimiento agregado
+     */
     public Procedimiento añadirProcedimiento(String id, EnumType tipo) {
         String etiquetaFuncion = "e_" + id;
         Procedimiento proc = new Procedimiento(id, tipo, etiquetaFuncion);
@@ -132,6 +138,11 @@ public class Intermedio {
         codigo.add(inst);
     }
 
+    /**
+     * Añade un array a la tabla de variables
+      * @param id Identificador del array
+     * @param l_dim Dimensiones del array
+     */
     public void añadirArray(String id, L_Dim l_dim) {
         EnumType typeArr = ts.getSymbol(id).getTipoReturn();
 
@@ -143,6 +154,10 @@ public class Intermedio {
         this.añadirVariable(id, typeArr, dimensiones);
     }
 
+    /**
+     * Consulta un array y añade las instrucciones necesarias para acceder a la posición deseada
+     * @param arrayG Array a consultar
+     */
     public void consultarArray(ArrayG arrayG, boolean esIndexado) {
         // Obtenemos el tipo del array
         EnumType typeArr = ts.getSymbol(arrayG.getId()).getTipoReturn();

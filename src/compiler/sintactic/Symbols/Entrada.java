@@ -1,9 +1,12 @@
 package compiler.sintactic.Symbols;
 
-import compiler.Intermedio.*;
+import compiler.Intermedio.Instruccion;
+import compiler.Intermedio.Intermedio;
+import compiler.Intermedio.OperacionInst;
+import compiler.Intermedio.Variable;
 public class Entrada extends SimboloBase {
 
-    private EnumType enumType;
+    private final EnumType enumType;
 
     public Entrada(EnumType enumType, int line, int column) {
         super(line, column);
@@ -12,10 +15,6 @@ public class Entrada extends SimboloBase {
 
     public EnumType getEnumType() {
         return enumType;
-    }
-
-    public void setEnumType(EnumType enumType) {
-        this.enumType = enumType;
     }
 
     public void generarIntermedio(Intermedio intermedio) {

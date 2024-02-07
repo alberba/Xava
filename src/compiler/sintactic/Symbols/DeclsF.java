@@ -3,9 +3,9 @@ package compiler.sintactic.Symbols;
 import compiler.Intermedio.Intermedio;
 public class DeclsF extends SimboloBase {
 
-    private DeclF declF;
+    private final DeclF declF;
 
-    private DeclsF declsF;
+    private final DeclsF declsF;
 
     public DeclsF(DeclF declF, DeclsF declsF, int linea, int columna){
         super(linea,columna);
@@ -15,7 +15,6 @@ public class DeclsF extends SimboloBase {
 
     public void generarIntermedio(Intermedio intermedio) {
         declF.generarIntermedio(intermedio);
-
         if(declsF !=null){
             declsF.generarIntermedio(intermedio);
         }
