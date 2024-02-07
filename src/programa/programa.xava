@@ -4,27 +4,36 @@ funcion ent mod(ent a, ent b);
 funcion ent abs(ent n);
 funcion ent pow(ent b, ent e);
 
+/*
+Esto es un comentario
+multilinea
+*/
 principal {
     ent base := leerEnt();
+
+    ## Declaración y asignación de arrays
+    ent [5] arr;
+    [0] arr := 1;
+    [1] arr := 2;
+    [2] arr := 3;
+    [3] arr := 4;
+    [4] arr := 5;
+
     ## Check asignación múltiple
     const ent conEnt := -1;
     const car conCar, conCar2 := "a";
     car letr := conCar;
-    ## Check asignación de constantes
-    imprimir(conCar);
+
+    imprimir(conEnt);
     imprimir(conCar2);
-    imprimir(letr);
+
     ent k, l, m := conEnt + 1;
-    imprimir("m");
-    imprimir(m);
     l := l + 1;
-    imprimir("l");
-    imprimir(l);
-    imprimir("m");
+
     imprimir(m);
     imprimir("I");
-    ## Check bucles anidados
 
+    ## Check bucles anidados
     mientras (k < 3) {
         ent i := 0;
         para (i < 10; i := i + 1;) {
@@ -72,14 +81,7 @@ funcion ent pow(ent b, ent e) {
     ent resultado := 1;
     ent absE := abs(e);
 
-    /* test
-            Jorge multilinea jijijaja
-            test 2 */
     mientras(absE > 0 y resultado > 0) {
-        ## Jorge jijijaja
-        /* test
-                Jorge multilinea jijijaja
-                test 2 */
         resultado := resultado * b;
         absE := absE - 1;
     }
