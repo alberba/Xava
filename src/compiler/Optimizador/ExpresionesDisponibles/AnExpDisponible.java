@@ -14,10 +14,10 @@ public class AnExpDisponible {
         this.intermedio = intermedio;
         this.lista = new ArrayList<>();
         tnd = new TND(intermedio);
-        tnd.ConstruirTND();
     }
 
     public void Fase1(){
+        tnd.ConstruirTND();
         ArrayList<Bloque> bloques = tnd.getTND();
         ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
         //Añado dos para E y S, aunque no se usen para evitar errores futuros
@@ -57,6 +57,38 @@ public class AnExpDisponible {
             // s pertenece a TND(b).succ
             for (String nombre : tnd.getBloque(b.getId()).getSucc()) {
                 PND.add(tnd.getBloque(nombre));
+            }
+        }
+    }
+
+    /**
+    * Método para reemplezar las asignaciones de las que sabemos hay una expresión disponible
+    * */
+    public void UsoExpDisponibles(){
+        // Obtenemos las instrucciones antes de empezar
+        ArrayList<Instruccion> instrucciones = intermedio.getCodigo();
+        // Bucle que recorre los bloques
+        for(int i = 2; i < lista.size(); i++){
+            // Solo nos interesan los bloque que no tengan G vacía
+            if(!lista.get(i).getG().isEmpty()){
+                // Obtenemos el objeto bloque
+                Bloque bloque = tnd.getBloque("B"+(i-1));
+                // Bucle para iterar en las instrucciones del bucle
+                for(int j = bloque.getLineaI(); j < bloque.getLineaFi(); j++){
+                    // Obtenemos la instruccion actual
+                    Instruccion instruccion1 = instrucciones.get(j);
+                    //Comprobamos si es alguna de las que pueden cambiarse
+                    if(esAsig(instruccion1)) {
+                        //Comprobamos si existe alguna variable con la misma expresión
+                        Instruccion instruccion = lista.get(i).getExp(instruccion1);
+                        if(instruccion != null){
+                            //Si existe cambiamos la instrucción por una asignación a esa variable
+                            instruccion1.setOperacion(OperacionInst.ASIG);
+                            instruccion1.setOperador2(null);
+                            instruccion1.setOperador1(instruccion.getDestino());
+                        }
+                    }
+                }
             }
         }
     }

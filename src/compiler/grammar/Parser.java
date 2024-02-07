@@ -504,12 +504,6 @@ public class Parser extends java_cup.runtime.lr_parser {
 
 
 
-/***
-    private Scanner scanner;
-    public Parser(Scanner scanner) {
-        this.scanner = scanner;
-    }
-***/
 
     private Xava xava;
     private ComplexSymbolFactory csf = new ComplexSymbolFactory();
@@ -532,6 +526,7 @@ public class Parser extends java_cup.runtime.lr_parser {
         ErrorC.añadirError(new ErrorC(message, cs.getLeft().getLine(), cs.getLeft().getColumn(), Fase.SINTÁCTICO));
     }
 
+    // Busca cuales son los tokens esperados
     private String showExpectedTokenIds() {
         List<String> list = this.expected_token_ids().stream().map(this::symbl_name_from_id).toList();
         return (!list.isEmpty()) ? list.toString() : "something else";
@@ -546,12 +541,7 @@ public class Parser extends java_cup.runtime.lr_parser {
     }
 
 
-    /**
-     * Ignore fatal errors
-     *
-     * @param message
-     * @param info
-     */
+    // Ignoramos los errores de JavaCup que no nos interesan para nuestro compilador
     @Override
     public void report_fatal_error(String message, Object info) {}
 
@@ -682,7 +672,7 @@ class CUP$Parser$actions {
 		int args_declfleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).left;
 		int args_declfright = ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-1)).right;
 		Args_Declf args_declf = (Args_Declf)((java_cup.runtime.Symbol) CUP$Parser$stack.elementAt(CUP$Parser$top-1)).value;
-		  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true, idleft))) {
+		  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
                             ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -734,7 +724,7 @@ class CUP$Parser$actions {
 		int argsleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int argsright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		L_args_Declf args = (L_args_Declf)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, idleft))) {
+		  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -756,7 +746,7 @@ class CUP$Parser$actions {
 		int idright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		String id = (String)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
-                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, idleft))) {
+                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -849,10 +839,16 @@ class CUP$Parser$actions {
 		int args_capleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int args_capright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Args_Cap args_cap = (Args_Cap)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		
-                        tSimbolos.updatenActual(id);
+
+                        try {
+                            tSimbolos.updatenActual(id);
+                        } catch (IndexOutOfBoundsException e){
+                            // MANEJO DE ERRORES SEMANTICOS
+                            // No se puede acceder a la función
+                        }
+
                         RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
-                    
+
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("CAP",6, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;
@@ -1116,7 +1112,7 @@ class CUP$Parser$actions {
                             }
                         }
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
-                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), lidleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante()))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable declarada previamente", aux.getLinea(), Fase.SEMÁNTICO));
@@ -1150,7 +1146,7 @@ class CUP$Parser$actions {
                                 dimensiones.add(aux.getNum());
                             }
 
-                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), dimensiones, false, idleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), dimensiones, false))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -1623,6 +1619,16 @@ class CUP$Parser$actions {
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
+                    if (ansem.gestExp(ecomp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se puede hacer uso de operadores lógicos con valores booleanos
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    if (ansem.gestExp(ecomp) != EnumType.BOOLEANO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se puede hacer uso de operadores lógicos con valores booleanos
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo booleano", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
                     RESULT = new Exp(ecomp, op, exp, ecompleft, ecompright);
                 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("E",31, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1674,6 +1680,16 @@ class CUP$Parser$actions {
 		int eAri2right = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp eAri2 = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
 		
+                    if (ansem.gestExp(eAri) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", eAri.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    if (ansem.gestExp(eAri2) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", eAri2.getLinea(), Fase.SEMÁNTICO));
+                    }
                     RESULT = new Exp(eAri, op, eAri2, eArileft, eAriright);
                 
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("ECOMP",32, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
@@ -1705,7 +1721,19 @@ class CUP$Parser$actions {
 		int expleft = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).left;
 		int expright = ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()).right;
 		Exp exp = (Exp)((java_cup.runtime.Symbol) CUP$Parser$stack.peek()).value;
-		 RESULT = new Exp(value, op, exp, valueleft, valueright);                     
+		
+                    if (ansem.gestValue(value) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una valor de tipo entero", value.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    if (ansem.gestExp(exp) != EnumType.ENTERO) {
+                        // MANEJO DE ERRORES SEMANTICOS
+                        // Solo se pueden comparar enteros
+                        ErrorC.añadirError(new ErrorC("Se esperaba una expresión de tipo entero", exp.getLinea(), Fase.SEMÁNTICO));
+                    }
+                    RESULT = new Exp(value, op, exp, valueleft, valueright);
+                
               CUP$Parser$result = parser.getSymbolFactory().newSymbol("EARI",33, ((java_cup.runtime.Symbol)CUP$Parser$stack.elementAt(CUP$Parser$top-2)), ((java_cup.runtime.Symbol)CUP$Parser$stack.peek()), RESULT);
             }
           return CUP$Parser$result;

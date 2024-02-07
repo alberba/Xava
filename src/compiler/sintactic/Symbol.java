@@ -10,16 +10,14 @@ public class Symbol {
     private final EnumType tipoReturn;
     private final ArrayList<Integer> dimensiones;
     private final boolean esConst;
-    private final int line;
 
     public Symbol(String nom, TipoElemento tipo, EnumType tipoReturn,
-                  ArrayList<Integer> dimensiones, boolean esConst, int line) {
+                  ArrayList<Integer> dimensiones, boolean esConst) {
         this.nom = nom;
         this.tipo = tipo;
         this.tipoReturn = tipoReturn;
         this.dimensiones = dimensiones;
         this.esConst = esConst;
-        this.line = line;
     }
 
 
@@ -58,7 +56,7 @@ public class Symbol {
     public String toString() {
         return "Symbol [nom=" + nom + ", tipo=" + tipo + ", tipoReturn="
                 + tipoReturn + ", dimensiones=" + dimensiones + ", esConst=" + esConst
-                + ", line=" + line + "]";
+                + "]";
     }
 
 }

@@ -18,12 +18,6 @@ import java.util.ArrayList;
 
 class Parser;
 parser code {:
-/***
-    private Scanner scanner;
-    public Parser(Scanner scanner) {
-        this.scanner = scanner;
-    }
-***/
 
     private Xava xava;
     private ComplexSymbolFactory csf = new ComplexSymbolFactory();
@@ -46,6 +40,7 @@ parser code {:
         ErrorC.añadirError(new ErrorC(message, cs.getLeft().getLine(), cs.getLeft().getColumn(), Fase.SINTÁCTICO));
     }
 
+    // Busca cuales son los tokens esperados
     private String showExpectedTokenIds() {
         List<String> list = this.expected_token_ids().stream().map(this::symbl_name_from_id).toList();
         return (!list.isEmpty()) ? list.toString() : "something else";
@@ -60,12 +55,7 @@ parser code {:
     }
 
 
-    /**
-     * Ignore fatal errors
-     *
-     * @param message
-     * @param info
-     */
+    // Ignoramos los errores de JavaCup que no nos interesan para nuestro compilador
     @Override
     public void report_fatal_error(String message, Object info) {}
 
@@ -150,7 +140,7 @@ DECLSF          ::= DECLF:declf DECLSF:declsf                                   
                 ;
 
 DECLF           ::= M FUNCION ETYPE:eType ID:id ARGS_DECLF:args_declf P_COMA
-                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true, idleft))) {
+                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.FUNCION, eType, null, true))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la función ha sido declarada anteriormente o el nombre de la función ya está usada
                             ErrorC.añadirError(new ErrorC("Función " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -172,7 +162,7 @@ ARGS_DECLF      ::= PAR_A L_ARGS_DECLF:args PAR_C
                 ;
 
 L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
-                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, idleft))) {
+                    {:  if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -181,7 +171,7 @@ L_ARGS_DECLF    ::= STYPE:stype ID:id COMA L_ARGS_DECLF:args
                     :}
                 |   STYPE:stype ID:id
                     {:
-                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false, idleft))) {
+                        if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.PARAMETRO, stype, null, false))) {
                             // MANEJO DE ERRORES SEMANTICOS
                             // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                             ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));
@@ -210,7 +200,11 @@ FUNCIONG        ::= FUNCION CAP:cap LLAVE_A FSENTS:f_sents LLAVE_C
 
 CAP             ::= ETYPE:etype ID:id ARGS_CAP:args_cap
                     {:
-                        tSimbolos.updatenActual(id);
+                        try {
+                            tSimbolos.updatenActual(id);
+                        } catch (IndexOutOfBoundsException e){
+                            // El error se manejará posteriormente
+                        }
                         RESULT = new Cap(etype, id, args_cap, etypeleft, etyperight);
                     :}
                 ;
@@ -265,7 +259,7 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                             }
                         }
                         for (Lid aux = lid; aux != null; aux = aux.getLid()) {
-                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante(), lidleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(aux.getId(), TipoElemento.VARIABLE, type.getStype(), null, type.getConstante()))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable declarada previamente", aux.getLinea(), Fase.SEMÁNTICO));
@@ -283,7 +277,7 @@ DECL            ::= TYPE:type LID:lid DASIGNACION:d_asignacion P_COMA
                                 dimensiones.add(aux.getNum());
                             }
 
-                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), dimensiones, false, idleft))) {
+                            if (!tSimbolos.ponerSymbol(new Symbol(id, TipoElemento.ARRAY, type.getStype(), dimensiones, false))) {
                                 // MANEJO DE ERRORES SEMANTICOS
                                 // O la variable ha sido declarada anteriormente o el nombre de la variable ya está usada
                                 ErrorC.añadirError(new ErrorC("Variable " + id + "declarada previamente", idleft, Fase.SEMÁNTICO));

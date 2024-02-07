@@ -13,7 +13,9 @@ public class AnSem {
     }
 
     /**
-     * Comprueba que la Expresión sea correcta y devuelve el tipo de la expresión
+     * Comprueba que la Expresión sea correcta y devuelve el tipo de la expresión. Sirve para
+     * cualquier tipo de expresion
+     *
      * @param exp Expresión a comprobar
      * @return Tipo de la expresión resultante
      */
@@ -23,8 +25,12 @@ public class AnSem {
         if (exp.isEsNot()) {
             return gestExp(exp.getExp1());
         }
+
+        // Gestión de la expresión aritmética
         if (exp.getValue() != null) {
             if (exp.getOp() == null) {
+                // Check del value
+                // Se devuelve el tipo, ya que se trata de una expresión simple
                 return gestValue(exp.getValue());
             } else {
                 // Check del value
@@ -85,10 +91,11 @@ public class AnSem {
 
     /**
      * Comprueba que el Value sea correcto y devuelve el tipo de la expresión
+     *
      * @param value Value a comprobar
      * @return Tipo subyacente básico del value
      */
-    private EnumType gestValue(Value value) {
+    public EnumType gestValue(Value value) {
         switch (value.getTipo()) {
             case "Ent":
                 return EnumType.ENTERO;
@@ -158,10 +165,11 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba que si existe el simbolo correspondiente al array
+     * Función que comprueba existe el simbolo correspondiente al array
      * y si los valores de indexación presentan coherencia con la declaración
      * (que se encuentre dentro del rango permitido).
-     * @param linea Linea del código donde se encuentra el array
+     * @param array Array a comprobar
+     * @param linea Línea del código donde se encuentra el array
      */
     public void gestArray(ArrayG array, int linea) {
         Symbol symbol = ts.getSymbol(array.getId());
@@ -192,7 +200,9 @@ public class AnSem {
     }
 
     /**
-     * Función que comprueba si la expresión del return de la función concide con el tipo de la función
+     * Función que comprueba si la expresión del return de la función
+     * concide con el tipo de la función
+     *
      * @param retProc Objeto de la clase RetProc
      */
     public void gestReturnFunc(RetProc retProc) {
@@ -208,7 +218,8 @@ public class AnSem {
     }
 
     /**
-     * Comprueba si en el caso de que la Función sea una función no vacía, que haya un return al final de la función
+     * Comprueba si en el caso de que la Función sea una función no vacía,
+     * que haya un return al final de la función
      *
      * @param fsents conjunto de sentencias de la función
      */
@@ -225,8 +236,8 @@ public class AnSem {
     }
 
     /**
-     * Comprueba a partir del encabezado de una función si esta existe y si los parámetros son correctos,
-     * devuelve true si es el caso, false en caso contrario.
+     * Comprueba a partir del encabezado de una función si esta existe y
+     * si los parámetros son correctos
      *
      * @param cap Cap de la función para obtener el ID de la función y de los parámetros
      * @return true si la función existe y los parámetros son correctos, false en caso contrario
@@ -254,6 +265,7 @@ public class AnSem {
     /**
      * Función que verifica si los argumentos que se le pasan son correctos.
      * Se habrá verificado de antemano que el número de parametros coincida.
+     *
      * @param args_call Argumentos de la llamada a la función
      * @param id ID de la función
      */

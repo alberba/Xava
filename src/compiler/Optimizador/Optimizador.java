@@ -18,6 +18,7 @@ public class Optimizador {
 
     public Optimizador(Intermedio intermedio) {
         this.intermedio = intermedio;
+        this.expDisponible = new AnExpDisponible(intermedio);
     }
 
     public Intermedio optimizarIntermedio() {
@@ -27,7 +28,7 @@ public class Optimizador {
             eliminarCodigoMuerto();
         }
         eliminarVariablesnoUsadas();
-        expDisponibles2();
+        //expDisponibles2();
         return intermedio;
 
     }
@@ -494,9 +495,8 @@ public class Optimizador {
 
 
     private void expDisponibles2(){
-        this.expDisponible = new AnExpDisponible(intermedio);
         expDisponible.Fase1();
         expDisponible.Fase2();
-        System.out.println("Matadme por favor");
+        expDisponible.UsoExpDisponibles();
     }
 }
